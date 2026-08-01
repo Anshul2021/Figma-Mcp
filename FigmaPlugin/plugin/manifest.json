@@ -1,0 +1,8 @@
+{
+  "name": "Figma Script Runner",
+  "id": "figma-script-runner-mvp",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"]
+}
