@@ -1,7 +1,7 @@
-// Open the UI Panel
-figma.showUI(__html__, { width: 320, height: 450 });
+// Open the UI Panel in Figma
+figma.showUI(__html__, { width: 340, height: 480 });
 
-// Listen to messages from the UI
+// Listen for messages from the plugin UI frame
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'run-script') {
     const scriptName = msg.scriptName;
@@ -9,21 +9,41 @@ figma.ui.onmessage = async (msg) => {
   } 
   else if (msg.type === 'eval-code') {
     try {
-      // 1. Automatic Canvas Clean-Up
-      // Find and remove any existing frame named "Board" on the current page to prevent stack duplication
-      const existingBoard = figma.currentPage.findChild(node => node.name === "Board");
+      figma.notify("🎨 Generating UI screens...", { timeout: 1500 });
+
+      // Clean up previous generated board if exists
+      const existingBoard = figma.currentPage.findChild(node => node.name === "Generated UI Screens");
       if (existingBoard) {
         existingBoard.remove();
       }
 
-      // 2. Execute new script dynamically
-      const runFn = new Function('figma', msg.code);
-      runFn(figma);
+      // Pre-load default Poppins fonts asynchronously
+      try {
+        await figma.loadFontAsync({ family: "Poppins", style: "Regular" });
+        await figma.loadFontAsync({ family: "Poppins", style: "Medium" });
+        await figma.loadFontAsync({ family: "Poppins", style: "Bold" });
+      } catch (fontErr) {
+        console.warn("Default font pre-load notice:", fontErr);
+      }
+
+      // Use AsyncFunction so generated script can use await
+      const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+      const runFn = new AsyncFunction('figma', msg.code);
       
-      figma.notify(`Updated: ${msg.scriptName}`, { timeout: 1000 });
+      await runFn(figma);
+      
+      // Auto-focus on generated content
+      const generatedBoard = figma.currentPage.findChild(node => node.name === "Generated UI Screens");
+      if (generatedBoard) {
+        figma.viewport.scrollAndZoomIntoView([generatedBoard]);
+      }
+
+      figma.notify(`✨ Successfully created screens! (${msg.scriptName || 'Dynamic Script'})`, { timeout: 2500 });
+      figma.ui.postMessage({ type: 'execution-status', status: 'success', scriptName: msg.scriptName });
     } catch (err) {
-      console.error(err);
-      figma.notify(`Execution error: ${err.message}`, { error: true });
+      console.error("Execution Error:", err);
+      figma.notify(`❌ Execution Error: ${err.message}`, { error: true, timeout: 4000 });
+      figma.ui.postMessage({ type: 'execution-status', status: 'error', error: err.message, scriptName: msg.scriptName });
     }
   }
 };

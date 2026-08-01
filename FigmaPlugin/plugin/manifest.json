@@ -1,6 +1,6 @@
 {
-  "name": "Figma Script Runner",
-  "id": "figma-script-runner-mvp",
+  "name": "Figma AI Screen Generator",
+  "id": "figma-ai-screen-generator",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",

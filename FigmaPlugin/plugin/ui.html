@@ -3,160 +3,167 @@
 <head>
   <meta charset="utf-8">
   <style>
+    :root {
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --border: #334155;
+      --primary: #6366F1;
+      --primary-hover: #4F46E5;
+      --accent: #10B981;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --danger: #EF4444;
+    }
+
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       margin: 0;
       padding: 16px;
-      background: #F8F7F6;
-      color: #1F1A1B;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       height: 100vh;
       box-sizing: border-box;
+      user-select: none;
     }
-    
-    h2 {
-      font-size: 15px;
-      margin: 0 0 14px 0;
-      font-weight: 700;
-      color: #7A1C2E;
+
+    .header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .refresh-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #B88E96;
-      font-size: 18px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      transition: color 0.2s, background 0.2s;
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .refresh-btn:hover {
-      color: #7A1C2E;
-      background: #FCEEF0;
-    }
-
-    .active-info {
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       font-size: 11px;
-      background: #FCEEF0;
-      color: #7A1C2E;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      border: 1px dashed #EAD5D8;
-      font-weight: 500;
-      display: none;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
     }
 
-    .scripts-list {
+    .badge.offline {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .status-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .active-script-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    .log-box {
       flex: 1;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Fira Code', monospace, monospace;
+      font-size: 11px;
+      color: var(--text-muted);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      margin-bottom: 14px;
     }
 
-    .script-item {
-      background: white;
-      border: 1px solid #EAD5D8;
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+    .log-item {
+      line-height: 1.4;
     }
+    .log-item.success { color: #34D399; }
+    .log-item.error { color: #F87171; }
+    .log-item.info { color: #818CF8; }
 
-    .script-item.active {
-      border-color: #7A1C2E;
-      background: #FFFDFD;
-    }
-
-    .script-item:hover {
-      border-color: #7A1C2E;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(122, 28, 46, 0.05);
-    }
-
-    .script-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: #332A2B;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 170px;
-    }
-
-    .status-badge {
-      font-size: 10px;
-      color: #27AE60;
-      font-weight: bold;
-      display: none;
-    }
-
-    .script-item.active .status-badge {
-      display: inline;
-    }
-
-    .run-btn {
-      background: #7A1C2E;
+    .btn {
+      width: 100%;
+      background: var(--primary);
       color: white;
       border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 11px;
-      font-weight: 700;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
       cursor: pointer;
       transition: background 0.2s;
     }
 
-    .run-btn:hover {
-      background: #5A111F;
-    }
-
-    .script-item.active .run-btn {
-      background: #EAD5D8;
-      color: #7A1C2E;
+    .btn:hover {
+      background: var(--primary-hover);
     }
 
     .footer {
-      font-size: 9px;
-      color: #A39295;
+      font-size: 10px;
+      color: var(--text-muted);
       text-align: center;
-      margin-top: auto;
-      border-top: 1px solid #EAD5D8;
-      padding-top: 10px;
-    }
-
-    .empty-state {
-      font-size: 12px;
-      color: #A39295;
-      text-align: center;
-      padding: 36px 10px;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <h2>
-    <span>Figma Script Runner</span>
-    <button class="refresh-btn" id="refresh" title="Refresh scripts list">↻</button>
-  </h2>
-  
-  <div class="active-info" id="activeInfo">
-    🔥 Auto-running active: <strong id="activeScriptName">None</strong>
+  <div class="header">
+    <div class="title">
+      <span>🎨 Figma AI Generator</span>
+    </div>
+    <div id="connectionBadge" class="badge offline">
+      <span class="dot"></span>
+      <span id="connectionText">Connecting...</span>
+    </div>
   </div>
 
-  <div class="scripts-list" id="list">
-    <div class="empty-state">Connecting to server...</div>
+  <div class="status-card">
+    <div class="status-title">Active Sync Status</div>
+    <div class="active-script-name" id="activeStatus">Waiting for prompts from Web Platform...</div>
   </div>
+
+  <div class="log-box" id="logBox">
+    <div class="log-item info">⚡ Listener ready. Open Web Platform at http://localhost:3003</div>
+  </div>
+
+  <button class="btn" id="runLatestBtn">Execute Latest Script</button>
 
   <div class="footer">
     Connected to Local Dev Server (Port 3003)
@@ -164,126 +171,98 @@
 
   <script>
     const serverUrl = 'http://localhost:3003';
-    const listEl = document.getElementById('list');
-    const activeInfo = document.getElementById('activeInfo');
-    const activeScriptName = document.getElementById('activeScriptName');
-    let activeScript = null;
+    const connectionBadge = document.getElementById('connectionBadge');
+    const connectionText = document.getElementById('connectionText');
+    const activeStatus = document.getElementById('activeStatus');
+    const logBox = document.getElementById('logBox');
+    const runLatestBtn = document.getElementById('runLatestBtn');
+    
+    let lastScriptName = 'latest_generated.js';
 
-    async function loadScripts() {
-      try {
-        const response = await fetch(`${serverUrl}/api/scripts`);
-        const data = await response.json();
-        
-        if (!data.scripts || data.scripts.length === 0) {
-          listEl.innerHTML = '<div class="empty-state">No .js scripts found in figma-hot-reload/scripts/</div>';
-          return;
-        }
+    function addLog(msg, type = 'info') {
+      const item = document.createElement('div');
+      item.className = `log-item ${type}`;
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      item.textContent = `[${time}] ${msg}`;
+      logBox.appendChild(item);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
 
-        listEl.innerHTML = '';
-        data.scripts.forEach(script => {
-          const item = document.createElement('div');
-          item.className = 'script-item';
-          if (activeScript === script) {
-            item.classList.add('active');
-          }
-          
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'script-name';
-          nameSpan.textContent = script;
-          
-          const statusSpan = document.createElement('span');
-          statusSpan.className = 'status-badge';
-          statusSpan.textContent = '● Watching ';
-
-          const button = document.createElement('button');
-          button.className = 'run-btn';
-          button.textContent = activeScript === script ? 'Run Again' : 'Watch & Run';
-          
-          button.onclick = (e) => {
-            e.stopPropagation();
-            selectScript(script);
-          };
-
-          item.onclick = () => {
-            selectScript(script);
-          };
-
-          const rightContainer = document.createElement('div');
-          rightContainer.style.display = 'flex';
-          rightContainer.style.alignItems = 'center';
-          rightContainer.style.gap = '8px';
-          rightContainer.appendChild(statusSpan);
-          rightContainer.appendChild(button);
-
-          item.appendChild(nameSpan);
-          item.appendChild(rightContainer);
-          listEl.appendChild(item);
-        });
-      } catch (err) {
-        listEl.innerHTML = `
-          <div class="empty-state" style="color: #7A1C2E; font-weight: 600;">
-            Offline
-            <div style="font-weight: 400; font-size: 11px; margin-top: 6px; color: #A39295;">
-              Start the Node server from your terminal:
-              <br><code style="background: #FCEEF0; padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 4px;">node server.js</code>
-            </div>
-          </div>`;
+    function setConnected(isConnected) {
+      if (isConnected) {
+        connectionBadge.className = 'badge';
+        connectionText.textContent = 'Connected';
+      } else {
+        connectionBadge.className = 'badge offline';
+        connectionText.textContent = 'Disconnected';
       }
     }
 
-    function selectScript(scriptName) {
-      activeScript = scriptName;
-      activeScriptName.textContent = scriptName;
-      activeInfo.style.display = 'block';
-      
-      // Update UI list state
-      document.querySelectorAll('.script-item').forEach(el => {
-        const isCurrent = el.querySelector('.script-name').textContent === scriptName;
-        el.classList.toggle('active', isCurrent);
-        el.querySelector('.run-btn').textContent = isCurrent ? 'Run Again' : 'Watch & Run';
-      });
-
-      // Trigger first execution
-      parent.postMessage({ pluginMessage: { type: 'run-script', scriptName } }, '*');
-    }
-
-    // Connect Server-Sent Events (SSE) for live reload triggers
+    // Connect Server-Sent Events (SSE) for automatic triggers
     function setupSSE() {
       const eventSource = new EventSource(`${serverUrl}/api/watch`);
       
+      eventSource.onopen = () => {
+        setConnected(true);
+        addLog('Connected to Web Platform bridge', 'success');
+      };
+
       eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.event === 'change' && activeScript === data.filename) {
-          console.log(`File change detected: ${data.filename}. Auto-running...`);
-          parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: activeScript } }, '*');
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === 'change' || data.event === 'run-generated') {
+            const filename = data.filename || 'latest_generated.js';
+            lastScriptName = filename;
+            activeStatus.textContent = `⚡ Received update: ${filename}`;
+            addLog(`Executing generated script: ${filename}`, 'info');
+            
+            // Request code fetch and evaluation
+            parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: filename } }, '*');
+          }
+        } catch (e) {
+          console.error("SSE parse error", e);
         }
       };
 
       eventSource.onerror = () => {
+        setConnected(false);
         eventSource.close();
-        setTimeout(setupSSE, 2000); // Attempt to reconnect
+        setTimeout(setupSSE, 3000); // Reconnect loop
       };
     }
 
-    document.getElementById('refresh').addEventListener('click', loadScripts);
+    runLatestBtn.addEventListener('click', () => {
+      addLog(`Manually re-running ${lastScriptName}...`, 'info');
+      parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: lastScriptName } }, '*');
+    });
 
-    // Initial load
-    loadScripts();
-    setupSSE();
-
-    // Listen to messages from code.js
+    // Listen to messages from code.js in main thread
     window.onmessage = async (event) => {
-      const msg = event.data.pluginMessage;
-      if (msg && msg.type === 'fetch-and-eval') {
+      const msg = event.data ? event.data.pluginMessage : null;
+      if (!msg) return;
+
+      if (msg.type === 'fetch-and-eval') {
         try {
           const res = await fetch(`${serverUrl}/api/scripts/${encodeURIComponent(msg.scriptName)}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const code = await res.text();
           parent.postMessage({ pluginMessage: { type: 'eval-code', scriptName: msg.scriptName, code } }, '*');
         } catch (e) {
-          console.error("Error fetching code:", e);
+          addLog(`Failed to fetch script: ${e.message}`, 'error');
+        }
+      } else if (msg.type === 'execution-status') {
+        if (msg.status === 'success') {
+          addLog(`✅ UI created successfully on Figma canvas!`, 'success');
+          activeStatus.textContent = `✅ Ready for next prompt`;
+        } else {
+          addLog(`❌ Execution failed: ${msg.error}`, 'error');
+          activeStatus.textContent = `❌ Execution Error`;
         }
       }
     };
+
+    // Initialize
+    setupSSE();
   </script>
 </body>
 </html>
