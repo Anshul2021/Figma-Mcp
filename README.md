@@ -24,32 +24,44 @@ The server runs on `http://localhost:3003` and watches for generated script chan
 
 ### 3. Generate a Screen
 
-The AI agent generates a `.js` script, writes it to the `scripts/` folder, and the plugin auto-executes it on your Figma canvas.
+The AI agent generates a `.js` script, writes it to `FigmaPlugin/<Project_Name>/screens/<screen_name>.js`, and the plugin auto-executes it live on your Figma canvas.
+
+---
+
+## 🤖 AI Agent Self-Contained Architecture
+
+This repository uses [`AGENTS.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/AGENTS.md) and [`.agents/skills/`](file:///Users/fwcuser/Desktop/Figma-Mcp/.agents/skills/figma-screen-generator/SKILL.md) as master directives.
+Any AI agent or new conversation session opening this repository will **automatically read these directives** and know how to scaffold projects (`@newproject`), follow Auto Layout rules, use lightweight vector icons, and generate screens without needing prior chat context!
 
 ---
 
 ## Project Structure
 
 ```
-FigmaPlugin/
-├── plugin/                  Figma plugin (code.js, ui.html, manifest.json)
-├── server.js                Bridge server (SSE watcher + script serving)
-├── scripts/                 Default output for generated scripts
+Figma-Mcp/
+├── AGENTS.md                Master AI Directive Document (Self-contained context)
+├── README.md                Quickstart & setup guide
+├── architecture.md          Repository directory structure
+├── example.md               Prompt examples & copy-paste templates
 │
-├── core/                    System Rules (do not edit)
-│   ├── instruction.md       Iconography, images, grid, API rules, naming
-│   ├── command.md           All @ commands reference
-│   └── autolayout.md        Auto Layout execution protocol
-│
-├── global/                  Default Design Tokens (edit to change defaults)
-│   ├── fonts.md             Typography system (DM Sans)
-│   ├── colors.md            Color token system
-│   ├── taste.md             Visual style preferences
-│   └── brief.md             Default project brief (375x812 iOS)
-│
-└── <ProjectName>/           Per-project folders (created via @newproject)
-    ├── screens/             Generated .js screen files
-    └── local/               Project-specific overrides
+└── FigmaPlugin/
+    ├── plugin/              Figma plugin (code.js, ui.html, manifest.json)
+    ├── server.js            Bridge server (SSE watcher + dynamic API)
+    │
+    ├── core/                System Rules (do not edit)
+    │   ├── instruction.md   Iconography, SVG validation, grid, API rules
+    │   ├── command.md       All @ commands reference
+    │   └── autolayout.md    Auto Layout execution protocol & anti-patterns
+    │
+    ├── global/              Default Design Tokens
+    │   ├── fonts.md         Typography system (DM Sans, even scale only)
+    │   ├── colors.md        Color token system
+    │   ├── taste.md         Visual style preferences
+    │   └── brief.md         Default project brief (375x812 iOS)
+    │
+    └── <ProjectName>/       Per-project folders (created via @newproject)
+        ├── screens/         Generated .js screen files
+        └── local/           Project-specific local overrides
         ├── fonts.md
         ├── colors.md
         ├── taste.md
