@@ -73,7 +73,7 @@ row.counterAxisSizingMode = "AUTO";   // HUG height ✓ (nothing overwrites it)
 
 ---
 
-## 2. The 5 Anti-Patterns (NEVER DO THESE)
+## 2. The 6 Anti-Patterns (NEVER DO THESE)
 
 ### ❌ Anti-Pattern #1: Calling `resize()` AFTER Setting HUG Mode
 ```javascript

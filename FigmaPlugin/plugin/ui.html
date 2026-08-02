@@ -2,171 +2,582 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0F172A;
-      --card-bg: #1E293B;
-      --border: #334155;
-      --primary: #6366F1;
-      --primary-hover: #4F46E5;
-      --accent: #10B981;
-      --text: #F8FAFC;
-      --text-muted: #94A3B8;
-      --danger: #EF4444;
+      --bg: #FAFBFC;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --border-light: #F3F4F6;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: rgba(37, 99, 235, 0.08);
+      --success: #059669;
+      --success-soft: rgba(5, 150, 105, 0.08);
+      --error: #DC2626;
+      --error-soft: rgba(220, 38, 38, 0.08);
+      --text: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+      --radius: 10px;
+      --radius-sm: 6px;
     }
 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 16px;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       display: flex;
       flex-direction: column;
       height: 100vh;
-      box-sizing: border-box;
+      padding: 12px;
       user-select: none;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
     }
 
+    /* ── Header ── */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
     }
 
-    .title {
-      font-size: 14px;
-      font-weight: 700;
+    .header-title {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
     }
 
-    .badge {
-      display: inline-flex;
+    .header-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .header-controls {
+      display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* ── Size Presets (Window Resizer) ── */
+    .size-picker {
+      display: flex;
+      align-items: center;
+      background: var(--border-light);
+      padding: 2px;
+      border-radius: 6px;
+      gap: 2px;
+    }
+
+    .size-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .size-btn.active, .size-btn:hover {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
       font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
     }
 
-    .badge.offline {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border-color: rgba(239, 68, 68, 0.3);
+    .connection-badge.online {
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid rgba(5, 150, 105, 0.2);
     }
 
-    .dot {
+    .connection-badge.offline {
+      background: var(--error-soft);
+      color: var(--error);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .status-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: currentColor;
     }
 
+    /* ── Status Card ── */
     .status-card {
-      background: var(--card-bg);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 14px;
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .status-title {
-      font-size: 12px;
+    .status-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .status-value {
+      font-size: 11px;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text);
+      word-break: break-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Navigation Tabs ── */
+    .tab-bar {
+      display: flex;
+      background: var(--border-light);
+      padding: 3px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Tab Content Panels ── */
+    .tab-panel {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* ── Search Bar Filter Controls ── */
+    .search-box-container {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 7px 28px 7px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-soft);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+
+    .clear-search-btn:hover {
+      color: var(--text);
+    }
+
+    /* ── Screens / Scripts Tab List ── */
+    .screens-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 6px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .active-script-name {
-      font-size: 13px;
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+    }
+
+    .screens-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 2px;
+    }
+
+    .project-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .project-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .screen-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .screen-item:hover {
+      border-color: var(--border);
+      background: #FFFFFF;
+    }
+
+    .screen-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .screen-title {
+      font-size: 11px;
       font-weight: 600;
       color: var(--text);
       word-break: break-all;
     }
 
-    .log-box {
-      flex: 1;
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      font-family: 'Fira Code', monospace, monospace;
-      font-size: 11px;
-      color: var(--text-muted);
-      overflow-y: auto;
+    .action-group {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 14px;
+      align-items: center;
+      gap: 4px;
     }
 
-    .log-item {
-      line-height: 1.4;
-    }
-    .log-item.success { color: #34D399; }
-    .log-item.error { color: #F87171; }
-    .log-item.info { color: #818CF8; }
-
-    .btn {
-      width: 100%;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 12px;
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.15s ease;
     }
 
-    .btn:hover {
+    .btn-action:hover {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .btn-action.play {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .btn-action.play:hover {
       background: var(--primary-hover);
     }
 
-    .footer {
+    .btn-action svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ── Log Box ── */
+    .log-box {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      overflow-y: auto;
+      font-family: monospace;
       font-size: 10px;
-      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .log-entry {
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border-light);
+    }
+
+    .log-entry.info { color: var(--text); }
+    .log-entry.success { color: var(--success); font-weight: 600; }
+    .log-entry.error { color: var(--error); font-weight: 600; }
+
+    .log-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .clear-btn {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .clear-btn:hover {
+      color: var(--error);
+    }
+
+    .empty-state {
+      padding: 24px 12px;
       text-align: center;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    /* ── Footer ── */
+    .footer {
       margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-tertiary);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <div class="title">
-      <span>🎨 Figma AI Generator</span>
+    <div class="header-title">
+      <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"/>
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+      <span>Figma AI Screen Generator</span>
     </div>
-    <div id="connectionBadge" class="badge offline">
-      <span class="dot"></span>
-      <span id="connectionText">Connecting...</span>
+    <div class="header-controls">
+      <!-- Window Size Presets -->
+      <div class="size-picker" title="Resize Plugin Panel">
+        <button class="size-btn" data-w="340" data-h="480">S</button>
+        <button class="size-btn active" data-w="380" data-h="560">M</button>
+        <button class="size-btn" data-w="460" data-h="650">L</button>
+      </div>
+
+      <div id="connectionBadge" class="connection-badge offline">
+        <span class="status-dot"></span>
+        <span id="connectionText">Connecting</span>
+      </div>
     </div>
   </div>
 
+  <!-- Status Card -->
   <div class="status-card">
-    <div class="status-title">Active Sync Status</div>
-    <div class="active-script-name" id="activeStatus">Waiting for prompts from Web Platform...</div>
+    <div class="status-label">Sync Status</div>
+    <div class="status-value" id="activeStatus">Ready for commands</div>
   </div>
 
-  <div class="log-box" id="logBox">
-    <div class="log-item info">⚡ Listener ready. Open Web Platform at http://localhost:3003</div>
+  <!-- Navigation Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabScreensBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="7" x="3" y="3" rx="1"/>
+        <rect width="7" height="7" x="14" y="3" rx="1"/>
+        <rect width="7" height="7" x="14" y="14" rx="1"/>
+        <rect width="7" height="7" x="3" y="14" rx="1"/>
+      </svg>
+      Screens & Scripts
+    </button>
+    <button class="tab-btn" id="tabLogsBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 12H3"/>
+        <path d="M16 6H3"/>
+        <path d="M12 18H3"/>
+        <path d="m16 12 5 3-5 3v-6Z"/>
+      </svg>
+      Activity Log
+    </button>
   </div>
 
-  <button class="btn" id="runLatestBtn">Execute Latest Script</button>
+  <!-- Panel 1: Screens & Scripts Manager -->
+  <div class="tab-panel active" id="panelScreens">
+    <!-- Search Bar -->
+    <div class="search-box-container">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search screen scripts (e.g. cart, detail)..." autocomplete="off" />
+      <button class="clear-search-btn" id="clearSearchBtn" title="Clear search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="m15 9-6 6"/>
+          <path d="m9 9 6 6"/>
+        </svg>
+      </button>
+    </div>
 
+    <div class="screens-header">
+      <div class="section-title">Project Screen Scripts</div>
+      <button class="refresh-btn" id="refreshScreensBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 16h5v5"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <div class="screens-list" id="screensList">
+      <div class="empty-state">
+        <span>Loading project screens...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 2: Activity Log -->
+  <div class="tab-panel" id="panelLogs">
+    <div class="log-header-bar">
+      <div class="section-title">Execution Log</div>
+      <button class="clear-btn" id="clearLogBtn">Clear Log</button>
+    </div>
+    <div class="log-box" id="logBox">
+      <div class="empty-state" id="logEmpty">
+        <span>No execution activity yet</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
   <div class="footer">
-    Connected to Local Dev Server (Port 3003)
+    <div class="footer-left">
+      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"/>
+        <path d="M2 20h20"/>
+      </svg>
+      Bridge Server Port 3003
+    </div>
+    <div id="itemCountLabel">0 Screens Loaded</div>
   </div>
 
   <script>
@@ -175,68 +586,234 @@
     const connectionText = document.getElementById('connectionText');
     const activeStatus = document.getElementById('activeStatus');
     const logBox = document.getElementById('logBox');
-    const runLatestBtn = document.getElementById('runLatestBtn');
+    const logEmpty = document.getElementById('logEmpty');
+    const clearLogBtn = document.getElementById('clearLogBtn');
     
-    let lastScriptName = 'latest_generated.js';
+    const tabScreensBtn = document.getElementById('tabScreensBtn');
+    const tabLogsBtn = document.getElementById('tabLogsBtn');
+    const panelScreens = document.getElementById('panelScreens');
+    const panelLogs = document.getElementById('panelLogs');
+    const screensList = document.getElementById('screensList');
+    const refreshScreensBtn = document.getElementById('refreshScreensBtn');
 
-    function addLog(msg, type = 'info') {
-      const item = document.createElement('div');
-      item.className = `log-item ${type}`;
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      item.textContent = `[${time}] ${msg}`;
-      logBox.appendChild(item);
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const itemCountLabel = document.getElementById('itemCountLabel');
+
+    let currentScript = '';
+    let rawProjectsData = [];
+
+    // Window Size Preset Buttons
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const w = parseInt(btn.getAttribute('data-w'), 10);
+        const h = parseInt(btn.getAttribute('data-h'), 10);
+        parent.postMessage({
+          pluginMessage: { type: 'resize-window', width: w, height: h }
+        }, '*');
+      });
+    });
+
+    // Tab Navigation Switcher
+    tabScreensBtn.addEventListener('click', () => {
+      tabScreensBtn.classList.add('active');
+      tabLogsBtn.classList.remove('active');
+      panelScreens.classList.add('active');
+      panelLogs.classList.remove('active');
+    });
+
+    tabLogsBtn.addEventListener('click', () => {
+      tabLogsBtn.classList.add('active');
+      tabScreensBtn.classList.remove('active');
+      panelLogs.classList.add('active');
+      panelScreens.classList.remove('active');
+    });
+
+    // Search Input Listener
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      clearSearchBtn.style.display = query.length > 0 ? 'block' : 'none';
+      renderFilteredProjects(query);
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearSearchBtn.style.display = 'none';
+      renderFilteredProjects('');
+      searchInput.focus();
+    });
+
+    // Add Log Entry
+    function addLog(message, type = 'info') {
+      if (logEmpty) logEmpty.style.display = 'none';
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      entry.textContent = `[${timeStr}] ${message}`;
+      logBox.appendChild(entry);
       logBox.scrollTop = logBox.scrollHeight;
     }
 
+    clearLogBtn.addEventListener('click', () => {
+      logBox.innerHTML = '';
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.id = 'logEmpty';
+      empty.textContent = 'No execution activity yet';
+      logBox.appendChild(empty);
+    });
+
     function setConnected(isConnected) {
       if (isConnected) {
-        connectionBadge.className = 'badge';
+        connectionBadge.className = 'connection-badge online';
         connectionText.textContent = 'Connected';
       } else {
-        connectionBadge.className = 'badge offline';
+        connectionBadge.className = 'connection-badge offline';
         connectionText.textContent = 'Disconnected';
       }
     }
 
-    // Connect Server-Sent Events (SSE) for automatic triggers
+    // Run specific script file via code.js
+    function executeScript(scriptPath) {
+      currentScript = scriptPath;
+      activeStatus.textContent = `Executing: ${scriptPath}`;
+      addLog(`Requesting execution: ${scriptPath}`, 'info');
+      parent.postMessage({
+        pluginMessage: { type: 'run-script', scriptName: scriptPath }
+      }, '*');
+    }
+
+    // Render projects based on search query
+    function renderFilteredProjects(filterQuery = '') {
+      screensList.innerHTML = '';
+      if (!rawProjectsData || rawProjectsData.length === 0) {
+        screensList.innerHTML = '<div class="empty-state">No project screen scripts found</div>';
+        itemCountLabel.textContent = '0 Screens Loaded';
+        return;
+      }
+
+      let totalScreenCount = 0;
+      let matchedScreenCount = 0;
+
+      rawProjectsData.forEach(proj => {
+        totalScreenCount += proj.screens.length;
+        const matchingScreens = proj.screens.filter(screen => {
+          if (!filterQuery) return true;
+          return screen.toLowerCase().includes(filterQuery) || proj.name.toLowerCase().includes(filterQuery);
+        });
+
+        if (matchingScreens.length === 0) return;
+
+        matchedScreenCount += matchingScreens.length;
+
+        const group = document.createElement('div');
+        group.className = 'project-group';
+
+        const projTitle = document.createElement('div');
+        projTitle.className = 'project-name';
+        projTitle.textContent = `${proj.name} (${matchingScreens.length})`;
+        group.appendChild(projTitle);
+
+        matchingScreens.forEach(screen => {
+          const scriptRelPath = `${proj.name}/screens/${screen}`;
+          const item = document.createElement('div');
+          item.className = 'screen-item';
+
+          const title = document.createElement('span');
+          title.className = 'screen-title';
+          title.textContent = screen;
+
+          const actionGroup = document.createElement('div');
+          actionGroup.className = 'action-group';
+
+          // Play ▶ button
+          const playBtn = document.createElement('button');
+          playBtn.className = 'btn-action play';
+          playBtn.title = `Execute ${screen} on Figma Canvas`;
+          playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+          playBtn.onclick = () => executeScript(scriptRelPath);
+
+          // Reload 🔄 button
+          const reloadBtn = document.createElement('button');
+          reloadBtn.className = 'btn-action';
+          reloadBtn.title = `Reload & re-run ${screen}`;
+          reloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`;
+          reloadBtn.onclick = () => executeScript(scriptRelPath);
+
+          actionGroup.appendChild(playBtn);
+          actionGroup.appendChild(reloadBtn);
+
+          item.appendChild(title);
+          item.appendChild(actionGroup);
+          group.appendChild(item);
+        });
+
+        screensList.appendChild(group);
+      });
+
+      if (matchedScreenCount === 0) {
+        screensList.innerHTML = `<div class="empty-state">No screens match "${filterQuery}"</div>`;
+      }
+
+      itemCountLabel.textContent = `${matchedScreenCount} of ${totalScreenCount} Screens`;
+    }
+
+    // Fetch list of all project screen scripts from server
+    async function loadProjectScreens() {
+      try {
+        const res = await fetch(`${serverUrl}/api/projects`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        rawProjectsData = data.projects || [];
+        renderFilteredProjects(searchInput.value.trim().toLowerCase());
+      } catch (err) {
+        screensList.innerHTML = `<div class="empty-state">Failed to load screens: ${err.message}</div>`;
+        itemCountLabel.textContent = 'Error Loading';
+      }
+    }
+
+    refreshScreensBtn.addEventListener('click', () => {
+      addLog('Refreshing project screen scripts list...', 'info');
+      loadProjectScreens();
+    });
+
+    // Setup SSE connection for auto-execution events
     function setupSSE() {
       const eventSource = new EventSource(`${serverUrl}/api/watch`);
-      
+
       eventSource.onopen = () => {
         setConnected(true);
-        addLog('Connected to Web Platform bridge', 'success');
+        addLog('Connected to bridge server SSE', 'success');
+        loadProjectScreens();
       };
 
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           if (data.event === 'change' || data.event === 'run-generated') {
-            const filename = data.filename || 'latest_generated.js';
-            lastScriptName = filename;
-            activeStatus.textContent = `⚡ Received update: ${filename}`;
-            addLog(`Executing generated script: ${filename}`, 'info');
-            
-            // Request code fetch and evaluation
-            parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: filename } }, '*');
+            const filename = data.filename;
+            if (!filename) return;
+            activeStatus.textContent = `Auto-sync: ${filename}`;
+            addLog(`Auto-executing: ${filename}`, 'info');
+            executeScript(filename);
+            loadProjectScreens(); // Refresh list on file changes
           }
         } catch (e) {
-          console.error("SSE parse error", e);
+          console.error('SSE parse error', e);
         }
       };
 
       eventSource.onerror = () => {
         setConnected(false);
         eventSource.close();
-        setTimeout(setupSSE, 3000); // Reconnect loop
+        setTimeout(setupSSE, 3000);
       };
     }
 
-    runLatestBtn.addEventListener('click', () => {
-      addLog(`Manually re-running ${lastScriptName}...`, 'info');
-      parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: lastScriptName } }, '*');
-    });
-
-    // Listen to messages from code.js in main thread
+    // Messages from code.js in main thread
     window.onmessage = async (event) => {
       const msg = event.data ? event.data.pluginMessage : null;
       if (!msg) return;
@@ -244,24 +821,27 @@
       if (msg.type === 'fetch-and-eval') {
         try {
           const res = await fetch(`${serverUrl}/api/scripts/${encodeURIComponent(msg.scriptName)}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status} file not found (${msg.scriptName})`);
           const code = await res.text();
-          parent.postMessage({ pluginMessage: { type: 'eval-code', scriptName: msg.scriptName, code } }, '*');
+          parent.postMessage({
+            pluginMessage: { type: 'eval-code', scriptName: msg.scriptName, code }
+          }, '*');
         } catch (e) {
-          addLog(`Failed to fetch script: ${e.message}`, 'error');
+          addLog(`Fetch error: ${e.message}`, 'error');
+          activeStatus.textContent = 'Error: Script Not Found';
         }
       } else if (msg.type === 'execution-status') {
         if (msg.status === 'success') {
-          addLog(`✅ UI created successfully on Figma canvas!`, 'success');
-          activeStatus.textContent = `✅ Ready for next prompt`;
+          addLog(`Rendered ${msg.scriptName || 'UI'} on canvas`, 'success');
+          activeStatus.textContent = `Active: ${msg.scriptName}`;
         } else {
-          addLog(`❌ Execution failed: ${msg.error}`, 'error');
-          activeStatus.textContent = `❌ Execution Error`;
+          addLog(`Execution failed: ${msg.error}`, 'error');
+          activeStatus.textContent = 'Execution Error';
         }
       }
     };
 
-    // Initialize
+    // Initial setup
     setupSSE();
   </script>
 </body>
