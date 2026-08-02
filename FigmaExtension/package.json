@@ -1,0 +1,61 @@
+{
+  "name": "figma-ai-control-panel",
+  "displayName": "Figma AI Control Panel",
+  "description": "Native GUI Control Panel for Figma AI Screen Generator. Manage projects, customize local theme tokens, scaffold workspaces, and trigger Figma canvas executions.",
+  "version": "1.0.0",
+  "publisher": "figma-ai",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:figmaAiControlPanelView"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "figma-ai-activitybar",
+          "title": "Figma AI Control Panel",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "figma-ai-activitybar": [
+        {
+          "type": "webview",
+          "id": "figmaAiControlPanelView",
+          "name": "Project Settings & Theme"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "figmaAi.refreshProjects",
+        "title": "Figma AI: Refresh Projects",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "figmaAi.createNewProject",
+        "title": "Figma AI: Create New Project (@newproject)",
+        "icon": "$(add)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "build": "node esbuild.js --production"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.0",
+    "@types/vscode": "^1.75.0",
+    "esbuild": "^0.17.11",
+    "typescript": "^4.9.5"
+  }
+}

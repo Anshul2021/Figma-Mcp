@@ -1,0 +1,13 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+out/
+*.vsix
+
+# Logs & Temporary files
+*.log
+.DS_Store
+.vscode-test/
