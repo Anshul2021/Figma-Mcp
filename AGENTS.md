@@ -75,6 +75,11 @@ User prompts may contain `@` commands (case-insensitive). Execute commands insta
   - Copy default context templates from `FigmaPlugin/global/` (`taste.md`, `colors.md`, `fonts.md`, `brief.md`) into `FigmaPlugin/<ProjectName>/local/`.
 - **Response Rule:** Inform the user cleanly that `<ProjectName>` is scaffolded and ready for prompts. **DO NOT ask clarifying questions.**
 
+### 1.5. `@brief <Product Description>` (Product Purpose & Domain Context)
+- **Action:** Populates/updates `FigmaPlugin/<ProjectName>/local/brief.md` with the product brief (what the app is, who it is for, problem it solves, and overall application domain context).
+- **Execution Strategy:** All subsequent screen generations, component sets, and design decisions automatically consume `local/brief.md` so UI outputs stay aligned with the product's purpose.
+- **Combining with `@newproject`:** Users can combine `@newproject <Name>` and `@brief <Description>` in a single prompt!
+
 ### 2. `@gen-variables`
 - **Action:** Generates/publishes native Figma Variables (`tokens/variables.js`) and Text Styles (`tokens/styles.js`) directly to Figma's native panel using `figma.variables` API.
 

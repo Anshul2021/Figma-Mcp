@@ -23,6 +23,10 @@
   - **Syntax:** `@taste <style description>`
   - **Action:** Overrides visual styling & aesthetic preferences (e.g. `@taste glassmorphism with frosted cards`).
 
+- **`@brief`**
+  - **Syntax:** `@brief <product description>`
+  - **Action:** Defines the product brief (purpose, target audience, problem solved, app domain context) and updates `FigmaPlugin/<Project_Name>/local/brief.md`.
+
 - **`@newproject`**
   - **Syntax:** `@newproject <ProjectName>`
   - **Action:** Scaffolds a new project folder `FigmaPlugin/<ProjectName>/` with `screens/`, `components/`, `tokens/`, and `local/` override files.

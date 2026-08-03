@@ -6,15 +6,28 @@
 
 ## ⚡ 1. Ready-to-Use Copy-Paste Prompts
 
-### A. New Project Creation (Scaffolding)
+### A. New Project Creation with Product Brief (`@newproject` + `@brief`)
 ```text
 @newproject Crusource
+@brief Crusource is an enterprise AI-powered recruitment and candidate workstation platform helping job applicants browse open job descriptions, track application steps, and submit resumes to enterprise hiring managers.
 ```
-> **What this does:** Scaffolds `FigmaPlugin/Crusource/` with `screens/`, `components/`, `tokens/`, and customizable `local/` context files (`colors.md`, `fonts.md`, `taste.md`, `brief.md`).
+> **What this does:** Scaffolds `FigmaPlugin/Crusource/` directory structure, populates `FigmaPlugin/Crusource/local/brief.md` with the product domain context, and prepares defaults for screen generation.
 
 ---
 
-### B. Single Screen Generation
+### B. Project Scaffolding + Full Style Override in One Prompt
+```text
+@newproject FoodDeliveryApp
+@brief FoodDeliveryApp is a high-speed hyper-local food delivery application for ordering gourmet dishes, tracking live delivery drivers, and managing cart items.
+@color #FF385C, #00A699
+@font Poppins
+@taste clean modern card layout with soft rounded corners and subtle drop shadows
+```
+> **What this does:** Scaffolds the project, sets product brief context in `local/brief.md`, configures brand colors `#FF385C` in `local/colors.md`, sets typography to `Poppins` in `local/fonts.md`, and sets visual taste in `local/taste.md`.
+
+---
+
+### C. Single Screen Generation
 ```text
 Generate a candidate job application workstation screen for Crusource with:
 - Top bar with Crusource logo, breadcrumb navigation, and candidate profile pill
@@ -26,7 +39,7 @@ Generate a candidate job application workstation screen for Crusource with:
 
 ---
 
-### C. Design System Generation (3 Pillars Rule)
+### D. Design System Generation (3 Pillars Rule)
 ```text
 @gen-components
 Generate a complete Enterprise Design System for Crusource including color scale swatches, strict even typography scale specimens, and native ComponentSets for Buttons, Inputs, and Badges with interactive Inspector dropdown selectors.
@@ -34,7 +47,7 @@ Generate a complete Enterprise Design System for Crusource including color scale
 
 ---
 
-### D. Native Figma Variables Publishing
+### E. Native Figma Variables Publishing
 ```text
 @gen-variables
 Publish native Figma Variables for Crusource including Brand Primary Orange (#FF7700), Slate Text Scale (#0F172A, #334155, #64748B), Spacing Scale (4, 8, 12, 16, 24, 32), and Text Styles.
@@ -42,7 +55,7 @@ Publish native Figma Variables for Crusource including Brand Primary Orange (#FF
 
 ---
 
-### E. Component Reuse Mode
+### F. Component Reuse Mode
 ```text
 @use-components
 Generate candidate dashboard screen for Crusource reusing existing master Button and Card components from the components library.
@@ -50,7 +63,7 @@ Generate candidate dashboard screen for Crusource reusing existing master Button
 
 ---
 
-### F. Fast Mode / Quick Mockup (Skip Design Taste Overhead)
+### G. Fast Mode / Quick Mockup (Skip Design Taste Overhead)
 ```text
 @skip-design-taste
 Generate a simple candidate profile view with name, email, and resume download link.
@@ -62,18 +75,13 @@ Generate a simple candidate profile view with name, email, and resume download l
 
 Follow this complete 6-step prompt sequence to build a project from scratch:
 
-### Step 1: Initialize Project Workspace
+### Step 1: Initialize Project & Set Product Brief (`@newproject` + `@brief`)
 ```text
 @newproject FoodDeliveryApp
+@brief FoodDeliveryApp connects local food lovers with top-rated neighborhood restaurants, offering 30-minute delivery, dish customization options, and instant cart checkout.
 ```
 
-### Step 2: Set Brand Colors & Visual Direction
-```text
-@color #FF385C, #00A699
-@taste soft rounded cards with floating micro-shadows and clean white surfaces
-```
-
-### Step 3: Generate Home Discovery Screen
+### Step 2: Generate Home Discovery Screen (Using Default Project Context)
 ```text
 Generate a home discovery screen for FoodDeliveryApp featuring:
 - Delivery address header ("Deliver to 742 Evergreen Terrace") with cart badge (3 items)
@@ -81,6 +89,12 @@ Generate a home discovery screen for FoodDeliveryApp featuring:
 - Category filter pills (All, Burgers, Pizza, Asian, Healthy, Desserts)
 - Featured restaurant cards with cover image, rating badge, prep time, delivery fee, and discount tag
 - Bottom navigation bar (Explore, Search, Orders, Profile)
+```
+
+### Step 3: Refine Design Direction (Add Colors & Visual Taste)
+```text
+@color #FF385C, #00A699
+@taste soft rounded cards with floating micro-shadows and clean white surfaces
 ```
 
 ### Step 4: Generate Food Item Customization Screen
@@ -109,9 +123,10 @@ Generate master reusable Button, FoodCard, and Input components for FoodDelivery
 
 ## 🎨 3. Enterprise B2B SaaS Example: Candidate Portal (`Crusource`)
 
-### Step 1: Scaffold Enterprise Project
+### Step 1: Scaffold Enterprise Project with Product Brief
 ```text
 @newproject Crusource
+@brief Crusource is an enterprise HR tech platform providing candidate job description portals, multi-step application tracking, and automated onboarding workflows.
 ```
 
 ### Step 2: Generate Job Description (JD) & Apply Screen
@@ -136,8 +151,7 @@ Generate Crusource Enterprise Design System specimen frame containing color swat
 
 | Do This 🟢 | Avoid This 🔴 |
 |:---|:---|
+| Combine `@newproject <Name>` with `@brief <Product context>` in your initial prompt | Skipping product context, leaving screens unaligned with purpose |
 | Specify clear section names (*Top Bar, Hero Banner, Left Column, Bottom Nav*) | Vague prompts like *"make a nice UI screen"* |
-| Mention exact component elements (*stepper, input fields, primary CTA, pills*) | Omitting key interactive elements |
-| Use `@newproject <Name>` to organize project files in dedicated folders | Dumping all screens into the root directory |
-| Use vector SVG icons via Lucide icon names (*map-pin, user, check-circle*) | Requesting emojis inside text nodes |
 | Use `@gen-components` and `@gen-variables` to publish reusable design system assets | Manually building unlinked inline frames repeatedly |
+| Use vector SVG icons via Lucide icon names (*map-pin, user, check-circle*) | Requesting emojis inside text nodes |
