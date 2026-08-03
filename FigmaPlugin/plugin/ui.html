@@ -685,79 +685,109 @@
       }, '*');
     }
 
-    // Render projects based on search query
+    // Render projects based on search query (Screens, Components, Tokens)
     function renderFilteredProjects(filterQuery = '') {
       screensList.innerHTML = '';
       if (!rawProjectsData || rawProjectsData.length === 0) {
-        screensList.innerHTML = '<div class="empty-state">No project screen scripts found</div>';
-        itemCountLabel.textContent = '0 Screens Loaded';
+        screensList.innerHTML = '<div class="empty-state">No project scripts found</div>';
+        itemCountLabel.textContent = '0 Scripts Loaded';
         return;
       }
 
-      let totalScreenCount = 0;
-      let matchedScreenCount = 0;
+      let totalScriptCount = 0;
+      let matchedScriptCount = 0;
 
       rawProjectsData.forEach(proj => {
-        totalScreenCount += proj.screens.length;
-        const matchingScreens = proj.screens.filter(screen => {
-          if (!filterQuery) return true;
-          return screen.toLowerCase().includes(filterQuery) || proj.name.toLowerCase().includes(filterQuery);
-        });
+        const screens = proj.screens || [];
+        const components = proj.components || [];
+        const tokens = proj.tokens || [];
 
-        if (matchingScreens.length === 0) return;
-
-        matchedScreenCount += matchingScreens.length;
+        totalScriptCount += screens.length + components.length + tokens.length;
 
         const group = document.createElement('div');
         group.className = 'project-group';
 
         const projTitle = document.createElement('div');
         projTitle.className = 'project-name';
-        projTitle.textContent = `${proj.name} (${matchingScreens.length})`;
+        projTitle.textContent = `${proj.name} (${screens.length + components.length + tokens.length})`;
         group.appendChild(projTitle);
 
-        matchingScreens.forEach(screen => {
-          const scriptRelPath = `${proj.name}/screens/${screen}`;
-          const item = document.createElement('div');
-          item.className = 'screen-item';
+        let groupMatchCount = 0;
 
-          const title = document.createElement('span');
-          title.className = 'screen-title';
-          title.textContent = screen;
+        // 1. Render Screens
+        if (screens.length > 0) {
+          groupMatchCount += renderCategoryItems(group, proj.name, 'screens', '📱 Screens', screens, filterQuery);
+        }
 
-          const actionGroup = document.createElement('div');
-          actionGroup.className = 'action-group';
+        // 2. Render Components
+        if (components.length > 0) {
+          groupMatchCount += renderCategoryItems(group, proj.name, 'components', '🧩 Components', components, filterQuery);
+        }
 
-          // Play ▶ button
-          const playBtn = document.createElement('button');
-          playBtn.className = 'btn-action play';
-          playBtn.title = `Execute ${screen} on Figma Canvas`;
-          playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-          playBtn.onclick = () => executeScript(scriptRelPath);
+        // 3. Render Tokens
+        if (tokens.length > 0) {
+          groupMatchCount += renderCategoryItems(group, proj.name, 'tokens', '🎨 Tokens & Variables', tokens, filterQuery);
+        }
 
-          // Reload 🔄 button
-          const reloadBtn = document.createElement('button');
-          reloadBtn.className = 'btn-action';
-          reloadBtn.title = `Reload & re-run ${screen}`;
-          reloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`;
-          reloadBtn.onclick = () => executeScript(scriptRelPath);
-
-          actionGroup.appendChild(playBtn);
-          actionGroup.appendChild(reloadBtn);
-
-          item.appendChild(title);
-          item.appendChild(actionGroup);
-          group.appendChild(item);
-        });
-
-        screensList.appendChild(group);
+        if (groupMatchCount > 0) {
+          matchedScriptCount += groupMatchCount;
+          screensList.appendChild(group);
+        }
       });
 
-      if (matchedScreenCount === 0) {
-        screensList.innerHTML = `<div class="empty-state">No screens match "${filterQuery}"</div>`;
+      if (matchedScriptCount === 0) {
+        screensList.innerHTML = `<div class="empty-state">No scripts match "${filterQuery}"</div>`;
       }
 
-      itemCountLabel.textContent = `${matchedScreenCount} of ${totalScreenCount} Screens`;
+      itemCountLabel.textContent = `${matchedScriptCount} of ${totalScriptCount} Scripts`;
+    }
+
+    function renderCategoryItems(groupNode, projName, categoryName, categoryLabel, items, filterQuery) {
+      const matching = items.filter(file => {
+        if (!filterQuery) return true;
+        return file.toLowerCase().includes(filterQuery) || projName.toLowerCase().includes(filterQuery) || categoryName.toLowerCase().includes(filterQuery);
+      });
+
+      if (matching.length === 0) return 0;
+
+      const catHeader = document.createElement('div');
+      catHeader.style.cssText = 'font-size: 9px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; margin: 6px 0 3px 2px; display: flex; align-items: center; gap: 4px;';
+      catHeader.textContent = `${categoryLabel} (${matching.length})`;
+      groupNode.appendChild(catHeader);
+
+      matching.forEach(file => {
+        const scriptRelPath = `${projName}/${categoryName}/${file}`;
+        const item = document.createElement('div');
+        item.className = 'screen-item';
+
+        const title = document.createElement('span');
+        title.className = 'screen-title';
+        title.textContent = file;
+
+        const actionGroup = document.createElement('div');
+        actionGroup.className = 'action-group';
+
+        const playBtn = document.createElement('button');
+        playBtn.className = 'btn-action play';
+        playBtn.title = `Execute ${file} on Figma Canvas`;
+        playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+        playBtn.onclick = () => executeScript(scriptRelPath);
+
+        const reloadBtn = document.createElement('button');
+        reloadBtn.className = 'btn-action';
+        reloadBtn.title = `Reload & re-run ${file}`;
+        reloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`;
+        reloadBtn.onclick = () => executeScript(scriptRelPath);
+
+        actionGroup.appendChild(playBtn);
+        actionGroup.appendChild(reloadBtn);
+
+        item.appendChild(title);
+        item.appendChild(actionGroup);
+        groupNode.appendChild(item);
+      });
+
+      return matching.length;
     }
 
     // Fetch list of all project screen scripts from server

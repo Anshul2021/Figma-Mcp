@@ -25,7 +25,23 @@
 
 - **`@newproject`**
   - **Syntax:** `@newproject <ProjectName>`
-  - **Action:** Scaffolds a new project folder `FigmaPlugin/<ProjectName>/` with `screens/` and `local/` override files.
+  - **Action:** Scaffolds a new project folder `FigmaPlugin/<ProjectName>/` with `screens/`, `components/`, `tokens/`, and `local/` override files.
+
+- **`@gen-variables`**
+  - **Syntax:** `@gen-variables`
+  - **Action:** Generates/publishes native Figma Variables (`tokens/variables.js`) and Text Styles (`tokens/styles.js`) directly to Figma's native panel.
+
+- **`@gen-components`**
+  - **Syntax:** `@gen-components`
+  - **Action:** Generates master reusable components (`components/<ComponentName>.js`) inside `FigmaPlugin/<Project_Name>/components/`.
+
+- **`@use-components`**
+  - **Syntax:** `@use-components`
+  - **Action:** Instructs screen scripts to inspect `components/` and instantiate existing master components via `componentNode.createInstance()` instead of creating raw inline frames.
+
+- **`@skip-design-taste`**
+  - **Syntax:** `@skip-design-taste` (or `@quick`)
+  - **Action:** Disables high-end visual taste guardrails for faster generation and reduced prompt token usage.
 
 ---
 

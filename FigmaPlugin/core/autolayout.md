@@ -75,17 +75,19 @@ row.counterAxisSizingMode = "AUTO";   // HUG height ✓ (nothing overwrites it)
 
 ## 2. The 6 Anti-Patterns (NEVER DO THESE)
 
-### ❌ Anti-Pattern #1: Calling `resize()` AFTER Setting HUG Mode
+### ❌ Anti-Pattern #1: Calling `resize()` AFTER Setting HUG Mode (Fixed Height 100px Bug)
 ```javascript
-// ❌ BROKEN — resize() silently resets primaryAxisSizingMode to "FIXED"
-card.primaryAxisSizingMode = "AUTO";   // HUG height ✓
-card.resize(375, 100);                 // DESTROYS HUG! Height is now FIXED at 100px
+// ❌ BROKEN — resize() silently resets sizingMode to "FIXED" (creates 100px height bug!)
+card.counterAxisSizingMode = "AUTO";   // HUG height ✓
+card.resize(375, 100);                 // DESTROYS HUG! Height is now FIXED at 100px!
 ```
 ```javascript
-// ✅ CORRECT — resize() BEFORE HUG, or don't resize at all
-card.resize(375, 100);                 // Set initial size first
-// ... append children ...
-card.primaryAxisSizingMode = "AUTO";   // HUG height — called LAST, stays HUG ✓
+// ✅ CORRECT — FOR BUTTONS, BADGES & INLINE CONTROLS: NEVER CALL resize() AT ALL!
+button.layoutMode = "HORIZONTAL";
+button.paddingLeft = 16; button.paddingRight = 16;
+button.paddingTop = 10; button.paddingBottom = 10;
+button.primaryAxisSizingMode = "AUTO";   // HUG width ✓
+button.counterAxisSizingMode = "AUTO";   // HUG height ✓ (No resize() call to ruin it!)
 ```
 
 ### ❌ Anti-Pattern #2: Setting `FILL` Before `appendChild()`

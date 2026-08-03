@@ -1,43 +1,32 @@
-# Visual Taste & Design Preferences
+# Visual Taste & Design Preferences — Global Defaults
 
-> Aesthetic rules, corner radii, shadows, and design language for generated screens.
-> When `@newproject <ProjectName>` is executed, this file is copied to `<ProjectName>/local/taste.md`.
-
----
-
-## 🎨 Overall Design Language
-
-- **Visual Style:** Modern, clean, food-centric, vibrant
-- **Density:** Comfortable (generous 8pt grid padding)
-- **Visual Feel:** Premium, approachable, clear hierarchy
+> Global aesthetic guidelines for UI screen generation across all projects.
 
 ---
 
-## 📐 Corner Radius Scale
+## 🎨 Design Philosophy & Anti-Slop Directive
+
+- **Style:** Agency-grade modern B2B SaaS dashboard, clean enterprise, high contrast.
+- **Anti-Slop:** Avoid default, generic "AI slop" gradients, uninspired plain gray boxes, or monolithic flat designs.
+- **Canvas Viewport:** `1440px × 900px` Landscape Desktop Workspace (or `375px × 812px` Mobile Viewport).
+- **Density:** Comfortable Enterprise (micro-padding `16px - 24px`, clear section spacing `16px - 24px`).
+
+---
+
+## 📐 Corner Radii Hierarchy
 
 | Token | Value | Primary Application |
 |:------|:------|:-------------------|
-| `radius-xs` | **4px** | Small tags, micro badges |
-| `radius-sm` | **6px** | Input fields, category tags |
-| `radius-md` | **8px** | Action buttons, small card containers |
-| `radius-lg` | **12px** | Standard cards, search bars, thumbnails |
-| `radius-xl` | **16px** | Large feature cards, list containers |
-| `radius-2xl` | **24px - 28px** | Bottom sheet modals, hero sheet overlays |
-| `radius-full` | **9999px** | Pill buttons, circular avatars, stepper badges |
+| `radius-xs` | **4px** | Status badges, tag counts, micro pills |
+| `radius-sm` | **6px** | Primary/Secondary buttons, input search bar |
+| `radius-md` | **8px** | Action widgets, icon container boxes |
+| `radius-lg` | **12px** | Main panel containers, table containers |
+| `radius-xl` | **16px** | Hero overview cards, modal containers |
 
 ---
 
-## 🌫️ Elevation & Shadow System
+## 🌫️ Borders & Elevation
 
-- **Flat Surface (`shadow-none`):** Standard structural rows and transparent containers.
-- **Subtle Lift (`shadow-sm`):** `0 2px 8px rgba(0,0,0,0.06)` — Standard food cards & search bars.
-- **Floating Element (`shadow-md`):** `0 4px 12px rgba(0,0,0,0.10)` — Circular back/heart buttons over hero images.
-- **Modal / Bottom Sheet (`shadow-lg`):** `0 -4px 20px rgba(0,0,0,0.12)` — Fixed bottom navigation bar & bottom cart checkout sheet.
-
----
-
-## 👁️ Visual Hierarchy Principles
-
-1. **Hierarchy via Weight:** Bold (700) for titles and primary prices; Medium (500) for labels; Regular (400) for descriptions.
-2. **Hierarchy via Color:** Primary text (`neutral-900`), Muted secondary text (`neutral-500`), Brand accent (`primary-600` Zomato Red).
-3. **8pt Grid Consistency:** All paddings & gaps MUST use 8pt multiples: `4px`, `8px`, `12px`, `16px`, `20px`, `24px`.
+- **Subtle 1px Borders:** Use 1px refined inner borders (`#E5E7EB` or `#F1F5F9`) instead of heavy dark borders.
+- **Elevation:** Soft ambient drop shadows (`offset: { x: 0, y: 1 }, radius: 3, opacity: 0.05`).
+- **Icon Boxes:** Soft background containers (`#F8FAFC` or primary light tint) around Lucide vector icons (`strokeWidth = 1.5`).

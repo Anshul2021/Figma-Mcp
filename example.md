@@ -1,72 +1,143 @@
-# Example Prompts & Templates
+# 💡 Practical Prompting Examples & Workflow Templates
 
-> Copy-paste template examples for generating screens.
-> Replace the bracketed text `[like this]` with your own project requirements.
+> **Quickstart Guide:** Use these copy-paste prompt templates and step-by-step user journey workflows to generate production-grade Figma UI screens, reusable master components, and native Figma Variables.
 
 ---
 
-## 📋 Template 1: Direct Copy-Paste Screen Generator
+## ⚡ 1. Ready-to-Use Copy-Paste Prompts
 
-Copy the block below, replace your details, and run:
-
+### A. New Project Creation (Scaffolding)
 ```text
-Generate a food delivery screen for [Zomato App] with:
-- Top bar with delivery address [Downtown 5th Ave] and cart icon
-- Search bar with placeholder ["Search dishes, restaurants..."]
-- Category filter pills [All, Burgers, Pizza, Asian, Healthy]
-- List of popular food item cards with image, dish name, price, rating, and "+ Add" button
-- Fixed bottom navigation bar [Home, Explore, Orders, Profile]
+@newproject Crusource
+```
+> **What this does:** Scaffolds `FigmaPlugin/Crusource/` with `screens/`, `components/`, `tokens/`, and customizable `local/` context files (`colors.md`, `fonts.md`, `taste.md`, `brief.md`).
+
+---
+
+### B. Single Screen Generation
+```text
+Generate a candidate job application workstation screen for Crusource with:
+- Top bar with Crusource logo, breadcrumb navigation, and candidate profile pill
+- Left sidebar showing multi-step application progress stepper (Step 2 of 4 active)
+- Main form card with input fields for Full Name, Email, Phone, and Portfolio URL
+- Drag-and-drop resume upload zone with uploaded PDF status chip
+- Footer actions with "Back to Personal Info" secondary button and "Continue to Screening Questions" primary orange button
 ```
 
 ---
 
-## 📋 Template 2: Project-Based Generation Flow
+### C. Design System Generation (3 Pillars Rule)
+```text
+@gen-components
+Generate a complete Enterprise Design System for Crusource including color scale swatches, strict even typography scale specimens, and native ComponentSets for Buttons, Inputs, and Badges with interactive Inspector dropdown selectors.
+```
 
-Use `@newproject` to create a dedicated project workspace with customizable local tokens:
+---
 
-### Step 1: Scaffold Project Workspace
+### D. Native Figma Variables Publishing
+```text
+@gen-variables
+Publish native Figma Variables for Crusource including Brand Primary Orange (#FF7700), Slate Text Scale (#0F172A, #334155, #64748B), Spacing Scale (4, 8, 12, 16, 24, 32), and Text Styles.
+```
+
+---
+
+### E. Component Reuse Mode
+```text
+@use-components
+Generate candidate dashboard screen for Crusource reusing existing master Button and Card components from the components library.
+```
+
+---
+
+### F. Fast Mode / Quick Mockup (Skip Design Taste Overhead)
+```text
+@skip-design-taste
+Generate a simple candidate profile view with name, email, and resume download link.
+```
+
+---
+
+## 🚀 2. End-to-End User Journey Example: Food Delivery App
+
+Follow this complete 6-step prompt sequence to build a project from scratch:
+
+### Step 1: Initialize Project Workspace
 ```text
 @newproject FoodDeliveryApp
 ```
 
-### Step 2: Customize Tokens (Optional)
-Edit local configuration files in `FigmaPlugin/FoodDeliveryApp/local/`:
-- Edit `local/colors.md` → Set your brand primary color hex (e.g., Zomato Red `#E23744`)
-- Edit `local/fonts.md` → Verify font family and even-number size scale
-- Edit `local/brief.md` → Set app overview & platform target
-
-### Step 3: Generate Project Screens
+### Step 2: Set Brand Colors & Visual Direction
 ```text
-Generate food explorer screen for FoodDeliveryApp
+@color #FF385C, #00A699
+@taste soft rounded cards with floating micro-shadows and clean white surfaces
+```
 
-Generate food detail screen for FoodDeliveryApp showing item customizations, cheese options, quantity stepper, and "Add to Basket" CTA
+### Step 3: Generate Home Discovery Screen
+```text
+Generate a home discovery screen for FoodDeliveryApp featuring:
+- Delivery address header ("Deliver to 742 Evergreen Terrace") with cart badge (3 items)
+- Search bar with placeholder "Search dishes or restaurants..."
+- Category filter pills (All, Burgers, Pizza, Asian, Healthy, Desserts)
+- Featured restaurant cards with cover image, rating badge, prep time, delivery fee, and discount tag
+- Bottom navigation bar (Explore, Search, Orders, Profile)
+```
+
+### Step 4: Generate Food Item Customization Screen
+```text
+Generate food item detail screen for FoodDeliveryApp showing:
+- Hero food photo with top floating back and favorite buttons
+- Overlapping content card sheet with dish title "Double Truffle Smash Burger", price "$16.50", and calorie tag "820 kcal"
+- Radio option list for size selection (Single Patty, Double Patty +$4, Triple Patty +$7)
+- Checkbox list for extra add-ons (Extra Truffle Mayo, Aged Cheddar, Crispy Bacon)
+- Bottom sticky cart bar with quantity stepper (- 1 +) and "Add to Basket — $20.50" CTA
+```
+
+### Step 5: Publish Native Figma Color & Spacing Variables
+```text
+@gen-variables
+Publish native Figma Variables for FoodDeliveryApp with Primary Brand (#FF385C), Secondary (#00A699), Slate Text scale, radii tokens, and spacing tokens.
+```
+
+### Step 6: Generate Master Component Set
+```text
+@gen-components
+Generate master reusable Button, FoodCard, and Input components for FoodDeliveryApp with interactive Figma Inspector dropdown states (Default, Hover, Active, Disabled).
 ```
 
 ---
 
-## 📋 Template 3: Command Overrides Example
+## 🎨 3. Enterprise B2B SaaS Example: Candidate Portal (`Crusource`)
 
-Modify fonts, colors, and layout engine directly in the prompt string:
-
+### Step 1: Scaffold Enterprise Project
 ```text
-@font Poppins
-@color #E23744, #F59E0B
-@taste soft rounded cards with subtle drop shadows
+@newproject Crusource
+```
 
-Generate a restaurant menu screen with category sections and dish price items
+### Step 2: Generate Job Description (JD) & Apply Screen
+```text
+Generate a candidate job description screen for Crusource featuring:
+- Header bar with Crusource logo badge and breadcrumbs "Careers / Engineering / Staff Architect"
+- Hero card with job title, compensation pill ($190k-$240k), location pill (San Francisco, CA), and "Apply Now →" hero CTA
+- Dual column body layout:
+  - Left column (880px): Company mission, key responsibilities bullet list with green checkmark vector icons, and tech stack chips (React, TypeScript, WebGL, Node.js)
+  - Right column (430px): Quick apply card with estimated time (3 mins) and hiring manager contact card
+```
+
+### Step 3: Publish Master Design System
+```text
+@gen-components
+Generate Crusource Enterprise Design System specimen frame containing color swatches, Instrument Sans typography scale, and ComponentSets for Buttons, Inputs, and Status Badges.
 ```
 
 ---
 
-## 📋 Template 4: Static Positioning Mode (`@skip-autolayout`)
+## 📌 4. Prompting Best Practices Cheat Sheet
 
-```text
-@skip-autolayout
-
-Generate a food detail view with:
-- Top hero banner image with floating back and favorite buttons
-- Overlapping white content card sheet
-- Food title, price, rating badge, preparation time, and calorie pill
-- Radio option list for cheese selections
-- Bottom sticky cart bar with quantity stepper (- 1 +) and "Add to Cart" CTA
-```
+| Do This 🟢 | Avoid This 🔴 |
+|:---|:---|
+| Specify clear section names (*Top Bar, Hero Banner, Left Column, Bottom Nav*) | Vague prompts like *"make a nice UI screen"* |
+| Mention exact component elements (*stepper, input fields, primary CTA, pills*) | Omitting key interactive elements |
+| Use `@newproject <Name>` to organize project files in dedicated folders | Dumping all screens into the root directory |
+| Use vector SVG icons via Lucide icon names (*map-pin, user, check-circle*) | Requesting emojis inside text nodes |
+| Use `@gen-components` and `@gen-variables` to publish reusable design system assets | Manually building unlinked inline frames repeatedly |

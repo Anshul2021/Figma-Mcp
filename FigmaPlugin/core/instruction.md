@@ -198,3 +198,38 @@ function hexToRgb(hex) {
   };
 }
 ```
+
+---
+
+## 8. High-End Design Taste & Component-First Architecture Rules
+
+### Mandatory Default Visual Taste & Anti-Slop Directive
+> **CRITICAL DEFAULT RULE:** Every screen generation MUST automatically apply frontend design and visual taste rules to prevent AI-slop outputs. Only skip when `@skip-design-taste` is explicitly typed by the user.
+
+- **Distinct Visual Hierarchy**: Avoid generic "AI-purple" or flat 2015 gradients. Use curated brand palettes, high-contrast Slate text scale (`#0F172A` Headings, `#334155` Body, `#64748B` Muted Captions), and clean surfaces (`#FFFFFF` pure cards on `#F8FAFC` slate canvas).
+- **Refined Borders & Radii Hierarchy**: Use subtle 1px inner borders (`#E5E7EB` or `#F1F5F9`) and consistent design system radii (`radius-xs`: 4px, `radius-sm`: 6px, `radius-md`: 8px, `radius-lg`: 12px, `radius-xl`: 16px).
+- **Generous Micro-Padding**: Ensure cards have comfortable inner padding (`16px-24px`) and clear section gaps (`16px-24px`).
+- **Iconography & Typography**: Strict EVEN typography scale (`10`, `12`, `14`, `16`, `20`, `24`, `32`). Zero emojis, lightweight Lucide vector SVG icons (`strokeWidth = 1.5`).
+
+### Component-First Lookup Order (when `@use-components` active)
+1. Inspect `FigmaPlugin/<Project_Name>/components/` for master reusable components (`Button`, `Card`, `Badge`, `Input`).
+2. Instantiate master components via `componentNode.createInstance()`.
+3. Append instances to parent frames BEFORE setting layout properties.
+
+---
+
+## 9. Mandatory Design System 3-Pillars Protocol & Skill Reference
+
+Whenever the user asks to generate a **Design System** or **Component Library**:
+
+1. **AUTOMATIC SKILL REFERENCE**:
+   - The AI MUST read and adhere to `.agents/skills/ui-design-system/SKILL.md` and `.agents/skills/ui-design-system/references/component-architecture.md`.
+2. **THE 3 MANDATORY PILLARS (MUST ALWAYS BE PRESENT)**:
+   - 🎨 **Pillar 1: Color Token Scale System**: Render color swatches for Brand Primary, Primary Light, Slate Text Scale (`#0F172A`, `#334155`, `#64748B`, `#94A3B8`, `#E5E7EB`, `#F8FAFC`, `#FFFFFF`), and Semantic Statuses (Emerald, Amber, Red, Blue).
+   - 🔤 **Pillar 2: Typography Scale System**: Render typography specimens for strict EVEN scale (`Display 32`, `Title 24`, `Header 20`, `Subhead 16`, `Body 14`, `Caption 12`, `Micro 10`).
+   - 🧩 **Pillar 3: ComponentSets with Interactive States**: Create native `ComponentSetNode` objects via `figma.combineAsVariants()` for Buttons, Inputs, Badges, Checkboxes/Radios, and Cards with full variant states (`Default`, `Hover`, `Active`, `Disabled`, `Focused`, `Error`).
+3. **COMPONENTSET AUTO LAYOUT RULE**:
+   - Every `ComponentSetNode` created via `figma.combineAsVariants()` MUST have `layoutMode = "HORIZONTAL"` with `itemSpacing = 16` and padding applied so variants NEVER stack or overlap on top of each other.
+
+
+

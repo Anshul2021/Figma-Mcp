@@ -3,13 +3,13 @@
  * 
  * DESIGN PRINCIPLE:
  * This server is 100% project-agnostic. You NEVER need to edit or modify this server
- * when creating new projects (FoodDeliveryApp, SaaSDashboard, CryptoWallet, etc.).
+ * when creating new projects (FoodDeliveryApp, SaaSDashboard, Crusource, etc.).
  * 
  * Responsibilities:
- * 1. Automatically watches all `<ProjectName>/screens/` directories for .js changes
+ * 1. Automatically watches all `<ProjectName>/screens/`, `components/`, `tokens/` directories for .js changes
  * 2. Serves script contents to the Figma plugin via `/api/scripts/<path>`
  * 3. Emits real-time SSE events over `/api/watch` to trigger auto-execution in Figma
- * 4. Dynamically lists all project workspaces and screens via `/api/projects`
+ * 4. Dynamically lists all project workspaces, screens, components, and tokens via `/api/projects`
  */
 
 const http = require('http');
@@ -32,8 +32,8 @@ function notifyClients(filename) {
   });
 }
 
-// Dynamically scan for project directories containing a screens/ subfolder
-function watchProjectScreens() {
+// Dynamically scan for project directories containing screens/, components/, or tokens/ subfolders
+function watchProjectDirs() {
   try {
     const entries = fs.readdirSync(ROOT_DIR, { withFileTypes: true });
     
@@ -42,19 +42,22 @@ function watchProjectScreens() {
       // Skip system/core folders
       if (['plugin', 'core', 'global', 'node_modules', '.git'].includes(entry.name)) continue;
       
-      const screensDir = path.join(ROOT_DIR, entry.name, 'screens');
-      if (fs.existsSync(screensDir) && fs.statSync(screensDir).isDirectory()) {
-        if (!watchedDirs.has(screensDir)) {
-          watchedDirs.add(screensDir);
-          console.log(`[Watcher] Dynamically watching project: ${entry.name}/screens/`);
-          try {
-            fs.watch(screensDir, (eventType, filename) => {
-              if (filename && filename.endsWith('.js')) {
-                notifyClients(`${entry.name}/screens/${filename}`);
-              }
-            });
-          } catch (e) {
-            console.warn(`[Watcher Notice] Could not watch ${screensDir}:`, e.message);
+      const subDirs = ['screens', 'components', 'tokens'];
+      for (const sub of subDirs) {
+        const targetDir = path.join(ROOT_DIR, entry.name, sub);
+        if (fs.existsSync(targetDir) && fs.statSync(targetDir).isDirectory()) {
+          if (!watchedDirs.has(targetDir)) {
+            watchedDirs.add(targetDir);
+            console.log(`[Watcher] Dynamically watching: ${entry.name}/${sub}/`);
+            try {
+              fs.watch(targetDir, (eventType, filename) => {
+                if (filename && filename.endsWith('.js')) {
+                  notifyClients(`${entry.name}/${sub}/${filename}`);
+                }
+              });
+            } catch (e) {
+              console.warn(`[Watcher Notice] Could not watch ${targetDir}:`, e.message);
+            }
           }
         }
       }
@@ -65,10 +68,10 @@ function watchProjectScreens() {
 }
 
 // Initial scan
-watchProjectScreens();
+watchProjectDirs();
 
-// Periodic re-scan for newly created projects (every 10 seconds)
-setInterval(watchProjectScreens, 10000);
+// Periodic re-scan for newly created projects & subfolders (every 10 seconds)
+setInterval(watchProjectDirs, 10000);
 
 // CORS headers for Figma plugin requests
 function setCorsHeaders(res) {
@@ -78,7 +81,7 @@ function setCorsHeaders(res) {
 }
 
 // Resolve relative script filename to absolute path
-// Example: "FoodDeliveryApp/screens/cart.js" → "/Users/.../FoodDeliveryApp/screens/cart.js"
+// Example: "FoodDeliveryApp/screens/cart.js" or "Crusource/components/Button.js"
 function resolveScriptPath(filename) {
   const filePath = path.normalize(path.join(ROOT_DIR, filename));
   if (filePath.startsWith(ROOT_DIR) && fs.existsSync(filePath)) {
@@ -151,7 +154,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Trigger execution of any project screen script
+  // Trigger execution of any script (screen, component, or token)
   if (reqUrl === '/api/run' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
@@ -173,19 +176,33 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // List all project workspaces and their screen scripts dynamically
+  // List all project workspaces, screens, components, and tokens dynamically
   if (reqUrl === '/api/projects' && req.method === 'GET') {
     try {
       const entries = fs.readdirSync(ROOT_DIR, { withFileTypes: true });
       const projects = entries
         .filter(e => e.isDirectory())
         .filter(e => !['plugin', 'core', 'global', 'node_modules', '.git'].includes(e.name))
-        .filter(e => fs.existsSync(path.join(ROOT_DIR, e.name, 'screens')))
         .map(e => {
           const screensDir = path.join(ROOT_DIR, e.name, 'screens');
-          const screens = fs.readdirSync(screensDir).filter(f => f.endsWith('.js'));
-          return { name: e.name, screenCount: screens.length, screens };
-        });
+          const componentsDir = path.join(ROOT_DIR, e.name, 'components');
+          const tokensDir = path.join(ROOT_DIR, e.name, 'tokens');
+
+          const screens = fs.existsSync(screensDir) ? fs.readdirSync(screensDir).filter(f => f.endsWith('.js')) : [];
+          const components = fs.existsSync(componentsDir) ? fs.readdirSync(componentsDir).filter(f => f.endsWith('.js')) : [];
+          const tokens = fs.existsSync(tokensDir) ? fs.readdirSync(tokensDir).filter(f => f.endsWith('.js')) : [];
+
+          return {
+            name: e.name,
+            screenCount: screens.length,
+            componentCount: components.length,
+            tokenCount: tokens.length,
+            screens,
+            components,
+            tokens
+          };
+        })
+        .filter(p => p.screenCount > 0 || p.componentCount > 0 || p.tokenCount > 0);
       
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ projects }));
