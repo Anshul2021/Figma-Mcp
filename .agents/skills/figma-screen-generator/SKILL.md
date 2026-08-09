@@ -33,7 +33,7 @@ When generating UI screens for a project (`<ProjectName>/screens/<screen_name>.j
 2. **Override Command (`@skip-design-taste`)**: If explicitly typed by the user, bypass visual taste guardrails for ultra-fast generation and minimal token usage.
 3. **Component Reuse (`@use-components`)**: If active, instantiate master components from `components/` via `createInstance()`.
 4. **Typography & Icons**: Ensure all font sizes are strict EVEN numbers (`10`, `12`, `14`, `16`, `20`, `24`, `32`). Zero emojis, vector Lucide icons (`strokeWidth = 1.5`).
-5. **Auto Layout Protocol**: Follow order from `FigmaPlugin/core/autolayout.md`.
+5. **Auto Layout Protocol**: Follow order from `FigmaPlugin/core/autolayout.md`. Every generated script MUST include the 5 mandatory Auto Layout helper functions (`makeSpaceBetweenRow`, `makeHugContainer`, `makeContentCard`, `finalizeHugHeight`, `setChildFillWidth`) and use `makeSpaceBetweenRow` for top headers and `makeContentCard` for content cards to permanently prevent 100px × 100px frame collapse bugs.
 6. Write JavaScript script to `FigmaPlugin/<Project_Name>/screens/<screen_name>.js`. `server.js` auto-syncs over SSE. Do NOT run terminal `curl` commands.
 
 ### 5. Absolute Positioning & Parent Appending Rules

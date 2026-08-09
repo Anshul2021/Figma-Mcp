@@ -23,7 +23,7 @@
 
 - **Primary Platform:** Mobile (iOS App)
 - **Screen Dimensions:** `375px × 812px` (standard iPhone mobile screen frame)
-- **Safe Area Insets:** Top `44px` (notch/status area), Bottom `34px` (home indicator bar)
+- **Safe Area Insets:** Top `0px` (Clean top header flush with screen edge), Bottom `20px` (home indicator bar)
 - **Orientation:** Portrait (fixed)
 - **Extensibility:** Standard mobile architecture — easily adaptable to Android or tablet viewports.
 
@@ -35,7 +35,7 @@ Every mobile screen follows the **3-Part Stack**:
 
 ```
 ┌─────────────────────────────────────────┐
-│  TOP HEADER BAR                         │  Height: HUG content
+│  TOP HEADER BAR                         │  Height: HUG content (top padding: 12px-16px)
 │  (Navigation, location, screen title)   │  Width: FIXED 375px
 ├─────────────────────────────────────────┤
 │                                         │
@@ -56,7 +56,7 @@ Every mobile screen follows the **3-Part Stack**:
 |:---------|:--------------|:------|
 | Device Width | `375px` | Standard mobile width |
 | Device Height | `812px` | Standard mobile height |
-| Header Height | `~56px` | Plus top safe area (44px) |
+| Header Height | `~48px - 56px` | Standard mobile header (flush top padding 12px-16px) |
 | Footer Height | `~64px - 84px` | Plus bottom safe padding |
 | Horizontal Screen Margin | `16px - 20px` | Side padding for cards |
 | Card Spacing (Vertical) | `12px - 16px` | Gap between list items |

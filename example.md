@@ -39,7 +39,20 @@ Generate a candidate job application workstation screen for Crusource with:
 
 ---
 
-### D. Design System Generation (3 Pillars Rule)
+### D. Full End-to-End Design System Generation (`@designsystem`)
+```text
+@designsystem
+```
+> **What this does:** 
+> 1. Reads `.agents/skills/ui-design-system/SKILL.md`.
+> 2. Generates/publishes native Figma Variables & Text Styles into `tokens/variables.js` referencing project `local/colors.md` and `local/fonts.md`.
+> 3. Scans all `.js` files in `FigmaPlugin/<Project_Name>/screens/` to identify repeated UI components (Buttons, Avatars, Cards, Navigation Bars, Inputs).
+> 4. Creates master `ComponentSetNode` variants in `components/DesignSystem.js`.
+> 5. Rewrites screens to instantiate components via `componentNode.createInstance()`.
+
+---
+
+### E. Manual Component Sets Generation (`@gen-components`)
 ```text
 @gen-components
 Generate a complete Enterprise Design System for Crusource including color scale swatches, strict even typography scale specimens, and native ComponentSets for Buttons, Inputs, and Badges with interactive Inspector dropdown selectors.
@@ -47,7 +60,7 @@ Generate a complete Enterprise Design System for Crusource including color scale
 
 ---
 
-### E. Native Figma Variables Publishing
+### F. Native Figma Variables Publishing (`@gen-variables`)
 ```text
 @gen-variables
 Publish native Figma Variables for Crusource including Brand Primary Orange (#FF7700), Slate Text Scale (#0F172A, #334155, #64748B), Spacing Scale (4, 8, 12, 16, 24, 32), and Text Styles.
@@ -55,18 +68,10 @@ Publish native Figma Variables for Crusource including Brand Primary Orange (#FF
 
 ---
 
-### F. Component Reuse Mode
+### G. Component Reuse Mode (`@use-components`)
 ```text
 @use-components
 Generate candidate dashboard screen for Crusource reusing existing master Button and Card components from the components library.
-```
-
----
-
-### G. Fast Mode / Quick Mockup (Skip Design Taste Overhead)
-```text
-@skip-design-taste
-Generate a simple candidate profile view with name, email, and resume download link.
 ```
 
 ---

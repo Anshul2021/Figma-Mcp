@@ -17,44 +17,21 @@ Every Auto Layout frame MUST be built following this **exact sequence**. Violati
 │  STEP 2: Set layoutMode FIRST                                    │
 │          frame.layoutMode = "VERTICAL" or "HORIZONTAL";           │
 │                                                                  │
-│  STEP 3: Set visual properties                                   │
-│          frame.fills, frame.strokes, frame.cornerRadius           │
-│                                                                  │
-│  STEP 4: Set padding & itemSpacing                               │
+│  STEP 3: Set padding & itemSpacing                               │
 │          frame.paddingLeft/Right/Top/Bottom, frame.itemSpacing     │
 │                                                                  │
-│  STEP 5: Set alignment properties                                │
-│          frame.primaryAxisAlignItems (e.g. "SPACE_BETWEEN")       │
-│          frame.counterAxisAlignItems (e.g. "CENTER")              │
-│                                                                  │
-│  ⚠️⚠️⚠️ STEPS 6 + 6.5 ARE THE MOST CRITICAL ⚠️⚠️⚠️             │
-│                                                                  │
-│  STEP 6: Call resize() FIRST if frame needs any FIXED dimension  │
+│  STEP 4: Call resize() FIRST if frame needs FIXED dimension       │
 │          frame.resize(width, height);                             │
-│          ⚠️  resize() forces BOTH axes to FIXED mode!            │
-│          ⚠️  This DESTROYS any AUTO mode set BEFORE it!          │
 │                                                                  │
-│  STEP 6.5: Set sizing modes IMMEDIATELY AFTER resize()           │
-│          frame.primaryAxisSizingMode = "FIXED" or "AUTO";         │
-│          frame.counterAxisSizingMode = "FIXED" or "AUTO";         │
-│          ⚠️  MUST come AFTER resize() — not before!              │
-│          ⚠️  If you set "AUTO" before resize(), resize()         │
-│             silently resets it back to "FIXED"!                   │
+│  STEP 5: Set sizing modes AFTER resize()                         │
+│          frame.counterAxisSizingMode = "FIXED";                   │
 │                                                                  │
-│  STEP 7: Append ALL children                                     │
-│          frame.appendChild(child1);                               │
-│          frame.appendChild(child2);                               │
+│  STEP 6: APPEND frame to parent IMMEDIATELY                      │
+│          parent.appendChild(frame);                               │
 │                                                                  │
-│  STEP 8: Set child sizing AFTER appendChild                      │
-│          child.layoutSizingHorizontal = "FILL";                   │
-│          ⚠️  Only works AFTER the child is inside a parent!      │
-│                                                                  │
-│  STEP 9: Set parent HUG modes LAST (for deferred HUG)           │
-│          frame.primaryAxisSizingMode = "AUTO";  ← HUG            │
-│          ⚠️  This MUST be the LAST sizing call on this frame     │
-│          ⚠️  Any resize() after this DESTROYS the HUG!           │
-│          USE THIS when frame needs FIXED width + HUG height      │
-│          (e.g. content cards). Call finalizeHugHeight() here.     │
+│  STEP 7: Set STRETCH / FILL AFTER appendChild (NEVER BEFORE!)     │
+│          frame.layoutAlign = "STRETCH";                           │
+│          try { frame.layoutSizingHorizontal = "FILL"; } catch(e){}│
 └──────────────────────────────────────────────────────────────────┘
 ```
 

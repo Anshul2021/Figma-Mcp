@@ -10,18 +10,24 @@ To create interactive component property dropdowns (e.g. `Variant`: Primary/Seco
 
 1. **Name Component Nodes with Key-Value Property Pairs**:
    ```javascript
+   // Full Interactive State Matrix (Never produce single generic variants!)
    const c1 = figma.createComponent(); c1.name = "Variant=Primary, State=Default";
    const c2 = figma.createComponent(); c2.name = "Variant=Primary, State=Hover";
-   const c3 = figma.createComponent(); c3.name = "Variant=Primary, State=Disabled";
-   const c4 = figma.createComponent(); c4.name = "Variant=Secondary, State=Default";
-   const c5 = figma.createComponent(); c5.name = "Variant=Outline, State=Default";
+   const c3 = figma.createComponent(); c3.name = "Variant=Primary, State=Active";
+   const c4 = figma.createComponent(); c4.name = "Variant=Primary, State=Disabled";
+   
+   const c5 = figma.createComponent(); c5.name = "Variant=Secondary, State=Default";
+   const c6 = figma.createComponent(); c6.name = "Variant=Secondary, State=Hover";
+   
+   const c7 = figma.createComponent(); c7.name = "Variant=Outline, State=Default";
+   const c8 = figma.createComponent(); c8.name = "Variant=Outline, State=Hover";
    ```
 
 2. **Combine Variants into a Single `ComponentSetNode`**:
    ```javascript
-   const componentSet = figma.combineAsVariants([c1, c2, c3, c4, c5], parentLibraryFrame);
+   const componentSet = figma.combineAsVariants([c1, c2, c3, c4, c5, c6, c7, c8], parentLibraryFrame);
    componentSet.name = "Button";
-   componentSet.description = "Crusource Master Button Component Set";
+   componentSet.description = "Master Button Component Set with Full State Matrix";
    ```
 
 3. **CRITICAL: Set Auto Layout ON THE `ComponentSetNode` (Prevent Overlapping Variants)**:
@@ -35,45 +41,56 @@ To create interactive component property dropdowns (e.g. `Variant`: Primary/Seco
    componentSet.counterAxisSizingMode = "AUTO";
    ```
 
-4. **Result in Figma**:
-   - Variants render side-by-side in a clean row with 16px spacing.
-   - Figma automatically generates interactive dropdown controls in the right-hand panel for `Variant` and `State`.
+4. **CRITICAL: Apply `primaryAxisSizingMode = "AUTO"` / `counterAxisSizingMode = "AUTO"` AFTER `appendChild()`**:
+   > **ALWAYS append children (`c1.appendChild(child)`) BEFORE setting AUTO sizing modes on `createComponent()`!**
+   ```javascript
+   const c1 = figma.createComponent();
+   c1.name = "Variant=Primary, State=Default";
+   c1.layoutMode = "HORIZONTAL";
+   c1.paddingLeft = 20; c1.paddingRight = 20; c1.paddingTop = 12; c1.paddingBottom = 12;
+   c1.appendChild(textNode); // Append children FIRST
+   c1.primaryAxisSizingMode = "AUTO";  // HUG width AFTER append
+   c1.counterAxisSizingMode = "AUTO";  // HUG height AFTER append
+   ```
 
 ---
 
-## 2. Component Instance Reuse Protocol (in Screen Scripts)
+## 2. Mandatory Component Sets to Generate for Every Project
 
-When `@use-components` is active, screen scripts (`FigmaPlugin/<Project_Name>/screens/<screen_name>.js`) MUST reuse master components instead of constructing raw inline frames:
+Whenever `@gen-components` or `@designsystem` is invoked, the engine MUST generate rich component sets with complete state matrices:
+
+1. 🔘 **Button ComponentSet**:
+   - `Variant`: `Primary` | `Secondary` | `Outline` | `Destructive`
+   - `State`: `Default` | `Hover` | `Active` | `Disabled`
+2. 🏷️ **FilterPill / Tag ComponentSet**:
+   - `Variant`: `Solid` | `Outline`
+   - `State`: `Default` | `Active` | `Disabled`
+3. ⭕ **Avatar / Story Circle ComponentSet**:
+   - `Variant`: `Standard` | `StoryRing` | `CloseFriends` | `ActiveOnline`
+   - `Size`: `Small (36px)` | `Medium (56px)` | `Large (80px)`
+4. 💬 **Chat Item / Post Card ComponentSet**:
+   - `State`: `Default` | `Unread` | `Hover`
+
+---
+
+## 3. Component Instance Reuse Protocol (in Screen Scripts)
+
+When `@use-components` is active, screen scripts MUST reuse master components via `createInstance()`:
 
 ```javascript
-// Look up ComponentSet or Component on currentPage
 const buttonSet = figma.currentPage.findOne(
   node => node.type === "COMPONENT_SET" && node.name === "Button"
 );
 
 if (buttonSet) {
-  // Find specific default variant inside the set
   const defaultVariant = buttonSet.findChild(
     n => n.name.includes("Variant=Primary") && n.name.includes("State=Default")
   );
-  
   if (defaultVariant) {
     const instance = defaultVariant.createInstance();
-    parentAutoLayoutFrame.appendChild(instance);
-    
-    // Override text label
+    parentFrame.appendChild(instance);
     const labelText = instance.findOne(n => n.type === "TEXT");
-    if (labelText) {
-      labelText.characters = "Confirm Action";
-    }
+    if (labelText) labelText.characters = "Confirm Action";
   }
 }
 ```
-
----
-
-## 3. Strict Rules & Anti-Patterns
-
-1. **Auto Layout on ComponentSet**: Always set `componentSet.layoutMode = "HORIZONTAL"` with `itemSpacing = 16` so variants never stack on top of each other.
-2. **Append Before Sizing**: Always append instances to their parent frame (`parentFrame.appendChild(instance)`) BEFORE setting `layoutSizingHorizontal = "FILL"`.
-3. **Never Detach Instances**: Do NOT call `instance.detachInstance()`. Keep component connections intact for design system maintenance.

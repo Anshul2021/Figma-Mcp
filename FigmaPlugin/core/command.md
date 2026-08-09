@@ -43,9 +43,9 @@
   - **Syntax:** `@use-components`
   - **Action:** Instructs screen scripts to inspect `components/` and instantiate existing master components via `componentNode.createInstance()` instead of creating raw inline frames.
 
-- **`@skip-design-taste`**
-  - **Syntax:** `@skip-design-taste` (or `@quick`)
-  - **Action:** Disables high-end visual taste guardrails for faster generation and reduced prompt token usage.
+- **`@designsystem`**
+  - **Syntax:** `@designsystem` (or `@gen-designsystem`)
+  - **Action:** Triggers full project Design System pipeline: reads `.agents/skills/ui-design-system/SKILL.md`, generates native Figma Variables/Text Styles (`tokens/variables.js`), reads project `screens/*.js` to extract recurring UI elements, generates master component sets (`components/DesignSystem.js`), and automatically updates screens with `componentNode.createInstance()`.
 
 ---
 
