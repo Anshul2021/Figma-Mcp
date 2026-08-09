@@ -2,7 +2,7 @@
 
 Generate production-quality Figma UI screens from natural language prompts. Works directly inside the **Figma plugin** (primary) and through an **IDE-based workflow** (advanced).
 
----
+--
 
 ## Quick Start
 
