@@ -1,4 +1,4 @@
-# FrameForge — AI-Powered Figma Screen Generator
+# Morph — AI-Powered Figma Screen Generator
 
 Generate production-quality Figma UI screens from natural language prompts. Works directly inside the **Figma plugin** (primary) and through an **IDE-based workflow** (advanced).
 
@@ -40,7 +40,7 @@ Server output:
 
 ```
 ══════════════════════════════════════════════
-  ⚡ FrameForge Server (Direct Mode)
+  ✦ Morph Server (Direct Mode)
   Running at: http://localhost:3003
   Rate Limit: 10 credits / model / day
   Gemini: Ready
@@ -51,7 +51,7 @@ Server output:
 
 1. Open Figma Desktop → **Plugins** → **Development** → **Import plugin from manifest**
 2. Select `FigmaPlugin/plugin/manifest.json`
-3. Run **FrameForge** from the Figma plugins menu.
+3. Run **Morph** from the Figma plugins menu.
 
 ---
 

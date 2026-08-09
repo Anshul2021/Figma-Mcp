@@ -1,5 +1,5 @@
 /**
- * FrameForge — Daily Rate Limiter Engine
+ * Morph — Daily Rate Limiter Engine
  * 
  * Manages daily credit allocation: 10 generations per model per day.
  * Usage is stored in `.rate-limit.json` and automatically resets at midnight.

@@ -1,4 +1,4 @@
-# FrameForge — Repository Architecture
+# Morph — Repository Architecture
 
 ```
 Figma-Mcp/
@@ -25,7 +25,7 @@ Figma-Mcp/
     │   └── project-manager.js            Project scaffolding & config CRUD
     │
     ├── plugin/                           Figma Plugin Client
-    │   ├── manifest.json                 Plugin manifest (FrameForge)
+    │   ├── manifest.json                 Plugin manifest (Morph)
     │   ├── code.js                       Main thread (script execution)
     │   └── ui.html                       Multi-view plugin UI
     │

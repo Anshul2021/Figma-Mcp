@@ -1,5 +1,5 @@
 /**
- * FrameForge — Project Manager
+ * Morph — Project Manager
  * 
  * Handles all project CRUD operations:
  *  - Scaffold new project directories (screens/, components/, tokens/, local/)

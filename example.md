@@ -1,10 +1,10 @@
-# FrameForge — Example Prompts & Workflows
+# Morph — Example Prompts & Workflows
 
 ## Plugin Workflow Examples (Direct Mode)
 
 ### Creating a Project
 
-1. Open FrameForge plugin in Figma (launches directly to Home Dashboard)
+1. Open Morph plugin in Figma (launches directly to Home Dashboard)
 2. Click **New Project**
 3. Fill in:
    - **Name:** `FoodDelivery`

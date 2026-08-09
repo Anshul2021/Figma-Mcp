@@ -1,5 +1,5 @@
 /**
- * FrameForge — Gemini Client
+ * Morph — Gemini Client
  * 
  * Thin wrapper around @google/generative-ai SDK.
  * Accepts a system prompt + user prompt + optional multimodal image reference,

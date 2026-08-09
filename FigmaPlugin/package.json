@@ -1,7 +1,7 @@
 {
-  "name": "frameforge-server",
+  "name": "morph-server",
   "version": "1.0.0",
-  "description": "FrameForge — AI-powered Figma screen generation backend",
+  "description": "Morph — AI-powered Figma screen generation backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

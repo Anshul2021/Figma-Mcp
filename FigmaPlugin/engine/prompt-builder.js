@@ -1,5 +1,5 @@
 /**
- * FrameForge — Prompt Builder
+ * Morph — Prompt Builder
  * 
  * Constructs the full system prompt for Gemini by reading and concatenating:
  *  1. Role & Output Format
