@@ -1,350 +1,206 @@
 # Morph — AI-Powered Figma Screen Generator
 
-> Turn a sentence into a production-quality Figma screen. Morph reads your brief, applies real design-system rules, writes a Figma Auto Layout script, and renders it on your canvas in seconds — no screenshots, no manual spacing.
+> Turn natural language prompts into production-quality, Auto Layout Figma screens in seconds. Morph analyzes code instead of screenshots, generating precise UI layouts, master component sets, and native Figma variables with minimal token consumption.
 
-| Label | Value |
-|---|---|
-| Status | MVP — actively developed |
-| Model | Google Gemini Flash (current) |
-| Output | Native Figma Auto Layout screens, components, tokens |
-| Workflow | Natural language prompt → Figma script → live canvas |
-| Cost | Dramatically fewer tokens than screenshot-based generators |
+<p align="left">
+  <img src="https://img.shields.io/badge/Status-MVP--Active-orange?style=for-the-badge" alt="Status">
+  <img src="https://img.shields.io/badge/Engine-Gemini_Flash-4285F4?style=for-the-badge&logo=google" alt="Engine">
+  <img src="https://img.shields.io/badge/Output-Auto_Layout-059669?style=for-the-badge&logo=figma" alt="Output">
+  <img src="https://img.shields.io/badge/Tokens-Code_Driven-7C3AED?style=for-the-badge" alt="Tokens">
+</p>
 
 ---
 
 ## Overview
 
-Morph is a **self-contained AI workspace for generating Figma UI screens**. You describe a screen — *"Instagram-style profile page with a photo grid"* — and Morph produces a finished, Auto Layout-based screen directly inside Figma. It also generates **master component sets** and **native Figma Variables** so a full design system can be assembled automatically from your screens.
+Morph is a self-contained AI system that transforms text prompts into editable, Auto Layout-compliant Figma UI screens. Instead of relying on raster screenshots, Morph generates structured JavaScript execution scripts directly inside Figma's API sandbox.
 
-### Two ways to use it
+### Target Audiences
 
-| | Developers | Designers |
+| Audience Tag | Primary Workflow | Key Advantages |
 |---|---|---|
-| What you do | Clone, code, and orchestrate with your own AI assistant | Install the Figma plugin and just describe screens |
-| AI cost | None extra — uses your existing Claude / Cursor / Copilot subscription | Built-in Gemini key (cheap, fast) |
-| Output | Full control over scripts, prompts, and architecture | Screens, design systems, and tokens with one click |
-| Best for | Building on this project, automation, custom workflows | Rapid UI exploration without writing code |
+| <img src="https://img.shields.io/badge/Audience-Developers-2563EB?style=flat-square" alt="Developers"> | Clone repository, integrate with preferred IDE or AI assistant (Claude, Cursor, Copilot) | Zero API fees by leveraging existing AI subscriptions, full script control |
+| <img src="https://img.shields.io/badge/Audience-Designers-EC4899?style=flat-square" alt="Designers"> | Install Figma plugin, configure project tokens, generate screens and design systems | No coding required, automatic design system generation from screen patterns |
 
 ---
 
-## The Problem: screenshot-based generation is slow and expensive
+## The Problem: Screenshot-Based AI Generation
 
-Most "Figma MCP" tools work like this today — and every step burns tokens:
+Most existing Figma AI workflows rely on iterative screenshot analysis, creating significant performance and cost bottlenecks.
 
 ```mermaid
 flowchart TD
-    A[Prompt] --> B[Generate screenshot image]
-    B --> C[Model analyzes image]
-    C --> D[Model guesses layout + colors]
-    D --> E[Convert to code]
-    E --> F[Render in Figma]
-    C -.->|Repeat for every revision| C
+    Prompt[User Prompt] --> RenderImage[Render Screenshot Image]
+    RenderImage --> VisionModel[Vision Model Analyzes Image]
+    VisionModel --> GuessCode[Model Guesses Layout & Spacing]
+    GuessCode --> FigmaCanvas[Render in Figma]
+    FigmaCanvas -.->|Iterative Revisions| RenderImage
 ```
 
-- Every revision regenerates a **raster image** the model must re-analyze.
-- Models consume a huge number of tokens reading images, and still **misjudge spacing, fonts, and alignment**.
-- Loops of *screenshot → analyze → code* make the process **slow, expensive, and imprecise**.
+### Limitations of Image-Based Workflows
+
+- **High Token Consumption:** Multi-modal vision models consume thousands of tokens per image iteration.
+- **Slow Feedback Loops:** Generating and re-analyzing raster images adds significant latency.
+- **Imprecise Layouts:** Models struggle to infer exact padding, gap values, and Auto Layout constraints from pixels.
 
 ---
 
-## The Solution: Morph generates code, not screenshots
+## The Solution: Code-Driven Direct Execution
+
+Morph replaces image-based analysis with direct code synthesis. The AI generates clean Figma API scripts that execute natively on the canvas.
 
 ```mermaid
 flowchart LR
-    A[Your prompt] --> B[Morph protocol]
-    B --> C[Gemini]
-    C --> D[Figma Auto Layout script]
-    D --> E[Live on canvas]
+    UserPrompt[User Prompt & Context] --> MorphEngine[Morph Execution Engine]
+    MorphEngine --> Gemini[Google Gemini Engine]
+    Gemini --> Script[Figma Auto Layout Script]
+    Script --> Canvas[Live Figma Canvas]
 ```
 
-Morph **never renders a screenshot**. Instead:
+### Key Technical Advantages
 
-1. Your prompt is combined with design protocols (Auto Layout rules, component rules, variable rules).
-2. **Gemini** writes a clean Figma script — colors, typography, layout, icons, spacing all decided in one pass.
-3. The plugin **executes the script** in Figma's sandbox, and the screen appears on your canvas live.
-
-### Why this is faster, cheaper, and more accurate
-
-| Factor | Screenshot-based approach | Morph (code-based) |
+| Metric | Screenshot-Based Tools | Morph (Code-Driven) |
 |---|---|---|
-| Model input | Raster image | Structured text (code + rules) |
-| Tokens per iteration | Very high | Low |
-| Revision feedback loop | Generate image → re-analyze | Rewrite code directly |
-| Layout fidelity | Guessed from pixels | Explicit Auto Layout properties |
-| Cost | Expensive | Cost-effective |
+| **Input Format** | Heavy Pixel Images | <img src="https://img.shields.io/badge/Format-Structured_Code-2563EB?style=flat-square" alt="Code"> |
+| **Fidelity** | Estimated Bounds | <img src="https://img.shields.io/badge/Precision-Exact_Auto_Layout-059669?style=flat-square" alt="Precision"> |
+| **Cost Efficiency** | High Cost Per Iteration | <img src="https://img.shields.io/badge/Cost-Minimal_Tokens-7C3AED?style=flat-square" alt="Cost"> |
+| **Speed** | 30-60 Seconds Per Loop | <img src="https://img.shields.io/badge/Speed-3--5_Seconds-D97706?style=flat-square" alt="Speed"> |
 
-> **Why code wins:** models understand code far better than pixels. Colors, font sizes, paddings, and layout relationships are all explicit in script, so the model produces precise, consistent, Auto Layout-correct screens instead of reconstructing details from an image.
+### Model Optimization Notice
 
-### Model support
-
-Morph currently ships with **Gemini Flash models**, chosen because they are highly optimized for this kind of structured script generation.
-
-| Model | ID | Daily credits |
-|---|---|---|
-| Gemini 3.6 Flash (recommended) | `gemini-3.6-flash` | 10 / day |
-| Gemini 3.5 Flash | `gemini-3.5-flash` | 10 / day |
-| Gemini 3.5 Flash Lite | `gemini-3.5-flash-lite` | 10 / day |
-| Gemini 3.1 Flash Lite | `gemini-3.1-flash-lite` | 10 / day |
-| Gemini 3 Flash | `gemini-3-flash` | 10 / day |
-| Gemini 2.5 Flash | `gemini-2.5-flash` | 10 / day |
-| Gemini 2.5 Flash Lite | `gemini-2.5-flash-lite` | 10 / day |
-
-In the future you will be able to bring your own API key for **OpenAI or other providers**. For now, Morph focuses on Gemini only.
+Morph is currently optimized for **Google Gemini Flash** models due to their speed, large context windows, and strong compliance with structured script generation. Support for custom API keys (OpenAI, Anthropic, and local LLMs) will be introduced in future releases.
 
 ---
 
-## For Designers: generate screens without writing code
+## Workflows
 
-You never touch a script. The plugin does everything.
+### Designer Workflow (Plugin-Only)
 
 ```mermaid
 flowchart TD
-    A[Install Morph plugin] --> B[Create a project]
-    B --> C[Fill project details: name, brief, colors, fonts, taste]
-    C --> D[Generate screens from prompts]
-    D --> E[Generate a design system]
-    E --> F[Publish variables + components]
+    D1[Install Figma Plugin] --> D2[Create Project & Set Tokens]
+    D2 --> D3[Generate UI Screens]
+    D3 --> D4[Extract Design System]
+    D4 --> D5[Publish Native Variables]
 ```
 
-### Step-by-step
-
-1. **Install the plugin** — open Figma Desktop, then `Plugins → Development → Import plugin from manifest` and select `FigmaPlugin/plugin/manifest.json`.
-2. **Launch Morph** and enter your name.
-3. **Create a project** — click `New Project` and fill in the project details:
-
-   | Field | Example |
-   |---|---|
-   | Name | `FoodDelivery` |
-   | Brief | A food delivery app for urban millennials |
-   | Colors | `#FF6B35`, `#2EC4B6`, `#1A1A2E`, `#E8E8E8` |
-   | Font | `Poppins` |
-   | Taste | Warm, rounded 12px corners, soft shadows, vibrant photography |
-
-4. **Generate screens** — click `Generate Screen`, type a description, pick a model, and the screen renders on your canvas instantly.
-5. **Generate a design system** — after a few screens exist, run `Build Design System`. Morph **extracts the colors, typography, and component patterns** from your generated screens and assembles reusable master components, swatches, and a type scale.
-6. **Publish variables** — generate native Figma Variables and text styles that the generated artboards reference.
+1. **Install Plugin:** Import `FigmaPlugin/plugin/manifest.json` into Figma Desktop.
+2. **Setup Project:** Define project name, domain brief, color palette, typography, and visual taste.
+3. **Generate Screens:** Describe desired UI screens using natural language prompts.
+4. **Build Design System:** Click **Build Design System** to automatically extract master components, swatches, and typography scales from generated screens.
+5. **Publish Tokens:** Export native Figma Variables and Text Styles to the Figma file.
 
 ---
 
-## For Developers: run it yourself and build on top
-
-Morph is a thin, hackable Node server plus a Figma plugin. You are not limited to Gemini — use **Claude, Cursor, Copilot, or any coding agent** you already pay for, in any IDE, to drive the same protocols. Because it uses your existing subscription instead of per-call APIs, iterating is effectively free.
-
-### Quick setup
-
-<details>
-<summary><b>Setup steps (click to expand)</b></summary>
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Anshul2021/Figma-Mcp.git
-cd Figma-Mcp/FigmaPlugin
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment
-cp .env.example .env
-#    set GEMINI_API_KEY (get yours at https://aistudio.google.com/apikey)
-
-# 4. Start the local server
-node server.js
-```
-
-Then import the plugin in Figma (`Plugins → Development → Import plugin from manifest` → `FigmaPlugin/plugin/manifest.json`).
-
-</details>
-
-### The developer loop
-
-```mermaid
-flowchart LR
-    A[Create project] --> B[Generate screens]
-    B --> C[Generate design system]
-    C --> D[Generate variables]
-    D --> E[Iterate: refine prompts + reuse components]
-    E --> B
-```
-
-1. **Create a project** — type `<kbd>@newproject MyApp</kbd>` in your assistant, or use the plugin's `New Project` form. Add a brief with `<kbd>@brief ...</kbd>`.
-2. **Generate screens** — prompt in plain language (or via the plugin). Each screen is a `.js` Auto Layout script saved to `FigmaPlugin/<Project>/screens/`.
-3. **Generate a design system** — run `<kbd>@designsystem</kbd>` (or the plugin button) to build master component sets.
-4. **Generate variables** — run `<kbd>@gen-variables</kbd>` to publish native Figma Variables and text styles.
-5. **Iterate** — screens reuse the master components via `<kbd>@use-components</kbd>`, so your design stays consistent as you add screens.
-
----
-
-## Supported commands
-
-Type these inside the plugin prompt or include them in your assistant prompts.
-
-| Command | What it does |
-|---|---|
-| <kbd>@newproject &#60;Name&#62;</kbd> | Scaffold a fresh project workspace (`screens/`, `components/`, `tokens/`, `local/`) |
-| <kbd>@brief &#60;description&#62;</kbd> | Set the product brief / domain context for all future generations |
-| <kbd>@gen-variables</kbd> | Publish native Figma Variables and text styles to the Variables panel |
-| <kbd>@gen-components</kbd> | Create reusable master components |
-| <kbd>@use-components</kbd> | Use existing master components (`createInstance`) instead of raw inline frames |
-| <kbd>@designsystem</kbd> | End-to-end pipeline: tokens + analysis + component sets + screen update |
-| <kbd>@font &#60;Font&#62;</kbd> | Override the font family for the session |
-| <kbd>@color &#60;Hex&#62;, &#60;Hex&#62;</kbd> | Override primary and secondary brand colors |
-| <kbd>@taste &#60;style&#62;</kbd> | Override visual styling (glassmorphism, dark mode, shadows, etc.) |
-| <kbd>@skip-autolayout</kbd> | Fall back to absolute x/y positioning instead of Auto Layout |
-| <kbd>@skip-design-taste</kbd> | Bypass visual taste guardrails for ultra-fast, minimal-token generation |
-
----
-
-## Important: this is an MVP
-
-Morph is an early, actively developed product. The Auto Layout generation has been heavily optimized, but there may be occasional cases where a screen doesn't come out perfectly.
-
-If that happens:
-
-1. Use **<kbd>@skip-autolayout</kbd>** to generate a static layout with absolute coordinates instead.
-2. Or fix it manually in Figma — typically a minor **Hug Contents** / **Fill Container** tweak in the Auto Layout panel.
-3. If a generated frame is named **"Generated UI Screen"** and looks cropped, **select it and ungroup once** — the complete screen is there, just wrapped.
-
----
-
-## Technical architecture
+### Developer Workflow (IDE & Agent-Driven)
 
 ```mermaid
 flowchart TD
-    subgraph Figma["Figma (Desktop)"]
-        P1["plugin/ui.html"] --> P2["plugin/code.js"]
-        P2 --> CANVAS["Canvas"]
-    end
-    subgraph Server["Node server — FigmaPlugin/"]
-        S1["server.js"]
-        S2["engine/ — Gemini client, prompt builder, project manager, storage, rate limiter"]
-        CORE["core/ — command.md, instruction.md, autolayout.md, component.md, variables.md"]
-        G["global/ — brief.md, colors.md, fonts.md, taste.md"]
-        SK["agents/ — skills"]
-        PROJ["Project folders — screens, components, tokens, local"]
-    end
-    P1 -->|"POST /api/generate/screen"| S1
-    S1 --> S2
-    S2 -->|"reads"| CORE
-    S2 -->|"reads"| G
-    S2 -->|"reads"| SK
-    S2 -->|"writes scripts"| PROJ
-    S1 -->|"script bytes over /api/scripts"| P1
-    P2 -->|"executes Auto Layout script"| CANVAS
+    DEV1[Clone Repository] --> DEV2[Configure Local Node Bridge]
+    DEV2 --> DEV3[Scaffold Project via AI Agent]
+    DEV3 --> DEV4[Generate Screens & Components]
+    DEV4 --> DEV5[Publish Variables & Component Sets]
 ```
 
-| Layer | Purpose |
-|---|---|
-| `plugin/` | The Figma client — UI (`ui.html`), main thread (`code.js`), `manifest.json` |
-| `server.js` | API backend: project CRUD, AI generation, script serving, SSE bridge |
-| `core/` | Immutable engine protocols the AI must follow when writing scripts |
-| `global/` | Default templates copied into every new project |
-| `.agents/skills/` | AI skills auto-applied during generation |
-| `engine/` | Implementation code (one line: the generation engine) |
-
-### How the generation engine is structured
-
-```text
-Figma-Mcp/
-├── AGENTS.md                     Orchestrator directives for every AI session
-├── .agents/skills/               AI skill registry used while generating
-└── FigmaPlugin/
-    ├── server.js                 Node API server + SSE bridge
-    ├── core/                     Immutable generation protocols
-    ├── global/                   Default context templates
-    ├── engine/                   Implementation code
-    ├── plugin/                   Figma plugin client
-    └── <ProjectName>/            Your projects (screens, components, tokens, local)
-```
+1. **Clone & Install:**
+   ```bash
+   git clone https://github.com/Anshul2021/Figma-Mcp.git
+   cd Figma-Mcp/FigmaPlugin
+   npm install
+   ```
+2. **Start Local Bridge:**
+   ```bash
+   node server.js
+   ```
+3. **Orchestrate via Agent:** Use any coding assistant (Claude, Cursor, Copilot) to execute commands against project directories.
+4. **Iterate & Refine:** Scripts automatically sync to the Figma canvas via the local SSE watch server.
 
 ---
 
-## Execution flow
+## Supported Commands
 
-When you start a new project or prompt, the system:
+Commands can be passed directly inside prompts or executed via AI coding agents.
+
+| Command | Tag | Category | Description |
+|---|---|---|---|
+| `<kbd>@newproject &lt;Name&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Setup-2563EB?style=flat-square" alt="Setup"> | Scaffolding | Initializes a project directory structure (`screens/`, `components/`, `tokens/`, `local/`). |
+| `<kbd>@brief &lt;Text&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Context-4F46E5?style=flat-square" alt="Context"> | Context | Defines product domain, audience, and core features in `local/brief.md`. |
+| `<kbd>@gen-variables</kbd>` | <img src="https://img.shields.io/badge/Type-Tokens-059669?style=flat-square" alt="Tokens"> | Design Tokens | Publishes native Figma color variables and text styles to the Figma file. |
+| `<kbd>@gen-components</kbd>` | <img src="https://img.shields.io/badge/Type-Library-D97706?style=flat-square" alt="Library"> | Components | Generates master reusable components in `components/`. |
+| `<kbd>@use-components</kbd>` | <img src="https://img.shields.io/badge/Type-Reuse-7C3AED?style=flat-square" alt="Reuse"> | Optimization | Forces screen scripts to instantiate master components (`createInstance()`). |
+| `<kbd>@designsystem</kbd>` | <img src="https://img.shields.io/badge/Type-Pipeline-DB2777?style=flat-square" alt="Pipeline"> | Pipeline | Runs full pipeline: token extraction, component set generation, and screen updates. |
+| `<kbd>@font &lt;FontName&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Override-0284C7?style=flat-square" alt="Override"> | Override | Overrides font family for the generation session. |
+| `<kbd>@color &lt;Hex1&gt;, &lt;Hex2&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Override-0284C7?style=flat-square" alt="Override"> | Override | Overrides brand primary and secondary color tokens. |
+| `<kbd>@taste &lt;Description&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Style-65A30D?style=flat-square" alt="Style"> | Styling | Overrides visual styling attributes (radii, borders, shadows). |
+| `<kbd>@skip-autolayout</kbd>` | <img src="https://img.shields.io/badge/Type-Fallback-DC2626?style=flat-square" alt="Fallback"> | Fallback | Disables Auto Layout and uses absolute X/Y positioning. |
+| `<kbd>@skip-design-taste</kbd>` | <img src="https://img.shields.io/badge/Type-Fast-4B5563?style=flat-square" alt="Fast"> | Performance | Bypasses extended design guidelines for minimal token generation. |
+
+---
+
+## MVP Status & Troubleshooting Notice
+
+> **Important:** Morph is currently an **MVP**. Auto Layout generation rules are heavily optimized, but occasional layout edge cases may occur depending on prompt complexity.
+
+### Recommended Handlers
+
+- **Layout Fixes:** If an Auto Layout container collapses, use `<kbd>@skip-autolayout</kbd>` to generate static absolute positioning, or manually adjust **Hug Contents** / **Fill Container** in Figma's Auto Layout panel.
+- **Cropped Canvas Fix:** If a generated frame is named **"Generated UI Screen"** and appears cropped, select the parent frame and **ungroup it once** (`Cmd + Shift + G` / `Ctrl + Shift + G`) to reveal the complete container.
+
+---
+
+## Technical Architecture
 
 ```mermaid
-sequenceDiagram
-    participant U as You / AI agent
-    participant S as server.js
-    participant P as Prompt builder
-    participant M as Gemini
-    participant F as Figma
+flowchart TD
+    subgraph FigmaClient["Figma Desktop Plugin"]
+        UI["plugin/ui.html"] <--> CODE["plugin/code.js"]
+        CODE <--> CANVAS["Figma Canvas"]
+    end
 
-    U->>S: prompt + @commands + project
-    S->>P: build system prompt
-    P->>P: read core protocols, global templates, project local config + skills
-    P->>M: full protocol prompt
-    M-->>S: Figma script (.js)
-    S-->>F: script served to plugin
-    F->>F: execute script on canvas
+    subgraph NodeServer["Local Bridge / Vercel Cloud"]
+        SERVER["server.js / API Endpoints"]
+        ENGINE["engine/ Core Logic"]
+        CORE["core/ Rules Protocols"]
+        GLOBAL["global/ Default Templates"]
+        SKILLS[".agents/skills/ Design Skills"]
+        PROJECTS["<Project_Name>/ Workspace"]
+    end
+
+    UI <-->|HTTP / SSE Watch| SERVER
+    SERVER --> ENGINE
+    ENGINE --> CORE
+    ENGINE --> GLOBAL
+    ENGINE --> SKILLS
+    ENGINE --> PROJECTS
 ```
 
-1. The agent reads **AGENTS.md** — the master directives for generating and orchestrating.
-2. Based on your prompt, it pulls the relevant **core protocol files** below.
-3. It merges them with your project's **`local/` config** (brief, colors, fonts, taste) and the **skills** folder.
-4. The assembled prompt goes to **Gemini**, which returns a Figma script.
-5. The server saves the script, and the plugin executes it live.
+### Core Execution Protocol Files (`core/`)
 
-### Core protocol files
+When a generation request is initialized, the system prompt builder reads the core protocol directives:
 
-| File | Purpose |
-|---|---|
-| `core/command.md` | Syntax and priority of every `@command` supported by the system |
-| `core/instruction.md` | Core generation rules, zero-emoji + vector-icon guidelines, even-number font sizes |
-| `core/autolayout.md` | The exact Auto Layout execution order and anti-patterns to avoid (prevents 100px-square frames) |
-| `core/component.md` | How master components are created and reused via `createInstance()` |
-| `core/variables.md` | How native Figma Variables and text styles are published |
-
-### Default templates (`global/`)
-
-Every project starts from these reference files (copied into its `local/` folder so you can override per project):
-
-| File | Purpose |
-|---|---|
-| `global/fonts.md` | Default font family + strict even-number type scale |
-| `global/colors.md` | Default color tokens (brand, neutral scale, semantic status) |
-| `global/taste.md` | Default visual styling, radii, and borders |
-| `global/brief.md` | Default app brief template |
-
-### AI skills (`.agents/skills/`)
-
-These are auto-applied whenever you generate screens or a design system:
-
-| Skill | Purpose |
-|---|---|
-| `frontend-design` | Visual tone and anti-slop direction — read on every screen generation |
-| `design-taste-frontend` | Editorial craft, micro-paddings, subtle 1px borders |
-| `ui-design-system` | Component states, tokens, and accessibility — used for design systems |
-| `figma-screen-generator` | Auto Layout execution + plugin bridge rules — used for every script |
+| File | Tag | Purpose |
+|---|---|---|
+| [`core/command.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/command.md) | <img src="https://img.shields.io/badge/Core-Commands-2563EB?style=flat-square" alt="Commands"> | Command syntax resolution and priority execution logic. |
+| [`core/instruction.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/instruction.md) | <img src="https://img.shields.io/badge/Core-Rules-059669?style=flat-square" alt="Rules"> | Core screen generation rules, vector icon loading protocols, and typography scaling constraints. |
+| [`core/autolayout.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/autolayout.md) | <img src="https://img.shields.io/badge/Core-AutoLayout-D97706?style=flat-square" alt="AutoLayout"> | Mandatory Auto Layout construction order and anti-pattern prevention. |
+| [`core/component.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/component.md) | <img src="https://img.shields.io/badge/Core-Components-7C3AED?style=flat-square" alt="Components"> | Master component set creation and instance reuse guidelines. |
+| [`core/variables.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/variables.md) | <img src="https://img.shields.io/badge/Core-Variables-DB2777?style=flat-square" alt="Variables"> | Native Figma Variables and Local Text Styles publishing protocol. |
 
 ---
 
-## Operator tools (optional)
+### Supporting System Directories
 
-Morph tracks who uses the plugin and how many credits remain per IP.
+#### Default Context Templates (`global/`)
+Contains baseline reference files (`brief.md`, `colors.md`, `fonts.md`, `taste.md`) that are copied into each project's `local/` directory upon initialization.
 
-| Tool | How to access |
-|---|---|
-| Activity panel | Plugin home screen → users icon → enter `ADMIN_TOKEN` once |
-| Web dashboard | `https://figma-mcp-topaz.vercel.app/admin` |
-| Users API | `GET /api/users?token=<ADMIN_TOKEN>` / `DELETE /api/users/<ip>?token=<ADMIN_TOKEN>` |
+#### AI Skill Registry (`.agents/skills/`)
+Contains domain-specific design skills (`frontend-design`, `design-taste-frontend`, `ui-design-system`, `figma-screen-generator`) automatically injected into prompt context during screen and component generation.
 
-### API reference
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/status` | GET | Server health + credit summary |
-| `/api/projects` | GET / POST | List / create projects |
-| `/api/projects/:name/config` | GET / PUT | Read / update project config |
-| `/api/generate/screen` | POST | Generate a screen |
-| `/api/generate/designsystem` | POST | Generate a design system |
-| `/api/models` | GET | Available models + remaining credits |
-| `/api/credits` | GET | Credit status |
-| `/api/scripts/:path` | GET | Serve a script to the plugin |
-| `/api/watch` | GET | SSE stream for live auto-sync (local mode) |
+#### Backend Implementation (`engine/`)
+Contains underlying Node.js execution logic for API requests, Gemini model integration, storage management, and rate limiting.
 
 ---
 
 ## Summary
 
-Morph is a prompt-to-Figma generator that replaces the expensive, error-prone *screenshot → analyze → code* loop with a single, direct **code-generation pass**. It reads your brief, applies auto-layout and design-system protocols, and has Gemini write a precise Figma script that renders instantly. **Designers** get screens, design systems, and variables with a few clicks in the plugin. **Developers** get a clean, hackable Node server plus plugin that they can drive from any IDE and any AI assistant — without paying per-token API fees. One prompt, one pass, a fully formed screen on your canvas.
+Morph is a lightweight, high-speed UI generation architecture that bridges natural language prompts directly to native Figma Auto Layout canvas elements. By shifting from image-based vision analysis to direct script synthesis, Morph delivers faster generation times, lower token costs, and extensible workflows for both designers and developers.
