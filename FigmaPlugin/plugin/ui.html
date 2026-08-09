@@ -953,7 +953,15 @@ function closeContactModal() {
   }
 }
 window.openContactModal = openContactModal;
-window.closeContactModal = closeContactModal;
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // ── State ──
 let currentProject = null;
@@ -1115,11 +1123,17 @@ function renderHomeContent() {
   let html = greet + '<div class="section-label">Your Projects</div>';
   for (const proj of projectsCache) {
     const total = proj.screenCount + proj.componentCount + proj.tokenCount;
+    const safeName = escapeHtml(proj.name);
     html += `
-      <div class="project-card" onclick="openProject('${proj.name}')">
+      <div class="project-card" onclick="openProject('${safeName}')">
         <div class="project-card-header">
-          <span class="project-card-name">${proj.name}</span>
-          <span class="project-card-badge">${total} files</span>
+          <span class="project-card-name">${safeName}</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="project-card-badge">${total} files</span>
+            <button class="icon-btn" title="Delete Project" onclick="event.stopPropagation(); promptDeleteProject('${safeName}')" style="width:22px; height:22px; border:none; background:none; color:var(--muted); cursor:pointer; padding:2px; display:inline-flex; align-items:center; justify-content:center;" onmouseover="this.style.color='var(--error)'" onmouseout="this.style.color='var(--muted)'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
         </div>
         <div class="project-card-meta">
           <span>
@@ -1134,6 +1148,12 @@ function renderHomeContent() {
       </div>`;
   }
   container.innerHTML = html;
+}
+
+function promptDeleteProject(projectName) {
+  pendingDeletePath = `project:${projectName}`;
+  document.getElementById('confirmMessage').innerHTML = `You're about to delete project <strong>"${projectName}"</strong> and all its generated screens. This can't be undone.`;
+  document.getElementById('confirmModal').classList.add('active');
 }
 
 function openProject(name) {
@@ -1205,11 +1225,31 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
   pendingDeletePath = null;
   document.getElementById('confirmModal').classList.remove('active');
   if (!path) return;
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/scripts/${encodeURIComponent(path)}`, { method: 'DELETE' });
-    if (data.success) { showToast(`Deleted ${path.split('/').pop()}`); if (currentProject) loadProjectScreens(currentProject); }
-    else alert(data.message || 'Failed to delete file');
-  } catch (e) { alert(e.message); }
+
+  if (path.startsWith('project:')) {
+    const projName = path.replace('project:', '');
+    try {
+      const data = await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(projName)}`, { method: 'DELETE' });
+      if (data.success) {
+        showToast(`Deleted project "${projName}"`);
+        if (currentProject === projName) {
+          currentProject = null;
+          showView('home');
+        }
+        loadProjects();
+      } else {
+        alert(data.message || 'Failed to delete project');
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  } else {
+    try {
+      const data = await safeFetchJson(`${SERVER}/api/scripts/${encodeURIComponent(path)}`, { method: 'DELETE' });
+      if (data.success) { showToast(`Deleted ${path.split('/').pop()}`); if (currentProject) loadProjectScreens(currentProject); }
+      else alert(data.message || 'Failed to delete file');
+    } catch (e) { alert(e.message); }
+  }
 });
 document.getElementById('confirmModal').addEventListener('click', (e) => {
   if (e.target.id === 'confirmModal') { pendingDeletePath = null; document.getElementById('confirmModal').classList.remove('active'); }

@@ -109,7 +109,22 @@ function readBody(req) {
 }
 
 function resolveScriptPath(filename) {
-  const filePath = path.normalize(path.join(ROOT_DIR, filename));
+  if (!filename || typeof filename !== 'string') return null;
+  if (filename.includes('..')) return null;
+
+  const normalized = path.normalize(filename);
+  const parts = normalized.split(path.sep).filter(Boolean);
+
+  // Must have structure: <ProjectName>/<subfolder>/<filename.js>
+  if (parts.length < 3) return null;
+
+  const [projName, subFolder, scriptFile] = parts;
+  const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine'];
+  if (SYSTEM_DIRS.includes(projName.toLowerCase())) return null;
+  if (!['screens', 'components', 'tokens'].includes(subFolder.toLowerCase())) return null;
+  if (!scriptFile.endsWith('.js')) return null;
+
+  const filePath = path.normalize(path.join(ROOT_DIR, projName, subFolder, scriptFile));
   if (filePath.startsWith(ROOT_DIR) && fs.existsSync(filePath)) return filePath;
   return null;
 }
@@ -266,6 +281,14 @@ const server = http.createServer(async (req, res) => {
       const projectName = decodeURIComponent(configMatch[1]);
       const body = await readBody(req);
       const result = projectManager.updateProjectConfig(projectName, body);
+      return sendJson(res, result.success ? 200 : 404, result);
+    }
+
+    // Delete a project
+    const projMatch = reqPath.match(/^\/api\/projects\/([^/]+)$/);
+    if (projMatch && req.method === 'DELETE') {
+      const projectName = decodeURIComponent(projMatch[1]);
+      const result = projectManager.deleteProject(projectName);
       return sendJson(res, result.success ? 200 : 404, result);
     }
 

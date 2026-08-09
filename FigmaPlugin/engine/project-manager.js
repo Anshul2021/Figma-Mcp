@@ -17,7 +17,18 @@ const path = require('path');
 const ROOT_DIR = path.join(__dirname, '..');
 
 // Directories that are NOT user projects
-const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine'];
+const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine', 'local', 'screens', 'components', 'tokens', 'public', 'static'];
+
+/**
+ * Validate that a project name is a safe alphanumeric string and not a reserved system directory.
+ */
+function isValidProjectName(projectName) {
+  if (!projectName || typeof projectName !== 'string') return false;
+  const clean = projectName.trim();
+  if (!/^[a-zA-Z0-9_-]+$/.test(clean)) return false;
+  if (SYSTEM_DIRS.includes(clean.toLowerCase())) return false;
+  return true;
+}
 
 /**
  * Scaffold a new project with standard directory structure and rich local config files.
@@ -26,6 +37,10 @@ const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine
  * @returns {{ success: boolean, message: string }}
  */
 function createProject(projectName, config = {}) {
+  if (!isValidProjectName(projectName)) {
+    return { success: false, message: `Invalid or reserved project name: "${projectName}". Use alphanumeric characters only.` };
+  }
+
   const projectDir = path.join(ROOT_DIR, projectName);
 
   if (fs.existsSync(projectDir)) {
@@ -328,9 +343,26 @@ function writeTaste(localDir, projectName, taste) {
   fs.writeFileSync(path.join(localDir, 'taste.md'), content, 'utf8');
 }
 
+function deleteProject(projectName) {
+  if (!isValidProjectName(projectName)) {
+    return { success: false, message: `Access denied: Cannot delete system or invalid path "${projectName}".` };
+  }
+  const projectDir = path.join(ROOT_DIR, projectName);
+  if (!fs.existsSync(projectDir)) {
+    return { success: false, message: `Project "${projectName}" does not exist.` };
+  }
+  try {
+    fs.rmSync(projectDir, { recursive: true, force: true });
+    return { success: true, message: `Project "${projectName}" deleted successfully.` };
+  } catch (e) {
+    return { success: false, message: `Failed to delete project: ${e.message}` };
+  }
+}
+
 module.exports = {
   createProject,
   getProjectConfig,
   updateProjectConfig,
   listProjects,
+  deleteProject,
 };
