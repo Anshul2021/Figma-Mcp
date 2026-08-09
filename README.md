@@ -11,22 +11,29 @@
 
 ---
 
-## Overview
-
-Morph is a self-contained AI system that transforms text prompts into editable, Auto Layout-compliant Figma UI screens. Instead of relying on raster screenshots, Morph generates structured JavaScript execution scripts directly inside Figma's API sandbox.
-
-### Target Audiences
-
-| Audience Tag | Primary Workflow | Key Advantages |
-|---|---|---|
-| <img src="https://img.shields.io/badge/Audience-Developers-2563EB?style=flat-square" alt="Developers"> | Clone repository, integrate with preferred IDE or AI assistant (Claude, Cursor, Copilot) | Zero API fees by leveraging existing AI subscriptions, full script control |
-| <img src="https://img.shields.io/badge/Audience-Designers-EC4899?style=flat-square" alt="Designers"> | Install Figma plugin, configure project tokens, generate screens and design systems | No coding required, automatic design system generation from screen patterns |
+> [!NOTE]
+> **What is Morph?** Morph is a self-contained AI system that transforms text prompts into editable, Auto Layout-compliant Figma UI screens. Instead of relying on raster screenshots, Morph generates structured JavaScript execution scripts directly inside Figma's API sandbox.
 
 ---
 
-## The Problem: Screenshot-Based AI Generation
+## 🎯 Target Audiences
+
+| Audience | Tag | Primary Workflow | Key Advantages |
+|---|---|---|---|
+| **Developers** | <img src="https://img.shields.io/badge/Audience-Developers-2563EB?style=for-the-badge" alt="Developers"> | Clone repository, integrate with preferred IDE or AI assistant (Claude, Cursor, Copilot) | Zero API fees by leveraging existing AI subscriptions, full script control |
+| **Designers** | <img src="https://img.shields.io/badge/Audience-Designers-EC4899?style=for-the-badge" alt="Designers"> | Install Figma plugin, configure project tokens, generate screens and design systems | No coding required, automatic design system generation from screen patterns |
+
+---
+
+## ⚠️ The Problem: Screenshot-Based AI Generation
 
 Most existing Figma AI workflows rely on iterative screenshot analysis, creating significant performance and cost bottlenecks.
+
+> [!WARNING]
+> **Screenshot Loop Flaws:**
+> 1. **High Token Consumption:** Multi-modal vision models consume thousands of tokens per image iteration.
+> 2. **Slow Feedback Loops:** Generating and re-analyzing raster images adds 30-60 seconds of latency per loop.
+> 3. **Imprecise Layouts:** Vision models struggle to infer exact padding, gap values, and Auto Layout constraints from raw pixels.
 
 ```mermaid
 flowchart TD
@@ -37,17 +44,15 @@ flowchart TD
     FigmaCanvas -.->|Iterative Revisions| RenderImage
 ```
 
-### Limitations of Image-Based Workflows
-
-- **High Token Consumption:** Multi-modal vision models consume thousands of tokens per image iteration.
-- **Slow Feedback Loops:** Generating and re-analyzing raster images adds significant latency.
-- **Imprecise Layouts:** Models struggle to infer exact padding, gap values, and Auto Layout constraints from pixels.
-
 ---
 
-## The Solution: Code-Driven Direct Execution
+## 💡 The Solution: Code-Driven Direct Execution
 
 Morph replaces image-based analysis with direct code synthesis. The AI generates clean Figma API scripts that execute natively on the canvas.
+
+> [!TIP]
+> **Why Code Generation Wins:**
+> Large Language Models understand code far better than raw pixels. Colors, font sizes, paddings, and layout relationships are explicit in code, allowing the model to produce exact, Auto Layout-correct screens on the first pass.
 
 ```mermaid
 flowchart LR
@@ -57,24 +62,34 @@ flowchart LR
     Script --> Canvas[Live Figma Canvas]
 ```
 
-### Key Technical Advantages
+### 📊 Technical Comparison
 
-| Metric | Screenshot-Based Tools | Morph (Code-Driven) |
-|---|---|---|
-| **Input Format** | Heavy Pixel Images | <img src="https://img.shields.io/badge/Format-Structured_Code-2563EB?style=flat-square" alt="Code"> |
-| **Fidelity** | Estimated Bounds | <img src="https://img.shields.io/badge/Precision-Exact_Auto_Layout-059669?style=flat-square" alt="Precision"> |
-| **Cost Efficiency** | High Cost Per Iteration | <img src="https://img.shields.io/badge/Cost-Minimal_Tokens-7C3AED?style=flat-square" alt="Cost"> |
-| **Speed** | 30-60 Seconds Per Loop | <img src="https://img.shields.io/badge/Speed-3--5_Seconds-D97706?style=flat-square" alt="Speed"> |
-
-### Model Optimization Notice
-
-Morph is currently optimized for **Google Gemini Flash** models due to their speed, large context windows, and strong compliance with structured script generation. Support for custom API keys (OpenAI, Anthropic, and local LLMs) will be introduced in future releases.
+| Metric | Screenshot-Based Tools | Morph (Code-Driven) | Advantage Tag |
+|---|---|---|---|
+| **Input Format** | Heavy Pixel Images | Structured Code Scripts | <img src="https://img.shields.io/badge/Format-Code_Scripts-2563EB?style=for-the-badge" alt="Code"> |
+| **Fidelity** | Estimated Pixel Bounds | Exact Auto Layout Constraints | <img src="https://img.shields.io/badge/Precision-Exact_Auto_Layout-059669?style=for-the-badge" alt="Precision"> |
+| **Cost Efficiency** | High Cost Per Iteration | Minimal Token Usage | <img src="https://img.shields.io/badge/Cost-Minimal_Tokens-7C3AED?style=for-the-badge" alt="Cost"> |
+| **Speed** | 30-60 Seconds Per Loop | 3-5 Seconds Direct Script Execution | <img src="https://img.shields.io/badge/Speed-3--5_Seconds-D97706?style=for-the-badge" alt="Speed"> |
 
 ---
 
-## Workflows
+### 🤖 Model Optimization & Roadmap
 
-### Designer Workflow (Plugin-Only)
+Morph is currently optimized for **Google Gemini Flash** models due to their speed, large context windows, and strong compliance with structured script generation.
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Current-Google_Gemini-4285F4?style=for-the-badge&logo=google" alt="Current">
+  <img src="https://img.shields.io/badge/Future-OpenAI_%2F_Custom_APIs-000000?style=for-the-badge&logo=openai" alt="Future">
+</p>
+
+---
+
+## 🔄 User Workflows
+
+### 🎨 Designer Workflow (Plugin-Only)
+
+> [!NOTE]
+> Designers do not need to write any code. Simply install the plugin, configure your brand identity, and let Morph handle layout synthesis and component extraction.
 
 ```mermaid
 flowchart TD
@@ -84,21 +99,23 @@ flowchart TD
     D4 --> D5[Publish Native Variables]
 ```
 
-1. **Install Plugin:** Import `FigmaPlugin/plugin/manifest.json` into Figma Desktop.
-2. **Setup Project:** Define project name, domain brief, color palette, typography, and visual taste.
+1. **Install Plugin:** Import `FigmaPlugin/plugin/manifest.json` into Figma Desktop (`Plugins → Development → Import plugin from manifest`).
+2. **Setup Project:** Click `New Project` and define project name, domain brief, color palette, typography, and visual taste.
 3. **Generate Screens:** Describe desired UI screens using natural language prompts.
-4. **Build Design System:** Click **Build Design System** to automatically extract master components, swatches, and typography scales from generated screens.
-5. **Publish Tokens:** Export native Figma Variables and Text Styles to the Figma file.
+4. **Build Design System:** Click `Build Design System` after generating a few screens. Morph automatically extracts colors, typography, and component patterns into master variants.
+5. **Publish Tokens:** Export native Figma Variables and Text Styles to your Figma file.
 
 ---
 
-### Developer Workflow (IDE & Agent-Driven)
+### 💻 Developer Workflow (IDE & Agent-Driven)
+
+> [!TIP]
+> Developers can run Morph locally using their preferred AI coding assistant (Claude, Cursor, Copilot) with existing subscriptions, avoiding third-party API charges.
 
 ```mermaid
 flowchart TD
     DEV1[Clone Repository] --> DEV2[Configure Local Node Bridge]
-    DEV2 --> DEV3[Scaffold Project via AI Agent]
-    DEV3 --> DEV4[Generate Screens & Components]
+    DEV3[Scaffold Project via AI Agent] --> DEV4[Generate Screens & Components]
     DEV4 --> DEV5[Publish Variables & Component Sets]
 ```
 
@@ -112,43 +129,44 @@ flowchart TD
    ```bash
    node server.js
    ```
-3. **Orchestrate via Agent:** Use any coding assistant (Claude, Cursor, Copilot) to execute commands against project directories.
-4. **Iterate & Refine:** Scripts automatically sync to the Figma canvas via the local SSE watch server.
+3. **Orchestrate via Agent:** Use any coding agent to execute commands against project directories.
+4. **Iterate & Refine:** Scripts automatically sync to the Figma canvas in real-time via the local SSE server.
 
 ---
 
-## Supported Commands
+## ⚡ Supported Commands
 
 Commands can be passed directly inside prompts or executed via AI coding agents.
 
 | Command | Tag | Category | Description |
 |---|---|---|---|
-| `<kbd>@newproject &lt;Name&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Setup-2563EB?style=flat-square" alt="Setup"> | Scaffolding | Initializes a project directory structure (`screens/`, `components/`, `tokens/`, `local/`). |
-| `<kbd>@brief &lt;Text&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Context-4F46E5?style=flat-square" alt="Context"> | Context | Defines product domain, audience, and core features in `local/brief.md`. |
-| `<kbd>@gen-variables</kbd>` | <img src="https://img.shields.io/badge/Type-Tokens-059669?style=flat-square" alt="Tokens"> | Design Tokens | Publishes native Figma color variables and text styles to the Figma file. |
-| `<kbd>@gen-components</kbd>` | <img src="https://img.shields.io/badge/Type-Library-D97706?style=flat-square" alt="Library"> | Components | Generates master reusable components in `components/`. |
-| `<kbd>@use-components</kbd>` | <img src="https://img.shields.io/badge/Type-Reuse-7C3AED?style=flat-square" alt="Reuse"> | Optimization | Forces screen scripts to instantiate master components (`createInstance()`). |
-| `<kbd>@designsystem</kbd>` | <img src="https://img.shields.io/badge/Type-Pipeline-DB2777?style=flat-square" alt="Pipeline"> | Pipeline | Runs full pipeline: token extraction, component set generation, and screen updates. |
-| `<kbd>@font &lt;FontName&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Override-0284C7?style=flat-square" alt="Override"> | Override | Overrides font family for the generation session. |
-| `<kbd>@color &lt;Hex1&gt;, &lt;Hex2&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Override-0284C7?style=flat-square" alt="Override"> | Override | Overrides brand primary and secondary color tokens. |
-| `<kbd>@taste &lt;Description&gt;</kbd>` | <img src="https://img.shields.io/badge/Type-Style-65A30D?style=flat-square" alt="Style"> | Styling | Overrides visual styling attributes (radii, borders, shadows). |
-| `<kbd>@skip-autolayout</kbd>` | <img src="https://img.shields.io/badge/Type-Fallback-DC2626?style=flat-square" alt="Fallback"> | Fallback | Disables Auto Layout and uses absolute X/Y positioning. |
-| `<kbd>@skip-design-taste</kbd>` | <img src="https://img.shields.io/badge/Type-Fast-4B5563?style=flat-square" alt="Fast"> | Performance | Bypasses extended design guidelines for minimal token generation. |
+| `@newproject <Name>` | <img src="https://img.shields.io/badge/Command-Scaffolding-2563EB?style=for-the-badge" alt="Setup"> | Scaffolding | Initializes project directory structure (`screens/`, `components/`, `tokens/`, `local/`). |
+| `@brief <Description>` | <img src="https://img.shields.io/badge/Command-Context-4F46E5?style=for-the-badge" alt="Context"> | Context | Defines product domain, target audience, and core features in `local/brief.md`. |
+| `@gen-variables` | <img src="https://img.shields.io/badge/Command-Design_Tokens-059669?style=for-the-badge" alt="Tokens"> | Design Tokens | Publishes native Figma color variables and text styles to the Figma file. |
+| `@gen-components` | <img src="https://img.shields.io/badge/Command-Components-D97706?style=for-the-badge" alt="Library"> | Components | Generates master reusable components inside `components/`. |
+| `@use-components` | <img src="https://img.shields.io/badge/Command-Optimization-7C3AED?style=for-the-badge" alt="Reuse"> | Optimization | Forces screen scripts to instantiate master components (`createInstance()`). |
+| `@designsystem` | <img src="https://img.shields.io/badge/Command-Pipeline-DB2777?style=for-the-badge" alt="Pipeline"> | Pipeline | Runs full pipeline: token extraction, component set generation, and screen updates. |
+| `@font <FontName>` | <img src="https://img.shields.io/badge/Command-Override-0284C7?style=for-the-badge" alt="Override"> | Override | Overrides font family for the generation session. |
+| `@color <Hex1>, <Hex2>` | <img src="https://img.shields.io/badge/Command-Override-0284C7?style=for-the-badge" alt="Override"> | Override | Overrides brand primary and secondary color tokens. |
+| `@taste <Description>` | <img src="https://img.shields.io/badge/Command-Styling-65A30D?style=for-the-badge" alt="Style"> | Styling | Overrides visual styling attributes (radii, borders, shadows). |
+| `@skip-autolayout` | <img src="https://img.shields.io/badge/Command-Fallback-DC2626?style=for-the-badge" alt="Fallback"> | Fallback | Disables Auto Layout and uses absolute X/Y positioning. |
+| `@skip-design-taste` | <img src="https://img.shields.io/badge/Command-Performance-4B5563?style=for-the-badge" alt="Fast"> | Performance | Bypasses extended design guidelines for minimal token generation. |
 
 ---
 
-## MVP Status & Troubleshooting Notice
+## 🛠️ MVP Status & Troubleshooting Notice
 
-> **Important:** Morph is currently an **MVP**. Auto Layout generation rules are heavily optimized, but occasional layout edge cases may occur depending on prompt complexity.
+> [!WARNING]
+> **MVP Notice:** Morph is currently an **MVP**. Auto Layout rules are heavily optimized, but occasional layout edge cases may occur depending on prompt complexity.
 
-### Recommended Handlers
+### Quick Fixes & Handlers
 
-- **Layout Fixes:** If an Auto Layout container collapses, use `<kbd>@skip-autolayout</kbd>` to generate static absolute positioning, or manually adjust **Hug Contents** / **Fill Container** in Figma's Auto Layout panel.
-- **Cropped Canvas Fix:** If a generated frame is named **"Generated UI Screen"** and appears cropped, select the parent frame and **ungroup it once** (`Cmd + Shift + G` / `Ctrl + Shift + G`) to reveal the complete container.
+- **Layout Adjustments:** If an Auto Layout container collapses, use `@skip-autolayout` to generate static absolute positioning, or manually adjust **Hug Contents** / **Fill Container** in Figma's right-hand Auto Layout panel.
+- **Cropped Canvas Fix:** If a generated frame is named **"Generated UI Screen"** and appears cropped on the canvas, select the frame and **ungroup it once** (`Cmd + Shift + G` / `Ctrl + Shift + G`) to reveal the complete screen structure.
 
 ---
 
-## Technical Architecture
+## 🏗️ Technical Architecture
 
 ```mermaid
 flowchart TD
@@ -174,33 +192,32 @@ flowchart TD
     ENGINE --> PROJECTS
 ```
 
-### Core Execution Protocol Files (`core/`)
+### 📄 Core Execution Protocol Files (`core/`)
 
 When a generation request is initialized, the system prompt builder reads the core protocol directives:
 
-| File | Tag | Purpose |
+| File | Protocol Tag | Purpose |
 |---|---|---|
-| [`core/command.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/command.md) | <img src="https://img.shields.io/badge/Core-Commands-2563EB?style=flat-square" alt="Commands"> | Command syntax resolution and priority execution logic. |
-| [`core/instruction.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/instruction.md) | <img src="https://img.shields.io/badge/Core-Rules-059669?style=flat-square" alt="Rules"> | Core screen generation rules, vector icon loading protocols, and typography scaling constraints. |
-| [`core/autolayout.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/autolayout.md) | <img src="https://img.shields.io/badge/Core-AutoLayout-D97706?style=flat-square" alt="AutoLayout"> | Mandatory Auto Layout construction order and anti-pattern prevention. |
-| [`core/component.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/component.md) | <img src="https://img.shields.io/badge/Core-Components-7C3AED?style=flat-square" alt="Components"> | Master component set creation and instance reuse guidelines. |
-| [`core/variables.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/variables.md) | <img src="https://img.shields.io/badge/Core-Variables-DB2777?style=flat-square" alt="Variables"> | Native Figma Variables and Local Text Styles publishing protocol. |
+| [`core/command.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/command.md) | <img src="https://img.shields.io/badge/Protocol-Commands-2563EB?style=for-the-badge" alt="Commands"> | Command syntax resolution and priority execution logic. |
+| [`core/instruction.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/instruction.md) | <img src="https://img.shields.io/badge/Protocol-Rules-059669?style=for-the-badge" alt="Rules"> | Core screen generation rules, vector icon loading protocols, and typography scaling constraints. |
+| [`core/autolayout.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/autolayout.md) | <img src="https://img.shields.io/badge/Protocol-AutoLayout-D97706?style=for-the-badge" alt="AutoLayout"> | Mandatory Auto Layout construction order and anti-pattern prevention. |
+| [`core/component.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/component.md) | <img src="https://img.shields.io/badge/Protocol-Components-7C3AED?style=for-the-badge" alt="Components"> | Master component set creation and instance reuse guidelines. |
+| [`core/variables.md`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/core/variables.md) | <img src="https://img.shields.io/badge/Protocol-Variables-DB2777?style=for-the-badge" alt="Variables"> | Native Figma Variables and Local Text Styles publishing protocol. |
 
 ---
 
-### Supporting System Directories
+### 📂 Supporting System Directories
 
-#### Default Context Templates (`global/`)
+#### 1. Default Context Templates (`global/`)
 Contains baseline reference files (`brief.md`, `colors.md`, `fonts.md`, `taste.md`) that are copied into each project's `local/` directory upon initialization.
 
-#### AI Skill Registry (`.agents/skills/`)
+#### 2. AI Skill Registry (`.agents/skills/`)
 Contains domain-specific design skills (`frontend-design`, `design-taste-frontend`, `ui-design-system`, `figma-screen-generator`) automatically injected into prompt context during screen and component generation.
 
-#### Backend Implementation (`engine/`)
+#### 3. Backend Implementation (`engine/`)
 Contains underlying Node.js execution logic for API requests, Gemini model integration, storage management, and rate limiting.
 
 ---
 
-## Summary
-
-Morph is a lightweight, high-speed UI generation architecture that bridges natural language prompts directly to native Figma Auto Layout canvas elements. By shifting from image-based vision analysis to direct script synthesis, Morph delivers faster generation times, lower token costs, and extensible workflows for both designers and developers.
+> [!IMPORTANT]
+> **Summary:** Morph is a high-speed UI generation architecture that bridges natural language prompts directly to native Figma Auto Layout canvas elements. By shifting from image-based vision analysis to direct script synthesis, Morph delivers faster generation times, lower token costs, and extensible workflows for both designers and developers.
