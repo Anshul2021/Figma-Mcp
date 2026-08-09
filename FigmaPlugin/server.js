@@ -20,6 +20,8 @@ const projectManager = require('./engine/project-manager');
 const promptBuilder = require('./engine/prompt-builder');
 const geminiClient = require('./engine/gemini-client');
 const rateLimiter = require('./engine/rate-limiter');
+const cloudStore = require('./engine/cloud-store');
+const userTracker = require('./engine/user-tracker');
 
 const PORT = process.env.PORT || 3003;
 const ROOT_DIR = __dirname;
@@ -42,6 +44,9 @@ function notifyClients(filename) {
 // ── File Watcher ─────────────────────────────────────────────────
 
 function watchProjectDirs() {
+  // On Vercel serverless the filesystem is read-only and fs.watch is useless.
+  // The plugin polls instead (see plugin/ui.html).
+  if (cloudStore.isCloud()) return;
   try {
     const entries = fs.readdirSync(ROOT_DIR, { withFileTypes: true });
     for (const entry of entries) {
@@ -124,9 +129,7 @@ function resolveScriptPath(filename) {
   if (!['screens', 'components', 'tokens'].includes(subFolder.toLowerCase())) return null;
   if (!scriptFile.endsWith('.js')) return null;
 
-  const filePath = path.normalize(path.join(ROOT_DIR, projName, subFolder, scriptFile));
-  if (filePath.startsWith(ROOT_DIR) && fs.existsSync(filePath)) return filePath;
-  return null;
+  return path.join(projName, subFolder, scriptFile);
 }
 
 function deriveScreenName(prompt) {
@@ -147,6 +150,155 @@ function getClientIp(req) {
     return forwarded.split(',')[0].trim();
   }
   return req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
+}
+
+function isAdminAuthed(req) {
+  const expected = process.env.ADMIN_TOKEN;
+  if (!expected) return false;
+  const provided = parsedUrlQueryToken(req) || req.headers['x-admin-token'] || '';
+  return String(provided) === String(expected);
+}
+
+function parsedUrlQueryToken(req) {
+  const q = url.parse(req.url, true).query;
+  return (q && q.token) ? String(q.token) : '';
+}
+
+function renderAdminPage() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Morph — Users & Activity</title>
+<style>
+  :root { --ink:#0F172A; --muted:#64748B; --line:#E2E8F0; --card:#FFFFFF; --bg:#F1F5F9; --primary:#cc785c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  h1 { font-size:18px; margin:0; }
+  .bar { display:flex; align-items:center; gap:10px; }
+  input[type=password] { padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; }
+  button { padding:7px 14px; border:none; border-radius:8px; background:var(--primary); color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+  main { padding:24px; max-width:1100px; margin:0 auto; }
+  .cards { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; min-width:150px; }
+  .stat b { font-size:22px; display:block; }
+  .stat span { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top; }
+  th { background:#F8FAFC; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); }
+  tr:last-child td { border-bottom:none; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:600; }
+  .pill.ok { background:#ECFDF5; color:#047857; }
+  .pill.warn { background:#FEF3C7; color:#B45309; }
+  .pill.none { background:#FEE2E2; color:#B91C1C; }
+  .code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  .muted { color:var(--muted); }
+  .del { color:#B91C1C; background:none; border:none; cursor:pointer; font-size:12px; text-decoration:underline; padding:0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Morph — Users &amp; Activity</h1>
+  <div class="bar">
+    <input type="password" id="token" placeholder="Admin token" autocomplete="off" />
+    <button onclick="load()">Load users</button>
+    <button class="ghost" onclick="load()">Refresh</button>
+  </div>
+</header>
+<main id="main">
+  <div class="cards">
+    <div class="stat"><span>Users</span><b id="statUsers">-</b></div>
+    <div class="stat"><span>Total generations</span><b id="statGens">-</b></div>
+    <div class="stat"><span>Online plugins</span><b id="statOnline">-</b></div>
+  </div>
+  <div id="status" class="muted" style="margin-bottom:12px;font-size:13px;"></div>
+  <div id="tableWrap"></div>
+</main>
+<script>
+  function tokenFromUrl() {
+    var m = window.location.search.match(/[?&]token=([^&]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function qs(s, v) {
+    if (!v) v = document.getElementById('token').value.trim() || tokenFromUrl();
+    if (v) return s + (s.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(v);
+    return s;
+  }
+  function fmt(iso) {
+    if (!iso) return '-';
+    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+  }
+  async function load() {
+    var status = document.getElementById('status');
+    status.textContent = 'Loading...';
+    var token = document.getElementById('token').value.trim() || tokenFromUrl();
+    if (!token) { status.textContent = 'Enter the admin token first (same as ADMIN_TOKEN on the server).'; return; }
+    try {
+      var res = await fetch(qs('/api/users', token));
+      var data = await res.json();
+      if (!res.ok) { status.textContent = 'Access denied: ' + (data.message || 'HTTP ' + res.status); return; }
+      var users = data.users || [];
+      document.getElementById('statUsers').textContent = users.length;
+      var totalGens = 0;
+      users.forEach(function (u) { totalGens += Object.values(u.usage || {}).reduce(function (a, b) { return a + b; }, 0); });
+      document.getElementById('statGens').textContent = totalGens;
+      document.getElementById('statOnline').textContent = (data.onlineClients != null ? data.onlineClients : '?');
+      status.textContent = 'Loaded ' + users.length + ' user(s). "Used/Rem" = per-user total across all models (10/day/model).';
+      render(users);
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+    }
+  }
+  function usedTotal(u) {
+    return Object.values(u.usage || {}).reduce(function (a, b) { return a + b; }, 0);
+  }
+  function remainingTotal(u) {
+    var credits = u.credits || {};
+    var rem = 0;
+    Object.keys(credits).forEach(function (k) { rem += (credits[k].remaining || 0); });
+    return rem;
+  }
+  function render(users) {
+    var html = '<table><thead><tr>' +
+      '<th>User</th><th>IP</th><th>First seen</th><th>Last seen</th>' +
+      '<th>Generated</th><th>Remaining</th><th>Per-model usage</th><th></th>' +
+      '</tr></thead><tbody>';
+    users.forEach(function (u) {
+      var total = usedTotal(u);
+      var rem = remainingTotal(u);
+      var pill = total === 0 ? '<span class="pill none">never</span>' : (rem === 0 ? '<span class="pill warn">used up</span>' : '<span class="pill ok">active</span>');
+      var modelCell = Object.keys(u.usage || {}).map(function (m) {
+        var c = (u.credits && u.credits[m]) || {};
+        return '<div><span class="code">' + m + '</span>: ' + u.usage[m] + ' used / ' + (c.remaining != null ? c.remaining : '?') + ' left</div>';
+      }).join('') || '<span class="muted">none yet</span>';
+      html += '<tr>' +
+        '<td><b>' + (u.name || 'Guest') + '</b></td>' +
+        '<td><span class="code">' + (u.ip || '-') + '</span></td>' +
+        '<td class="muted">' + fmt(u.firstSeen) + '</td>' +
+        '<td class="muted">' + fmt(u.lastSeen) + '</td>' +
+        '<td>' + total + ' ' + pill + '</td>' +
+        '<td>' + rem + '</td>' +
+        '<td>' + modelCell + '</td>' +
+        '<td><button class="del" onclick="delUser(\'' + u.ip.replace(/'/g, '') + "')" + '">remove</button></td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('tableWrap').innerHTML = users.length ? html : '<div class="muted">No users recorded yet.</div>';
+  }
+  async function delUser(ip) {
+    if (!confirm('Remove this user record?')) return;
+    var token = document.getElementById('token').value.trim() || tokenFromUrl();
+    var res = await fetch(qs('/api/users/' + encodeURIComponent(ip), token), { method: 'DELETE' });
+    var data = await res.json();
+    load();
+  }
+  if (tokenFromUrl()) { document.getElementById('token').value = tokenFromUrl(); load(); }
+</script>
+</body>
+</html>`;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -205,29 +357,28 @@ const server = http.createServer(async (req, res) => {
     // Serve script files to plugin
     if (reqPath.startsWith('/api/scripts/') && req.method === 'GET') {
       const fileName = decodeURIComponent(reqPath.substring('/api/scripts/'.length));
-      const filePath = resolveScriptPath(fileName);
-      if (!filePath) {
+      const relPath = resolveScriptPath(fileName);
+      if (!relPath) {
         return sendJson(res, 404, { success: false, message: `Script Not Found: ${fileName}` });
       }
-      fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-          return sendJson(res, 500, { success: false, message: 'Error reading file' });
-        }
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-        res.end(data);
-      });
+      const content = await cloudStore.readText(relPath);
+      if (content == null) {
+        return sendJson(res, 404, { success: false, message: `Script Not Found: ${fileName}` });
+      }
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+      res.end(content);
       return;
     }
 
     // Delete a generated script file (screens/components/tokens .js)
     if (reqPath.startsWith('/api/scripts/') && req.method === 'DELETE') {
       const fileName = decodeURIComponent(reqPath.substring('/api/scripts/'.length));
-      const filePath = resolveScriptPath(fileName);
-      if (!filePath || !fileName.endsWith('.js')) {
+      const relPath = resolveScriptPath(fileName);
+      if (!relPath || !fileName.endsWith('.js')) {
         return sendJson(res, 404, { success: false, message: `File Not Found: ${fileName}` });
       }
       try {
-        fs.unlinkSync(filePath);
+        await cloudStore.deletePath(relPath);
         console.log(`[Delete] Removed: ${fileName}`);
         return sendJson(res, 200, { success: true, filename: fileName });
       } catch (err) {
@@ -245,7 +396,7 @@ const server = http.createServer(async (req, res) => {
 
     // List all project workspaces
     if (reqPath === '/api/projects' && req.method === 'GET') {
-      const projects = projectManager.listProjects();
+      const projects = await projectManager.listProjects();
       return sendJson(res, 200, { projects });
     }
 
@@ -257,7 +408,7 @@ const server = http.createServer(async (req, res) => {
       if (!body.name) {
         return sendJson(res, 400, { success: false, message: 'Project name is required.' });
       }
-      const result = projectManager.createProject(body.name, {
+      const result = await projectManager.createProject(body.name, {
         brief: body.brief,
         colors: body.colors,
         fonts: body.fonts,
@@ -271,7 +422,7 @@ const server = http.createServer(async (req, res) => {
     const configMatch = reqPath.match(/^\/api\/projects\/([^/]+)\/config$/);
     if (configMatch && req.method === 'GET') {
       const projectName = decodeURIComponent(configMatch[1]);
-      const config = projectManager.getProjectConfig(projectName);
+      const config = await projectManager.getProjectConfig(projectName);
       if (!config) return sendJson(res, 404, { success: false, message: 'Project not found' });
       return sendJson(res, 200, config);
     }
@@ -280,7 +431,7 @@ const server = http.createServer(async (req, res) => {
     if (configMatch && req.method === 'PUT') {
       const projectName = decodeURIComponent(configMatch[1]);
       const body = await readBody(req);
-      const result = projectManager.updateProjectConfig(projectName, body);
+      const result = await projectManager.updateProjectConfig(projectName, body);
       return sendJson(res, result.success ? 200 : 404, result);
     }
 
@@ -288,7 +439,7 @@ const server = http.createServer(async (req, res) => {
     const projMatch = reqPath.match(/^\/api\/projects\/([^/]+)$/);
     if (projMatch && req.method === 'DELETE') {
       const projectName = decodeURIComponent(projMatch[1]);
-      const result = projectManager.deleteProject(projectName);
+      const result = await projectManager.deleteProject(projectName);
       return sendJson(res, result.success ? 200 : 404, result);
     }
 
@@ -306,6 +457,51 @@ const server = http.createServer(async (req, res) => {
       const models = geminiClient.getAvailableModels();
       const credits = rateLimiter.getAllCredits(models, clientIp);
       return sendJson(res, 200, { credits });
+    }
+
+    // ── User Registry & Admin Endpoints ─────────────────────────
+
+    // Register the user (name + IP) when they open/launch the plugin
+    if (reqPath === '/api/users/register' && req.method === 'POST') {
+      const body = await readBody(req);
+      await userTracker.recordUser({ name: body.name, ip: clientIp });
+      return sendJson(res, 200, { success: true, ip: clientIp, name: body.name || '' });
+    }
+
+    // Admin: list recorded users with their usage/remaining credits per model
+    if (reqPath === '/api/users' && req.method === 'GET') {
+      if (!isAdminAuthed(req)) {
+        return sendJson(res, 403, { success: false, message: 'Admin token missing or invalid. Set ADMIN_TOKEN on the server and request /api/users?token=<ADMIN_TOKEN>.' });
+      }
+      const users = await userTracker.listUsers();
+      const models = geminiClient.getAvailableModels();
+      const enriched = users.map(u => ({
+        ...u,
+        credits: rateLimiter.getAllCredits(models, u.ip),
+      }));
+      return sendJson(res, 200, {
+        users: enriched,
+        onlineClients: clients.length,
+        adminTokenSet: !!process.env.ADMIN_TOKEN,
+      });
+    }
+
+    // Admin: delete a user record by IP
+    const userDelMatch = reqPath.match(/^\/api\/users\/((?:[^/])+)$/);
+    if (userDelMatch && req.method === 'DELETE') {
+      if (!isAdminAuthed(req)) {
+        return sendJson(res, 403, { success: false, message: 'Admin token missing or invalid.' });
+      }
+      const ip = decodeURIComponent(userDelMatch[1]);
+      await userTracker.deleteUser(ip);
+      return sendJson(res, 200, { success: true, ip });
+    }
+
+    // Admin HTML dashboard (human-readable user list)
+    if (reqPath === '/admin' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(renderAdminPage());
+      return;
     }
 
     // ── AI Generation Endpoints ──────────────────────────────────
@@ -337,21 +533,17 @@ const server = http.createServer(async (req, res) => {
 
       try {
         const skipAutolayout = /@skip-autolayout/i.test(prompt);
-        const systemPrompt = promptBuilder.buildScreenPrompt(project, { skipAutolayout });
+        const systemPrompt = await promptBuilder.buildScreenPrompt(project, { skipAutolayout });
         const result = await geminiClient.generate({ systemPrompt, userPrompt: prompt, model: modelId, imageBase64: refImage });
 
         const screenName = deriveScreenName(prompt);
-        const screensDir = path.join(ROOT_DIR, project, 'screens');
-        if (!fs.existsSync(screensDir)) {
-          fs.mkdirSync(screensDir, { recursive: true });
-        }
-
-        const filePath = path.join(screensDir, `${screenName}.js`);
-        fs.writeFileSync(filePath, result.code, 'utf8');
+        const fileRelPath = `${project}/screens/${screenName}.js`;
+        await cloudStore.writeText(fileRelPath, result.code, 'application/javascript');
+        await userTracker.recordUser({ name: body.name, ip: clientIp, model: modelId });
 
         console.log(`[Generate] Wrote ${screenName}.js (${result.code.length} chars, model: ${result.model}, credits left: ${creditCheck.remaining})`);
 
-        notifyClients(`${project}/screens/${screenName}.js`);
+        notifyClients(fileRelPath);
 
         return sendJson(res, 200, {
           success: true,
@@ -392,7 +584,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       try {
-        const systemPrompt = promptBuilder.buildDesignSystemPrompt(project, { ...opts, project });
+        const systemPrompt = await promptBuilder.buildDesignSystemPrompt(project);
 
         // 1. Generate Native Variables & Styles if selected
         if (opts.variables !== false) {
@@ -402,10 +594,9 @@ const server = http.createServer(async (req, res) => {
             model: modelId,
           });
 
-          const tokensDir = path.join(ROOT_DIR, project, 'tokens');
-          if (!fs.existsSync(tokensDir)) fs.mkdirSync(tokensDir, { recursive: true });
-          fs.writeFileSync(path.join(tokensDir, 'variables.js'), varResult.code, 'utf8');
-          notifyClients(`${project}/tokens/variables.js`);
+          const varRelPath = `${project}/tokens/variables.js`;
+          await cloudStore.writeText(varRelPath, varResult.code, 'application/javascript');
+          notifyClients(varRelPath);
         }
 
         // 2. Generate Master Design System Board (Visual Swatches, Typography Scale, Component Sets)
@@ -415,10 +606,10 @@ const server = http.createServer(async (req, res) => {
           model: modelId,
         });
 
-        const componentsDir = path.join(ROOT_DIR, project, 'components');
-        if (!fs.existsSync(componentsDir)) fs.mkdirSync(componentsDir, { recursive: true });
-        fs.writeFileSync(path.join(componentsDir, 'DesignSystem.js'), dsResult.code, 'utf8');
-        notifyClients(`${project}/components/DesignSystem.js`);
+        const dsRelPath = `${project}/components/DesignSystem.js`;
+        await cloudStore.writeText(dsRelPath, dsResult.code, 'application/javascript');
+        notifyClients(dsRelPath);
+        await userTracker.recordUser({ name: body.name, ip: clientIp, model: modelId });
 
         return sendJson(res, 200, {
           success: true,

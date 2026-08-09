@@ -8,16 +8,17 @@
 // Open plugin UI with comfortable default dimensions
 figma.showUI(__html__, { width: 400, height: 600, themeColors: true });
 
-// Restore persisted user name + UI size on plugin open
+// Restore persisted user name + UI size + admin token on plugin open
 (async () => {
   try {
-    const [name, size] = await Promise.all([
+    const [name, size, adminToken] = await Promise.all([
       figma.clientStorage.getAsync('morph_user_name'),
       figma.clientStorage.getAsync('morph_ui_size'),
+      figma.clientStorage.getAsync('morph_admin_token'),
     ]);
-    figma.ui.postMessage({ type: 'init-state', userName: name || '', uiSize: size || 'm' });
+    figma.ui.postMessage({ type: 'init-state', userName: name || '', uiSize: size || 'm', adminToken: adminToken || '' });
   } catch (e) {
-    figma.ui.postMessage({ type: 'init-state', userName: '', uiSize: 'm' });
+    figma.ui.postMessage({ type: 'init-state', userName: '', uiSize: 'm', adminToken: '' });
   }
 })();
 
@@ -39,6 +40,12 @@ figma.ui.onmessage = async (msg) => {
   else if (msg.type === 'save-ui-size') {
     try {
       await figma.clientStorage.setAsync('morph_ui_size', String(msg.size || 'm'));
+    } catch (e) { /* ignore */ }
+  }
+  // Persist the admin token for the Activity panel
+  else if (msg.type === 'save-admin-token') {
+    try {
+      await figma.clientStorage.setAsync('morph_admin_token', String(msg.adminToken || ''));
     } catch (e) { /* ignore */ }
   }
   // Script execution request (from ui.html after fetching from server)

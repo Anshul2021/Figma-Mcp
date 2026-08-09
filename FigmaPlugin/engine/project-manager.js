@@ -1,23 +1,26 @@
 /**
  * Morph — Project Manager
- * 
+ *
  * Handles all project CRUD operations:
- *  - Scaffold new project directories (screens/, components/, tokens/, local/)
+ *  - Scaffold new project workspaces (screens/, components/, tokens/, local/)
  *  - Read/write project configuration files (local/*.md) by blending global templates
  *    with user-provided project configurations.
  *  - Cleanly extract user input fields for UI forms while keeping full baseline markdown intact.
  *  - List all projects with metadata
- * 
- * This module is file-system-only — no network calls.
+ *
+ * Storage is abstracted through cloud-store so the same code runs locally
+ * (filesystem) and on Vercel serverless (Vercel Blob).
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const store = require('./cloud-store');
+
 const ROOT_DIR = path.join(__dirname, '..');
 
 // Directories that are NOT user projects
-const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine', 'local', 'screens', 'components', 'tokens', 'public', 'static'];
+const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine', 'local', 'screens', 'components', 'tokens', 'public', 'static', '_users'];
 
 /**
  * Validate that a project name is a safe alphanumeric string and not a reserved system directory.
@@ -36,30 +39,32 @@ function isValidProjectName(projectName) {
  * @param {object} config — { brief, colors, fonts, taste }
  * @returns {{ success: boolean, message: string }}
  */
-function createProject(projectName, config = {}) {
+async function createProject(projectName, config = {}) {
   if (!isValidProjectName(projectName)) {
     return { success: false, message: `Invalid or reserved project name: "${projectName}". Use alphanumeric characters only.` };
   }
 
   const projectDir = path.join(ROOT_DIR, projectName);
+  const exists = store.isCloud()
+    ? await store.exists(`${projectName}/local/brief.md`)
+    : fs.existsSync(projectDir);
 
-  if (fs.existsSync(projectDir)) {
+  if (exists) {
     return { success: false, message: `Project "${projectName}" already exists.` };
   }
 
-  // Create directory scaffold
-  const subDirs = ['screens', 'components', 'tokens', 'local'];
-  fs.mkdirSync(projectDir, { recursive: true });
-  for (const sub of subDirs) {
-    fs.mkdirSync(path.join(projectDir, sub), { recursive: true });
+  if (!store.isCloud()) {
+    const subDirs = ['screens', 'components', 'tokens', 'local'];
+    fs.mkdirSync(projectDir, { recursive: true });
+    for (const sub of subDirs) {
+      fs.mkdirSync(path.join(projectDir, sub), { recursive: true });
+    }
   }
 
-  const localDir = path.join(projectDir, 'local');
-
-  writeBrief(localDir, projectName, config.brief || '');
-  writeColors(localDir, projectName, config.colors || []);
-  writeFonts(localDir, projectName, config.fonts || '');
-  writeTaste(localDir, projectName, config.taste || '');
+  await writeBrief(projectName, config.brief || '');
+  await writeColors(projectName, config.colors || []);
+  await writeFonts(projectName, config.fonts || '');
+  await writeTaste(projectName, config.taste || '');
 
   return { success: true, message: `Project "${projectName}" created successfully.` };
 }
@@ -68,18 +73,20 @@ function createProject(projectName, config = {}) {
  * Read a project's configuration from local/*.md files.
  * Returns clean plain user fields for UI inputs while providing raw markdown.
  * @param {string} projectName
- * @returns {object} — { brief, colors, fonts, taste, raw }
+ * @returns {Promise<object|null>} — { brief, colors, fonts, taste, raw }
  */
-function getProjectConfig(projectName) {
-  const localDir = path.join(ROOT_DIR, projectName, 'local');
-  if (!fs.existsSync(localDir)) {
+async function getProjectConfig(projectName) {
+  const briefPath = `${projectName}/local/brief.md`;
+  if (!(await store.exists(briefPath))) {
     return null;
   }
 
-  const rawBrief = readFileContent(path.join(localDir, 'brief.md'));
-  const rawColors = readFileContent(path.join(localDir, 'colors.md'));
-  const rawFonts = readFileContent(path.join(localDir, 'fonts.md'));
-  const rawTaste = readFileContent(path.join(localDir, 'taste.md'));
+  const [rawBrief, rawColors, rawFonts, rawTaste] = await Promise.all([
+    store.readText(`${projectName}/local/brief.md`),
+    store.readText(`${projectName}/local/colors.md`),
+    store.readText(`${projectName}/local/fonts.md`),
+    store.readText(`${projectName}/local/taste.md`),
+  ]);
 
   return {
     brief: extractUserBrief(rawBrief),
@@ -100,55 +107,70 @@ function getProjectConfig(projectName) {
  * @param {string} projectName
  * @param {object} config — partial { brief?, colors?, fonts?, taste? }
  */
-function updateProjectConfig(projectName, config) {
-  const localDir = path.join(ROOT_DIR, projectName, 'local');
-  if (!fs.existsSync(localDir)) {
+async function updateProjectConfig(projectName, config) {
+  if (!(await store.exists(`${projectName}/local/brief.md`))) {
     return { success: false, message: `Project "${projectName}" not found.` };
   }
 
-  if (config.brief !== undefined) writeBrief(localDir, projectName, config.brief);
-  if (config.colors !== undefined) writeColors(localDir, projectName, config.colors);
-  if (config.fonts !== undefined) writeFonts(localDir, projectName, config.fonts);
-  if (config.taste !== undefined) writeTaste(localDir, projectName, config.taste);
+  if (config.brief !== undefined) await writeBrief(projectName, config.brief);
+  if (config.colors !== undefined) await writeColors(projectName, config.colors);
+  if (config.fonts !== undefined) await writeFonts(projectName, config.fonts);
+  if (config.taste !== undefined) await writeTaste(projectName, config.taste);
 
   return { success: true, message: 'Project configuration updated.' };
 }
 
 /**
  * List all user projects with metadata (screen count, component count, etc.)
- * @returns {Array<object>}
+ * @returns {Promise<Array<object>>}
  */
-function listProjects() {
+async function listProjects() {
+  const names = await store.listProjectNames();
+  const projects = [];
+  for (const name of names) {
+    const [screens, components, tokens] = await Promise.all([
+      store.listFileNames(`${name}/screens/`),
+      store.listFileNames(`${name}/components/`),
+      store.listFileNames(`${name}/tokens/`),
+    ]);
+    const hasLocal = await store.exists(`${name}/local/brief.md`);
+    projects.push({
+      name,
+      screenCount: screens.filter(f => f.endsWith('.js')).length,
+      componentCount: components.filter(f => f.endsWith('.js')).length,
+      tokenCount: tokens.filter(f => f.endsWith('.js')).length,
+      screens: screens.filter(f => f.endsWith('.js')),
+      components: components.filter(f => f.endsWith('.js')),
+      tokens: tokens.filter(f => f.endsWith('.js')),
+      hasLocalConfig: hasLocal,
+    });
+  }
+  return projects.filter(p => p.screenCount > 0 || p.componentCount > 0 || p.tokenCount > 0 || p.hasLocalConfig);
+}
+
+/**
+ * Delete a project (all directories and stored cloud blobs).
+ * @param {string} projectName
+ */
+async function deleteProject(projectName) {
+  if (!isValidProjectName(projectName)) {
+    return { success: false, message: `Access denied: Cannot delete system or invalid path "${projectName}".` };
+  }
+
+  if (store.isCloud()) {
+    const deleted = await store.deletePrefix(`${projectName}/`);
+    return { success: true, message: `Project "${projectName}" deleted (${deleted} files).` };
+  }
+
+  const projectDir = path.join(ROOT_DIR, projectName);
+  if (!fs.existsSync(projectDir)) {
+    return { success: false, message: `Project "${projectName}" does not exist.` };
+  }
   try {
-    const entries = fs.readdirSync(ROOT_DIR, { withFileTypes: true });
-    return entries
-      .filter(e => e.isDirectory() && !SYSTEM_DIRS.includes(e.name) && !e.name.startsWith('.'))
-      .map(e => {
-        const projectDir = path.join(ROOT_DIR, e.name);
-        const screensDir = path.join(projectDir, 'screens');
-        const componentsDir = path.join(projectDir, 'components');
-        const tokensDir = path.join(projectDir, 'tokens');
-
-        const screens = safeListJs(screensDir);
-        const components = safeListJs(componentsDir);
-        const tokens = safeListJs(tokensDir);
-        const hasLocal = fs.existsSync(path.join(projectDir, 'local'));
-
-        return {
-          name: e.name,
-          screenCount: screens.length,
-          componentCount: components.length,
-          tokenCount: tokens.length,
-          screens,
-          components,
-          tokens,
-          hasLocalConfig: hasLocal,
-        };
-      })
-      .filter(p => p.screenCount > 0 || p.componentCount > 0 || p.tokenCount > 0 || p.hasLocalConfig);
-  } catch (err) {
-    console.warn('[ProjectManager] listProjects error:', err.message);
-    return [];
+    fs.rmSync(projectDir, { recursive: true, force: true });
+    return { success: true, message: `Project "${projectName}" deleted successfully.` };
+  } catch (e) {
+    return { success: false, message: `Failed to delete project: ${e.message}` };
   }
 }
 
@@ -196,22 +218,6 @@ function extractUserTaste(rawMd) {
 
 // ── Internal Helpers ──────────────────────────────────────────────
 
-function readFileContent(filePath) {
-  try {
-    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
-  } catch {
-    return '';
-  }
-}
-
-function safeListJs(dir) {
-  try {
-    return fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.js')) : [];
-  } catch {
-    return [];
-  }
-}
-
 function loadGlobalTemplate(filename) {
   const globalPath = path.join(ROOT_DIR, 'global', filename);
   try {
@@ -221,7 +227,16 @@ function loadGlobalTemplate(filename) {
   }
 }
 
-function writeBrief(localDir, projectName, briefText) {
+function configRelPaths(projectName) {
+  return {
+    brief: `${projectName}/local/brief.md`,
+    colors: `${projectName}/local/colors.md`,
+    fonts: `${projectName}/local/fonts.md`,
+    taste: `${projectName}/local/taste.md`,
+  };
+}
+
+async function writeBrief(projectName, briefText) {
   let template = loadGlobalTemplate('brief.md');
   let userBriefSection = briefText ? briefText.trim() : 'Standard mobile application';
   
@@ -248,10 +263,16 @@ function writeBrief(localDir, projectName, briefText) {
     content = `# Project Brief — ${projectName}\n\n> App Purpose & Specific Requirements for ${projectName}.\n\n---\n\n## 1. Project Overview & Specific Requirements\n\n- **Project Name:** ${projectName}\n- **Brief / Description:** ${userBriefSection || 'Standard mobile application'}\n\n` + template.substring(template.indexOf('## 2. Platform'));
   }
 
-  fs.writeFileSync(path.join(localDir, 'brief.md'), content, 'utf8');
+  const rel = configRelPaths(projectName).brief;
+  if (store.isCloud()) await store.writeText(rel, content, 'text/markdown');
+  else {
+    const fp = path.join(ROOT_DIR, rel);
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, content, 'utf8');
+  }
 }
 
-function writeColors(localDir, projectName, colors) {
+async function writeColors(projectName, colors) {
   let template = loadGlobalTemplate('colors.md');
 
   let hexList = [];
@@ -296,10 +317,16 @@ function writeColors(localDir, projectName, colors) {
       content.substring(neutralSecIndex);
   }
 
-  fs.writeFileSync(path.join(localDir, 'colors.md'), content, 'utf8');
+  const rel = configRelPaths(projectName).colors;
+  if (store.isCloud()) await store.writeText(rel, content, 'text/markdown');
+  else {
+    const fp = path.join(ROOT_DIR, rel);
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, content, 'utf8');
+  }
 }
 
-function writeFonts(localDir, projectName, fonts) {
+async function writeFonts(projectName, fonts) {
   let template = loadGlobalTemplate('fonts.md');
   const fontFamily = (typeof fonts === 'string' && fonts.trim()) ? fonts.trim() : 'DM Sans';
 
@@ -312,10 +339,16 @@ function writeFonts(localDir, projectName, fonts) {
     .replace(/- \*\*Font Family:\*\* `[^`]+`/i, `- **Font Family:** \`${fontFamily}\``)
     .replace(/family: "[^"]+"/g, `family: "${fontFamily}"`);
 
-  fs.writeFileSync(path.join(localDir, 'fonts.md'), content, 'utf8');
+  const rel = configRelPaths(projectName).fonts;
+  if (store.isCloud()) await store.writeText(rel, content, 'text/markdown');
+  else {
+    const fp = path.join(ROOT_DIR, rel);
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, content, 'utf8');
+  }
 }
 
-function writeTaste(localDir, projectName, taste) {
+async function writeTaste(projectName, taste) {
   let template = loadGlobalTemplate('taste.md');
   let userTaste = taste ? taste.trim() : 'Clean, modern, aesthetic UI with rounded corners, subtle borders, and smooth depth.';
 
@@ -340,22 +373,12 @@ function writeTaste(localDir, projectName, taste) {
       content.substring(philosophyIndex);
   }
 
-  fs.writeFileSync(path.join(localDir, 'taste.md'), content, 'utf8');
-}
-
-function deleteProject(projectName) {
-  if (!isValidProjectName(projectName)) {
-    return { success: false, message: `Access denied: Cannot delete system or invalid path "${projectName}".` };
-  }
-  const projectDir = path.join(ROOT_DIR, projectName);
-  if (!fs.existsSync(projectDir)) {
-    return { success: false, message: `Project "${projectName}" does not exist.` };
-  }
-  try {
-    fs.rmSync(projectDir, { recursive: true, force: true });
-    return { success: true, message: `Project "${projectName}" deleted successfully.` };
-  } catch (e) {
-    return { success: false, message: `Failed to delete project: ${e.message}` };
+  const rel = configRelPaths(projectName).taste;
+  if (store.isCloud()) await store.writeText(rel, content, 'text/markdown');
+  else {
+    const fp = path.join(ROOT_DIR, rel);
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, content, 'utf8');
   }
 }
 

@@ -15,6 +15,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const store = require('./cloud-store');
+
 const ROOT_DIR = path.join(__dirname, '..');
 const REPO_ROOT = path.join(ROOT_DIR, '..');
 
@@ -22,9 +24,9 @@ const REPO_ROOT = path.join(ROOT_DIR, '..');
  * Build the complete system prompt for screen generation.
  * @param {string} projectName — e.g. "Instagram"
  * @param {object} options — { skipAutolayout?: boolean }
- * @returns {string} — Full system prompt text
+ * @returns {Promise<string>} — Full system prompt text
  */
-function buildScreenPrompt(projectName, options = {}) {
+async function buildScreenPrompt(projectName, options = {}) {
   const sections = [];
 
   // ── 1. Role & Output Format ──
@@ -34,7 +36,7 @@ function buildScreenPrompt(projectName, options = {}) {
   sections.push(buildCoreSection(options));
 
   // ── 3. Project Local Config (local/*.md + global/*.md) ──
-  sections.push(buildLocalSection(projectName));
+  sections.push(await buildLocalSection(projectName));
 
   // ── 4. Design & Generator Skills (.agents/skills/*) ──
   sections.push(buildSkillsSection());
@@ -48,14 +50,14 @@ function buildScreenPrompt(projectName, options = {}) {
 /**
  * Build the system prompt specifically for design system generation.
  * @param {string} projectName
- * @returns {string}
+ * @returns {Promise<string>}
  */
-function buildDesignSystemPrompt(projectName) {
+async function buildDesignSystemPrompt(projectName) {
   const sections = [];
 
   sections.push(buildRoleSection());
   sections.push(buildCoreSection({}));
-  sections.push(buildLocalSection(projectName));
+  sections.push(await buildLocalSection(projectName));
 
   // Read the ui-design-system skill specifically
   const dsSkillPath = path.join(REPO_ROOT, '.agents', 'skills', 'ui-design-system', 'SKILL.md');
@@ -65,15 +67,17 @@ function buildDesignSystemPrompt(projectName) {
   }
 
   // Scan existing screens for component extraction
-  const screensDir = path.join(ROOT_DIR, projectName, 'screens');
-  if (fs.existsSync(screensDir)) {
-    const screenFiles = fs.readdirSync(screensDir).filter(f => f.endsWith('.js'));
-    if (screenFiles.length > 0) {
-      const screenContents = screenFiles.map(f => {
-        const content = safeRead(path.join(screensDir, f));
-        return `### ${f}\n\`\`\`javascript\n${content}\n\`\`\``;
-      }).join('\n\n');
-      sections.push(`## Existing Project Screens (Analyze for Component Extraction)\n\n${screenContents}`);
+  const screenFiles = await store.listFileNames(`${projectName}/screens/`);
+  if (screenFiles.length > 0) {
+    const screenContents = [];
+    for (const f of screenFiles) {
+      const content = await store.readText(`${projectName}/screens/${f}`);
+      if (content) {
+        screenContents.push(`### ${f}\n\`\`\`javascript\n${content}\n\`\`\``);
+      }
+    }
+    if (screenContents.length > 0) {
+      sections.push(`## Existing Project Screens (Analyze for Component Extraction)\n\n${screenContents.join('\n\n')}`);
     }
   }
 
@@ -136,7 +140,7 @@ function buildCoreSection(options) {
   return parts.join('\n\n');
 }
 
-function buildLocalSection(projectName) {
+async function buildLocalSection(projectName) {
   const globalDir = path.join(ROOT_DIR, 'global');
 
   const mergeDirective = `## Context Merge Directive (CRITICAL)
@@ -147,14 +151,21 @@ The user's project-specific details ALWAYS take priority over the global default
 - When local files lack a field, fall back to global defaults.`;
 
   const globalConfig = buildConfigFromDir(globalDir, 'Global Baseline Defaults (quality floor — always apply)');
-  const localDir = path.join(ROOT_DIR, projectName, 'local');
-  const localConfig = fs.existsSync(localDir)
-    ? buildConfigFromDir(localDir, `Project Local Config (${projectName}) — USER AUTHORITATIVE`)
-    : '';
+  const localConfig = await buildProjectLocalConfig(projectName);
 
   return [mergeDirective, globalConfig, localConfig]
     .filter(Boolean)
     .join('\n\n');
+}
+
+async function buildProjectLocalConfig(projectName) {
+  const files = ['brief.md', 'colors.md', 'fonts.md', 'taste.md'];
+  const parts = [`## Project Local Config (${projectName}) — USER AUTHORITATIVE`];
+  for (const file of files) {
+    const content = await store.readText(`${projectName}/local/${file}`);
+    if (content) parts.push(`### ${file}\n${content}`);
+  }
+  return parts.length > 1 ? parts.join('\n\n') : '';
 }
 
 function buildConfigFromDir(dir, label) {

@@ -7,6 +7,7 @@
   "editorType": ["figma"],
   "networkAccess": {
     "allowedDomains": [
+      "https://figma-mcp-topaz.vercel.app",
       "https://unpkg.com",
       "https://images.unsplash.com",
       "https://fonts.googleapis.com",
