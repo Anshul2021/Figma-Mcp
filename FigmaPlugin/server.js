@@ -126,6 +126,14 @@ function deriveScreenName(prompt) {
   return cleaned || 'generated_screen';
 }
 
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
+}
+
 // ══════════════════════════════════════════════════════════════
 // ██ HTTP SERVER
 // ══════════════════════════════════════════════════════════════
@@ -145,6 +153,8 @@ const server = http.createServer(async (req, res) => {
     res.end();
     return;
   }
+
+  const clientIp = getClientIp(req);
 
   try {
     // ── Health & SSE Endpoints ────────────────────────────────────
@@ -173,7 +183,7 @@ const server = http.createServer(async (req, res) => {
         clientCount: clients.length,
         pluginConnected: clients.length > 0,
         geminiReady: geminiClient.isReady(),
-        credits: rateLimiter.getAllCredits(geminiClient.getAvailableModels()),
+        credits: rateLimiter.getAllCredits(geminiClient.getAvailableModels(), clientIp),
       });
     }
 
@@ -188,7 +198,7 @@ const server = http.createServer(async (req, res) => {
         if (err) {
           return sendJson(res, 500, { success: false, message: 'Error reading file' });
         }
-        res.writeHead(200, { 'Content-Type': 'text/javascript' });
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
         res.end(data);
       });
       return;
@@ -264,14 +274,14 @@ const server = http.createServer(async (req, res) => {
     // Get models + remaining daily credits per model
     if (reqPath === '/api/models' && req.method === 'GET') {
       const models = geminiClient.getAvailableModels();
-      const credits = rateLimiter.getAllCredits(models);
+      const credits = rateLimiter.getAllCredits(models, clientIp);
       return sendJson(res, 200, { models, credits });
     }
 
     // Get credit status
     if (reqPath === '/api/credits' && req.method === 'GET') {
       const models = geminiClient.getAvailableModels();
-      const credits = rateLimiter.getAllCredits(models);
+      const credits = rateLimiter.getAllCredits(models, clientIp);
       return sendJson(res, 200, { credits });
     }
 
@@ -292,8 +302,8 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, message: 'project and prompt are required.' });
       }
 
-      // Check daily rate limit for model (10 credits per day)
-      const creditCheck = rateLimiter.consumeCredit(modelId);
+      // Check daily rate limit for model (10 credits per day per IP)
+      const creditCheck = rateLimiter.consumeCredit(modelId, clientIp);
       if (!creditCheck.success) {
         return sendJson(res, 429, {
           success: false,
@@ -349,7 +359,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       // Check daily rate limit
-      const creditCheck = rateLimiter.consumeCredit(modelId);
+      const creditCheck = rateLimiter.consumeCredit(modelId, clientIp);
       if (!creditCheck.success) {
         return sendJson(res, 429, {
           success: false,

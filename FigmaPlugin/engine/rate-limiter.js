@@ -1,8 +1,8 @@
 /**
  * Morph — Daily Rate Limiter Engine
  * 
- * Manages daily credit allocation: 10 generations per model per day.
- * Usage is stored in `.rate-limit.json` and automatically resets at midnight.
+ * Manages daily credit allocation: 10 generations per model per user IP/ID per day.
+ * Resets automatically at midnight.
  */
 
 const fs = require('fs');
@@ -15,38 +15,47 @@ function getTodayString() {
   return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
+let inMemoryState = { date: getTodayString(), usage: {} };
+
 function loadState() {
   const today = getTodayString();
   try {
     if (fs.existsSync(STORAGE_FILE)) {
       const data = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
       if (data.date === today && data.usage) {
+        inMemoryState = data;
         return data;
       }
     }
   } catch (e) {
-    console.warn('[RateLimiter] Error loading state, resetting:', e.message);
+    // Fallback to in-memory state if serverless disk is read-only
   }
-  // Reset for a new day
-  return { date: today, usage: {} };
+
+  if (inMemoryState.date !== today) {
+    inMemoryState = { date: today, usage: {} };
+  }
+  return inMemoryState;
 }
 
 function saveState(state) {
+  inMemoryState = state;
   try {
     fs.writeFileSync(STORAGE_FILE, JSON.stringify(state, null, 2), 'utf8');
   } catch (e) {
-    console.warn('[RateLimiter] Error saving state:', e.message);
+    // Ignore read-only filesystem warnings on serverless platforms like Vercel
   }
 }
 
 /**
  * Get credit info for a single model.
  * @param {string} modelId 
+ * @param {string} [clientId] - User IP or User ID
  * @returns {{ remaining: number, total: number, used: number, date: string }}
  */
-function getCredits(modelId) {
+function getCredits(modelId, clientId = 'global') {
   const state = loadState();
-  const used = state.usage[modelId] || 0;
+  const key = `${clientId}:${modelId}`;
+  const used = state.usage[key] || state.usage[modelId] || 0;
   const remaining = Math.max(0, LIMIT_PER_MODEL_PER_DAY - used);
   return {
     modelId,
@@ -60,13 +69,15 @@ function getCredits(modelId) {
 /**
  * Get credit info for an array of model objects.
  * @param {Array<{ id: string, label: string }>} models 
+ * @param {string} [clientId] - User IP or User ID
  * @returns {Object.<string, { remaining: number, total: number, used: number }>}
  */
-function getAllCredits(models = []) {
+function getAllCredits(models = [], clientId = 'global') {
   const state = loadState();
   const result = {};
   for (const m of models) {
-    const used = state.usage[m.id] || 0;
+    const key = `${clientId}:${m.id}`;
+    const used = state.usage[key] || state.usage[m.id] || 0;
     result[m.id] = {
       remaining: Math.max(0, LIMIT_PER_MODEL_PER_DAY - used),
       total: LIMIT_PER_MODEL_PER_DAY,
@@ -77,25 +88,27 @@ function getAllCredits(models = []) {
 }
 
 /**
- * Consume 1 credit for a model.
+ * Consume 1 credit for a model for a specific client IP / ID.
  * @param {string} modelId 
+ * @param {string} [clientId] - User IP or User ID
  * @returns {{ success: boolean, remaining: number, message?: string }}
  */
-function consumeCredit(modelId) {
+function consumeCredit(modelId, clientId = 'global') {
   const state = loadState();
-  const used = state.usage[modelId] || 0;
+  const key = `${clientId}:${modelId}`;
+  const used = state.usage[key] || 0;
   if (used >= LIMIT_PER_MODEL_PER_DAY) {
     return {
       success: false,
       remaining: 0,
-      message: `Daily limit of ${LIMIT_PER_MODEL_PER_DAY} generations reached for model "${modelId}". Resets at midnight.`,
+      message: `Daily limit of ${LIMIT_PER_MODEL_PER_DAY} generations reached for model "${modelId}". Resets at midnight UTC.`,
     };
   }
 
-  state.usage[modelId] = used + 1;
+  state.usage[key] = used + 1;
   saveState(state);
 
-  const remaining = LIMIT_PER_MODEL_PER_DAY - state.usage[modelId];
+  const remaining = LIMIT_PER_MODEL_PER_DAY - state.usage[key];
   return {
     success: true,
     remaining,
