@@ -624,6 +624,17 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // ── Root: friendly landing so browsing the bare URL is not an error ──
+    if (reqPath === '/') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify({
+        success: true,
+        service: 'Morph Figma Cloud Server',
+        status: 'running',
+        docs: ['/api/status', '/admin (requires ADMIN_TOKEN)'],
+      }));
+    }
+
     // ── 404 (Always return clean JSON) ───────────────────────────
     return sendJson(res, 404, { success: false, message: `Endpoint not found: ${req.method} ${reqPath}` });
 
