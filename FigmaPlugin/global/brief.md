@@ -1,21 +1,20 @@
-# Project Brief
+# Project Brief — Baseline Template
 
 > Template and baseline context for screen generation.
 > When `@newproject <ProjectName>` is executed, this file is copied to `<ProjectName>/local/brief.md`.
-> Edit the project details and requirements below per project.
 
 ---
 
 ## 1. Project Overview & Context
 
-- **Project Name:** Zomato Food Delivery App
-- **Domain / Industry:** On-Demand Food Delivery & Restaurant Discovery
-- **Target Audience:** Foodies, daily lunch orderers, household dinner orderers
-- **Core Value Proposition:** Fast 30-min food delivery from nearby curated restaurants with live order tracking and seamless checkout.
+- **Project Name:** Reddit — Community & Discussion Platform
+- **Domain / Industry:** Social News Aggregation, Discussion & Communities
+- **Target Audience:** Online communities, subreddits, daily news readers, hobbyists
+- **Core Value Proposition:** Community-driven news feed with upvoting/downvoting, nested comment discussions, media sharing, and subreddit discovery.
 - **Key User Flows:**
-  - Discover nearby restaurants & category filters (Burgers, Pizza, Asian, Desserts)
-  - Explore restaurant menus & food dish detail view (customizations, add-ons, quantity)
-  - Cart review, promo codes, delivery instructions & single-tap payment checkout
+  - Home feed / Popular feed (Posts with upvote pills, media previews, comment count)
+  - Subreddit Community page (Header banner, community rules, join button, sort tabs)
+  - Post detail view (Expanded post, upvote/downvote bar, nested comment tree)
 
 ---
 
@@ -25,7 +24,6 @@
 - **Screen Dimensions:** `375px × 812px` (standard iPhone mobile screen frame)
 - **Safe Area Insets:** Top `0px` (Clean top header flush with screen edge), Bottom `20px` (home indicator bar)
 - **Orientation:** Portrait (fixed)
-- **Extensibility:** Standard mobile architecture — easily adaptable to Android or tablet viewports.
 
 ---
 

@@ -1,36 +1,52 @@
 # Project Brief — Instagram
 
-> Product Purpose & Domain Context for Instagram Mobile App.
+> App Purpose & Specific Requirements for Instagram.
 
 ---
 
-## 1. Project Overview & Context
+## 1. Project Overview & Specific Requirements
 
 - **Project Name:** Instagram
-- **Domain / Industry:** Social Media, Photo & Video Sharing, Community Interaction
-- **Target Audience:** Content creators, everyday social media users, friends, influencers, brands
-- **Core Value Proposition:** Seamless mobile social interaction platform for sharing visual posts, stories, reels, messaging, and building digital communities.
-- **Key User Flows:**
-  - Home Feed: Browse photo/video posts, view stories bar, double-tap likes, comments, shares
-  - Explore & Search: Discover trending content, visual grids, hashtag & account discovery
-  - Reels: Vertical full-screen short-form video feed with interactive overlays
-  - Profile & Highlights: Personal grid view, bio, follower metrics, story highlights
-  - Direct Messaging (DM): Private chats, media sharing, quick replies
-
----
+- **Brief / Description:** Photo & video sharing social platform with stories, reels, feed, and direct messages.
 
 ## 2. Platform & Target Specs
 
-- **Primary Platform:** Mobile (iOS / Android App)
-- **Screen Dimensions:** `375px × 812px` (standard mobile frame)
-- **Safe Area Insets:** Top `0px` (Clean flush top header with standard 12px-16px padding), Bottom `20px` (home indicator bar)
+- **Primary Platform:** Mobile (iOS App)
+- **Screen Dimensions:** `375px × 812px` (standard iPhone mobile screen frame)
+- **Safe Area Insets:** Top `0px` (Clean top header flush with screen edge), Bottom `20px` (home indicator bar)
 - **Orientation:** Portrait (fixed)
+- **Extensibility:** Standard mobile architecture — easily adaptable to Android or tablet viewports.
 
 ---
 
 ## 3. Screen Layout Architecture
 
-Every screen follows the standard mobile 3-Part Stack:
-1. Top Header Bar (Brand Logo / Navigation / Action Icons like Likes & DMs)
-2. Scrollable Middle Body (Stories bar, post feeds, discovery grid, profile metrics)
-3. Bottom Navigation Bar (Home, Search, Create/Post, Reels, Profile)
+Every mobile screen follows the **3-Part Stack**:
+
+```
+┌─────────────────────────────────────────┐
+│  TOP HEADER BAR                         │  Height: HUG content (top padding: 12px-16px)
+│  (Navigation, location, screen title)   │  Width: FIXED 375px
+├─────────────────────────────────────────┤
+│                                         │
+│  MIDDLE SCROLL CONTENT                  │  Height: FIXED (remaining viewport)
+│  (Cards, feeds, menus, forms)           │  Width: FIXED 375px
+│                                         │  clipsContent: true
+├─────────────────────────────────────────┤
+│  BOTTOM NAVIGATION / FOOTER CTA         │  Height: HUG content
+│  (Tab bar or primary action button)     │  Width: FIXED 375px
+└─────────────────────────────────────────┘
+```
+
+---
+
+## 4. Default Layout & Design Parameters
+
+| Property | Default Value | Notes |
+|:---------|:--------------|:------|
+| Device Width | `375px` | Standard mobile width |
+| Device Height | `812px` | Standard mobile height |
+| Header Height | `~48px - 56px` | Standard mobile header (flush top padding 12px-16px) |
+| Footer Height | `~64px - 84px` | Plus bottom safe padding |
+| Horizontal Screen Margin | `16px - 20px` | Side padding for cards |
+| Card Spacing (Vertical) | `12px - 16px` | Gap between list items |

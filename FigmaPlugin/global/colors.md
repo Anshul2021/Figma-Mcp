@@ -1,58 +1,53 @@
 # Color System
 
 > Default brand and UI color tokens for generated Figma screens.
-> When `@newproject <ProjectName>` is executed, this file is copied to `<ProjectName>/local/colors.md`.
-> Theme: Vibrant Zomato Red / Food Delivery Palette.
+> Theme: Vibrant Reddit Orange & Community Palette.
 
 ---
 
 ## 🎨 Brand Colors
 
-### Primary (Zomato Bright Red)
-- **`primary-600`** | `#E23744` | `{ r: 0.886, g: 0.216, b: 0.267 }` — Primary buttons, active tabs, main badges
-- **`primary-700`** | `#CB202D` | `{ r: 0.796, g: 0.125, b: 0.176 }` — Hover / pressed states
-- **`primary-500`** | `#F04F5F` | `{ r: 0.941, g: 0.310, b: 0.373 }` — Light primary accents
-- **`primary-100`** | `#FDE8EA` | `{ r: 0.992, g: 0.910, b: 0.918 }` — Soft pink/red background tint
-- **`primary-50`**  | `#FFF5F6` | `{ r: 1.000, g: 0.961, b: 0.965 }` — Subtle highlight fill
+### Primary (Reddit Orange)
+- **`primary-600`** | `#FF4500` | `{ r: 1.000, g: 0.271, b: 0.000 }` — Upvote buttons, primary CTAs, community highlights
+- **`primary-700`** | `#E03D00` | `{ r: 0.878, g: 0.239, b: 0.000 }` — Pressed / hover states
+- **`primary-100`** | `#FFEBE5` | `{ r: 1.000, g: 0.922, b: 0.898 }` — Soft orange background tint
 
-### Secondary (Warm Amber / Gold Accent)
-- **`secondary-600`** | `#F59E0B` | `{ r: 0.960, g: 0.624, b: 0.043 }` — Star ratings, promotional tags
-- **`secondary-100`** | `#FEF3C7` | `{ r: 0.996, g: 0.953, b: 0.780 }` — Soft gold background fill
+### Secondary (Reddit Action Blue)
+- **`secondary-600`** | `#0079D3` | `{ r: 0.000, g: 0.475, b: 0.827 }` — Downvote buttons, links, joined badges
+- **`secondary-100`** | `#E5F2FA` | `{ r: 0.898, g: 0.949, b: 0.980 }` — Soft blue background fill
 
 ---
 
 ## ⚪ Neutral Colors
 
-- **`neutral-900`** | `#111827` | `{ r: 0.067, g: 0.094, b: 0.153 }` — Main headings & primary text
-- **`neutral-700`** | `#374151` | `{ r: 0.216, g: 0.255, b: 0.318 }` — Secondary body text
-- **`neutral-500`** | `#6B7280` | `{ r: 0.420, g: 0.447, b: 0.502 }` — Muted text, inactive icons, placeholders
-- **`neutral-300`** | `#D1D5DB` | `{ r: 0.820, g: 0.835, b: 0.859 }` — Borders, dividers
-- **`neutral-100`** | `#F3F4F6` | `{ r: 0.953, g: 0.957, b: 0.965 }` | Card background fills, search bar fill
-- **`neutral-50`**  | `#F9FAFB` | `{ r: 0.976, g: 0.980, b: 0.984 }` | Main screen background
-- **`white`**       | `#FFFFFF` | `{ r: 1.000, g: 1.000, b: 1.000 }` | Pure white cards & button text
+- **`neutral-900`** | `#1A1A1B` | `{ r: 0.102, g: 0.102, b: 0.106 }` — Main headings & post titles
+- **`neutral-700`** | `#374151` | `{ r: 0.216, g: 0.255, b: 0.318 }` — Secondary body text & comments
+- **`neutral-500`** | `#787C7E` | `{ r: 0.471, g: 0.486, b: 0.494 }` — Muted text, timestamps, comment counts
+- **`neutral-300`** | `#EDEFF1` | `{ r: 0.929, g: 0.937, b: 0.945 }` — Borders, dividers
+- **`neutral-100`** | `#F6F7F8` | `{ r: 0.965, g: 0.969, b: 0.973 }` — Card fills, search bar background
+- **`white`**       | `#FFFFFF` | `{ r: 1.000, g: 1.000, b: 1.000 }` — Card backgrounds & button text
 
 ---
 
 ## 🚦 Semantic Status Colors
 
-- **`success`** | `#059669` | `{ r: 0.020, g: 0.588, b: 0.412 }` — Veg tags, discount badges, success alerts
-- **`warning`** | `#D97706` | `{ r: 0.851, g: 0.467, b: 0.024 }` — Preparation time alerts
-- **`error`**   | `#DC2626` | `{ r: 0.863, g: 0.149, b: 0.149 }` | Out of stock, error messages
+- **`success`** | `#46D160` | `{ r: 0.275, g: 0.820, b: 0.376 }` — Online active status, success alerts
+- **`warning`** | `#FFB000` | `{ r: 1.000, g: 0.690, b: 0.000 }` — Mod warnings, pinned posts
+- **`error`**   | `#EA0027` | `{ r: 0.918, g: 0.000, b: 0.153 }` — Deleted / removed posts
 
 ---
 
-## ⚡ Code Quick-Map (Copy into Generated Scripts)
+## ⚡ Code Quick-Map
 
 ```javascript
 const COLORS = {
-  primary:      { r: 0.886, g: 0.216, b: 0.267 },  // #E23744 Zomato Red
-  primaryLight: { r: 0.992, g: 0.910, b: 0.918 },  // #FDE8EA Soft Red Tint
-  text:         { r: 0.067, g: 0.094, b: 0.153 },  // #111827 Dark Headings
-  textMuted:    { r: 0.420, g: 0.447, b: 0.502 },  // #6B7280 Muted Subtitles
+  primary:      { r: 1.000, g: 0.271, b: 0.000 },  // #FF4500 Reddit Orange
+  primaryLight: { r: 1.000, g: 0.922, b: 0.898 },  // #FFEBE5 Soft Orange Tint
+  secondary:    { r: 0.000, g: 0.475, b: 0.827 },  // #0079D3 Action Blue
+  text:         { r: 0.102, g: 0.102, b: 0.106 },  // #1A1A1B Dark Headings
+  textMuted:    { r: 0.471, g: 0.486, b: 0.494 },  // #787C7E Muted Subtitles
   surface:      { r: 1.000, g: 1.000, b: 1.000 },  // #FFFFFF White Cards
-  background:   { r: 0.976, g: 0.980, b: 0.984 },  // #F9FAFB Screen Fill
-  border:       { r: 0.898, g: 0.906, b: 0.922 },  // #E5E7EB Borders
-  star:         { r: 0.960, g: 0.624, b: 0.043 },  // #F59E0B Gold Stars
-  success:      { r: 0.020, g: 0.588, b: 0.412 }   // #059669 Veg/Discount Green
+  background:   { r: 0.965, g: 0.969, b: 0.973 },  // #F6F7F8 Screen Fill
+  border:       { r: 0.929, g: 0.937, b: 0.945 }   // #EDEFF1 Borders
 };
 ```

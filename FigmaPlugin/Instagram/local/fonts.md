@@ -1,13 +1,14 @@
 # Typography System — Instagram
 
-> Typography definitions for Instagram Mobile UI screens.
+> Typography definitions and scale for generated Figma screens.
+> When `@newproject <ProjectName>` is executed, this file is copied to `<ProjectName>/local/fonts.md`.
 > Strict Rule: ALL font sizes MUST use even numbers. NEVER use odd sizes like 11, 13, 15, or 17.
 
 ---
 
 ## 🔤 Primary Font Family
 
-- **Font Family:** `DM Sans` (or `Instrument Sans`)
+- **Font Family:** `DM Sans`
 - **Fallback:** `Inter`, `system-ui`
 
 ### Mandatory Asynchronous Pre-loading
@@ -25,23 +26,27 @@ await figma.loadFontAsync({ family: "DM Sans", style: "Bold" });
 
 | Token | Size | Weight | Line Height | Allowed Use Cases |
 |:------|:-----|:-------|:------------|:------------------|
-| `micro` | **10px** | Medium | 14px | Story avatar username handles, micro timestamps |
-| `caption` | **12px** | Regular / Medium | 16px | Post timestamps ("2 HOURS AGO"), count subtitles, tab bar labels |
-| `body` | **14px** | Regular / Medium | 20px | User handle headers, post caption body, comment text |
-| `subhead` | **16px** | Medium / Bold | 24px | Profile stats counters, section titles, blue button text |
-| `title` | **20px** | Bold | 28px | Instagram logo title header, screen header titles |
-| `heading` | **24px** | Bold | 32px | Profile display name header, large reel stats |
-| `hero` | **32px** | Bold | 40px | High-impact promotional numbers & callouts |
+| `micro` | **10px** | Medium | 14px | Micro tags, bestseller badges, pill labels |
+| `caption` | **12px** | Regular / Medium | 16px | Timestamps, ratings, delivery time, secondary captions |
+| `body` | **14px** | Regular / Medium | 20px | Main body descriptions, input field placeholders, button labels |
+| `subhead` | **16px** | Medium / Bold | 24px | Card sub-headers, list item titles, price labels |
+| `title` | **20px** | Bold | 28px | Screen section headers, dish titles |
+| `heading` | **24px** | Bold | 32px | Primary screen titles, modal headers |
+| `hero` | **32px** | Bold | 40px | Hero banner titles, large promotional figures |
+
+> **STRICT ENFORCEMENT RULE FOR AI:**  
+> Only use size values from the scale above: `10`, `12`, `14`, `16`, `20`, `24`, `32`.  
+> Do NOT use `11`, `13`, `15`, `17`, `19`, or any other odd-number font size.
 
 ---
 
 ## ⚡ Text Creator Helper Pattern
 
 ```javascript
-function createText(content, fontSize, fontStyle = "Regular", color = { r: 0.059, g: 0.090, b: 0.165 }) {
+function createText(content, fontSize, fontStyle = "Regular", color = { r: 0.067, g: 0.094, b: 0.153 }) {
   const text = figma.createText();
   text.fontName = { family: "DM Sans", style: fontStyle };
-  text.fontSize = fontSize; // EVEN numbers only: 10, 12, 14, 16, 20, 24, 32
+  text.fontSize = fontSize; // Must be an EVEN number: 10, 12, 14, 16, 20, 24, 32
   text.characters = String(content);
   text.fills = [{ type: 'SOLID', color }];
   return text;

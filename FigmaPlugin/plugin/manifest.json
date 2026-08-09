@@ -1,8 +1,21 @@
 {
-  "name": "Figma AI Screen Generator",
+  "name": "Morph",
   "id": "figma-ai-screen-generator",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": [
+      "https://unpkg.com",
+      "https://images.unsplash.com",
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ],
+    "devAllowedDomains": [
+      "http://localhost:3003",
+      "http://localhost"
+    ],
+    "reasoning": "Fetches local bridge server scripts, Lucide SVG icons, Unsplash photography, and Google Fonts."
+  }
 }

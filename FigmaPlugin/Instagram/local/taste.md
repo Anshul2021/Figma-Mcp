@@ -1,16 +1,19 @@
 # Visual Taste & Design Preferences — Instagram
 
-> Aesthetic guidelines specifically tailored for Instagram Mobile App generation.
+> Project-specific visual style layered on top of global anti-slop directives.
 
 ---
 
-## 🎨 Visual Identity & Tone
+## 🎨 Project Visual Identity
 
-- **Style:** Clean, content-first mobile social platform layout with ultra-sleek micro-paddings, high visual contrast, and high-res photo feeds.
-- **Header Aesthetics:** Clean wordmark with minimal line action icons (Heart, Messenger, Plus).
-- **Stories Bar:** Horizontal scroll avatar circles (`56px × 56px` or `64px × 64px`) wrapped in 2px vibrant gradient rings with micro text handles beneath (`10px` even size).
-- **Post Feed Cards:** Standard aspect ratio image frames (`375px × 375px` square or `375px × 468px` 4:5 vertical portrait) with real photography fills (`applyOnlineImage`).
-- **Interaction Bar:** Action icons row (Heart, Message, Send, Bookmark) with spacing and crisp double-tap like feel.
+Minimalist clean white canvas with gradient story rings, vibrant photography, verified badges, and lightweight icons.
+
+## 🎨 Design Philosophy & Anti-Slop Directive
+
+- **Style:** Agency-grade modern B2B SaaS dashboard, clean enterprise, high contrast.
+- **Anti-Slop:** Avoid default, generic "AI slop" gradients, uninspired plain gray boxes, or monolithic flat designs.
+- **Canvas Viewport:** `1440px × 900px` Landscape Desktop Workspace (or `375px × 812px` Mobile Viewport).
+- **Density:** Comfortable Enterprise (micro-padding `16px - 24px`, clear section spacing `16px - 24px`).
 
 ---
 
@@ -18,15 +21,16 @@
 
 | Token | Value | Primary Application |
 |:------|:------|:-------------------|
-| `radius-xs` | **4px** | Follow buttons, action tag pills |
-| `radius-sm` | **6px** | Search inputs, comment reply text boxes |
-| `radius-md` | **8px** | Image grid corners, media cards |
-| `radius-lg` | **12px** | Bottom sheets, action popovers |
-| `radius-full` | **999px** | User avatars, story rings, active status pills |
+| `radius-xs` | **4px** | Status badges, tag counts, micro pills |
+| `radius-sm` | **6px** | Primary/Secondary buttons, input search bar |
+| `radius-md` | **8px** | Action widgets, icon container boxes |
+| `radius-lg` | **12px** | Main panel containers, table containers |
+| `radius-xl` | **16px** | Hero overview cards, modal containers |
 
 ---
 
-## 🌫️ Borders & Dividers
+## 🌫️ Borders & Elevation
 
-- **Divider lines:** Subtle `1px` borders (`#E2E8F0`) between feed posts, header, and bottom navigation bar.
-- **Story Ring Padding:** `2px` white inset gap between avatar and colorful story gradient border ring.
+- **Subtle 1px Borders:** Use 1px refined inner borders (`#E5E7EB` or `#F1F5F9`) instead of heavy dark borders.
+- **Elevation:** Soft ambient drop shadows (`offset: { x: 0, y: 1 }, radius: 3, opacity: 0.05`).
+- **Icon Boxes:** Soft background containers (`#F8FAFC` or primary light tint) around Lucide vector icons (`strokeWidth = 1.5`).
