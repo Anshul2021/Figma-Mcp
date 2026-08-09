@@ -122,27 +122,43 @@ async function updateProjectConfig(projectName, config) {
 
 /**
  * List all user projects with metadata (screen count, component count, etc.)
+ * Built from a SINGLE storage scan so it stays fast on Blob/serverless
+ * (previously ~9 sequential list calls made /api/projects take ~10s).
  * @returns {Promise<Array<object>>}
  */
 async function listProjects() {
-  const names = await store.listProjectNames();
+  const scan = await store.scanTree('');
+  const byProject = new Map();
+  for (const rel of scan) {
+    const parts = rel.split('/').filter(Boolean);
+    if (parts.length < 3) continue;
+    const proj = parts[0];
+    const sub = parts[1];
+    if (SYSTEM_DIRS.includes(proj.toLowerCase())) continue;
+    if (!byProject.has(proj)) {
+      byProject.set(proj, { screens: [], components: [], tokens: [], hasLocalConfig: false });
+    }
+    const entry = byProject.get(proj);
+    const fileName = parts[parts.length - 1];
+    if (sub === 'screens' && fileName.endsWith('.js')) entry.screens.push(fileName);
+    else if (sub === 'components' && fileName.endsWith('.js')) entry.components.push(fileName);
+    else if (sub === 'tokens' && fileName.endsWith('.js')) entry.tokens.push(fileName);
+    else if (sub === 'local' && fileName.endsWith('.md')) entry.hasLocalConfig = true;
+  }
   const projects = [];
-  for (const name of names) {
-    const [screens, components, tokens] = await Promise.all([
-      store.listFileNames(`${name}/screens/`),
-      store.listFileNames(`${name}/components/`),
-      store.listFileNames(`${name}/tokens/`),
-    ]);
-    const hasLocal = await store.exists(`${name}/local/brief.md`);
+  for (const [name, entry] of byProject) {
+    const screenCount = entry.screens.length;
+    const componentCount = entry.components.length;
+    const tokenCount = entry.tokens.length;
     projects.push({
       name,
-      screenCount: screens.filter(f => f.endsWith('.js')).length,
-      componentCount: components.filter(f => f.endsWith('.js')).length,
-      tokenCount: tokens.filter(f => f.endsWith('.js')).length,
-      screens: screens.filter(f => f.endsWith('.js')),
-      components: components.filter(f => f.endsWith('.js')),
-      tokens: tokens.filter(f => f.endsWith('.js')),
-      hasLocalConfig: hasLocal,
+      screenCount,
+      componentCount,
+      tokenCount,
+      screens: entry.screens,
+      components: entry.components,
+      tokens: entry.tokens,
+      hasLocalConfig: entry.hasLocalConfig,
     });
   }
   return projects.filter(p => p.screenCount > 0 || p.componentCount > 0 || p.tokenCount > 0 || p.hasLocalConfig);

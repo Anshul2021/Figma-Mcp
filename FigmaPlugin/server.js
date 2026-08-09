@@ -94,7 +94,7 @@ function setCorsHeaders(res) {
 }
 
 function sendJson(res, statusCode, data) {
-  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.writeHead(statusCode, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(data));
 }
 
@@ -365,7 +365,7 @@ const server = http.createServer(async (req, res) => {
       if (content == null) {
         return sendJson(res, 404, { success: false, message: `Script Not Found: ${fileName}` });
       }
-      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(content);
       return;
     }
@@ -499,7 +499,7 @@ const server = http.createServer(async (req, res) => {
 
     // Admin HTML dashboard (human-readable user list)
     if (reqPath === '/admin' && req.method === 'GET') {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(renderAdminPage());
       return;
     }

@@ -29,7 +29,9 @@ async function recordUser({ name, ip, model }) {
   if (!ip || ip === 'unknown') return;
   const key = userKey(ip);
   let user = {};
-  const existing = await store.readText(key);
+  // `retry: false` -> an instant miss is expected on first arrival (no Blob
+  // eventual-consistency wait, keeps /api/users/register snappy).
+  const existing = await store.readText(key, { retry: false });
   if (existing) {
     try {
       user = JSON.parse(existing);
@@ -49,11 +51,12 @@ async function recordUser({ name, ip, model }) {
  * @returns {Promise<Array<object>>}
  */
 async function listUsers() {
-  const files = await store.listFileNames(USERS_PREFIX);
+  const paths = await store.scanTree(USERS_PREFIX);
   const users = [];
-  for (const f of files) {
+  for (const f of paths) {
     if (!f.endsWith('.json')) continue;
-    const raw = await store.readText(`${USERS_PREFIX}${f}`);
+    const full = f.startsWith(USERS_PREFIX) ? f : USERS_PREFIX + f;
+    const raw = await store.readText(full, { retry: false });
     if (!raw) continue;
     try {
       users.push(JSON.parse(raw));

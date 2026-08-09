@@ -62,17 +62,20 @@ async function blobText(result) {
   return null;
 }
 
-async function readText(relPath) {
+async function readText(relPath, options = {}) {
+  // `retry: false` is used for best-effort/existence reads where an instant
+  // miss is the expected outcome (new user records, config files). The retry
+  // loop is only worth it for freshly-generated scripts served right after a write.
+  const maxAttempts = options.retry === false ? 1 : 6;
+  const waitMs = options.retry === false ? 0 : 300;
   if (isCloud()) {
-    // Blob can lag momentarily right after a write; retry briefly before falling
-    // back to the deployment filesystem (committed files).
-    for (let attempt = 0; attempt < 6; attempt++) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const result = await blob.get(relPath, { access: BLOB_ACCESS });
         const text = await blobText(result);
         if (text != null) return text;
       } catch (e) { /* retry transient errors */ }
-      if (attempt < 5) await sleep(300);
+      if (attempt < maxAttempts - 1 && waitMs) await sleep(waitMs);
     }
     const fp = localPath(relPath);
     return fs.existsSync(fp) ? fs.readFileSync(fp, 'utf8') : null;
@@ -153,34 +156,61 @@ async function deletePrefix(relPrefix) {
   return 1;
 }
 
-async function listFileNames(relPrefix) {
-  const names = [];
-  if (isCloud()) {
-    for (let attempt = 0; attempt < 6; attempt++) {
-      try {
-        let cursor;
-        do {
-          const page = await blob.list({ prefix: relPrefix, cursor });
-          for (const b of page.blobs) {
-            const base = b.pathname.startsWith(relPrefix)
-              ? b.pathname.slice(relPrefix.length)
-              : b.pathname.split('/').pop();
-            if (base && !base.includes('/') && !names.includes(base)) names.push(base);
-          }
-          cursor = page.cursor;
-        } while (cursor);
-      } catch (e) { /* retry transient errors */ }
-      if (names.length > 0 || attempt === 5) break;
-      await sleep(400);
+function walkLocal(dirAbs, relPrefix, out, skipSystem) {
+  let entries;
+  try { entries = fs.readdirSync(dirAbs, { withFileTypes: true }); } catch (e) { return; }
+  for (const entry of entries) {
+    const rel = relPrefix + entry.name;
+    if (entry.isDirectory()) {
+      if (skipSystem && (entry.name.startsWith('.') || SYSTEM_DIRS.includes(entry.name))) continue;
+      walkLocal(path.join(dirAbs, entry.name), rel + '/', out, false);
+    } else {
+      out.add(rel);
     }
   }
-  const dir = localPath(relPrefix);
-  if (fs.existsSync(dir)) {
+}
+
+/**
+ * Single-pass scan of every stored file under a prefix (Vercel Blob + deploy
+ * filesystem, deduped). Returns relative paths (empty prefix => full relative
+ * paths like `Instagram/screens/feed.js`). This replaces the previous loop of
+ * many per-folder list() calls that made /api/projects take ~10s.
+ * @param {string} relPrefix
+ * @returns {Promise<string[]>}
+ */
+async function scanTree(relPrefix = '') {
+  const out = new Set();
+  const prefix = relPrefix.endsWith('/') || relPrefix === '' ? relPrefix : relPrefix + '/';
+  if (isCloud()) {
     try {
-      for (const f of fs.readdirSync(dir)) {
-        if (!names.includes(f)) names.push(f);
-      }
+      let cursor;
+      do {
+        const page = await blob.list({ prefix, cursor, limit: 1000 });
+        for (const b of page.blobs) {
+          const rel = b.pathname.startsWith(prefix) ? b.pathname.slice(prefix.length) : b.pathname;
+          if (rel) out.add(rel);
+        }
+        cursor = page.cursor;
+      } while (cursor);
     } catch (e) { /* ignore */ }
+  }
+  const dirAbs = localPath(prefix);
+  if (fs.existsSync(dirAbs)) {
+    walkLocal(dirAbs, prefix, out, prefix === '');
+  }
+  let paths = Array.from(out);
+  if (prefix) {
+    // Normalize to prefix-relative paths (cloud slice + local walk must agree).
+    paths = paths.map(p => p.startsWith(prefix) ? p.slice(prefix.length) : p);
+  }
+  return paths;
+}
+
+async function listFileNames(relPrefix) {
+  const paths = await scanTree(relPrefix);
+  const names = [];
+  for (const p of paths) {
+    if (!p.includes('/')) names.push(p);
   }
   return names;
 }
@@ -234,4 +264,5 @@ module.exports = {
   deletePrefix,
   listFileNames,
   listProjectNames,
+  scanTree,
 };
