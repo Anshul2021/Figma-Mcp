@@ -56,6 +56,19 @@ Developers can run Morph locally using their preferred AI coding assistant (Clau
 | **Step 3** | <img src="https://img.shields.io/badge/Step_3-Orchestrate_Agent-D97706?style=for-the-badge" alt="Step 3"> | Use any coding assistant to execute commands against project directories without third-party API fees. |
 | **Step 4** | <img src="https://img.shields.io/badge/Step_4-Realtime_Sync-7C3AED?style=for-the-badge" alt="Step 4"> | Generated scripts automatically sync to the Figma canvas in real-time via the local SSE bridge. |
 
+> [!IMPORTANT]
+> **Server Endpoint Configuration (`FigmaPlugin/plugin/ui.html`)**  
+> - **Default (Production Vercel Cloud):** By default, the plugin connects to the hosted Vercel deployment (`https://figma-mcp-topaz.vercel.app`) so users can generate screens without starting a local Node process.
+> - **Local Server Mode:** If you want to run Morph locally with `node server.js`, update line ~2036 of [`FigmaPlugin/plugin/ui.html`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/ui.html#L2036) to point to your local bridge server (`http://localhost:3003`):
+> 
+> ```javascript
+> // Default (Production Vercel Cloud)
+> // const SERVER = 'https://figma-mcp-topaz.vercel.app';
+> 
+> // Local Bridge Server (For Local Node.js Development)
+> const SERVER = 'http://localhost:3003';
+> ```
+
 ---
 
 ## Supported Commands

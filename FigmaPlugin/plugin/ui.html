@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Copernicus&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Copernicus&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       /* Claude Design System tokens (per DESIGN-claude.md) */
@@ -40,12 +42,17 @@
       --radius-xl: 16px;
       --radius-pill: 9999px;
 
-      --shadow-sm: 0 1px 2px rgba(20,20,19,0.06);
-      --shadow-md: 0 2px 8px rgba(20,20,19,0.08);
-      --shadow-lg: 0 12px 32px rgba(20,20,19,0.14);
+      --shadow-sm: 0 1px 2px rgba(20, 20, 19, 0.06);
+      --shadow-md: 0 2px 8px rgba(20, 20, 19, 0.08);
+      --shadow-lg: 0 12px 32px rgba(20, 20, 19, 0.14);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--canvas);
@@ -57,1081 +64,2182 @@
       -webkit-font-smoothing: antialiased;
       overflow: hidden;
     }
-    .view { display: none; flex-direction: column; height: 100vh; }
-    .view.active { display: flex; }
+
+    .view {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .view.active {
+      display: flex;
+    }
 
     /* ── Buttons (Claude) ── */
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 0 20px; height: 40px;
-      font-family: inherit; font-size: 14px; font-weight: 500; line-height: 1;
-      border-radius: var(--radius-md); cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 20px;
+      height: 40px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1;
+      border-radius: var(--radius-md);
+      cursor: pointer;
       transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
       white-space: nowrap;
     }
-    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .btn-primary { background: var(--primary); color: var(--on-primary); border: none; }
-    .btn-primary:hover { background: var(--primary-active); }
-    .btn-primary:disabled { background: var(--primary-disabled); color: var(--muted); cursor: not-allowed; }
-    .btn-secondary { background: var(--canvas); color: var(--ink); border: 1px solid var(--hairline); }
-    .btn-secondary:hover { border-color: var(--ink); }
-    .btn-ghost { background: none; color: var(--muted); border: none; height: 32px; padding: 0 12px; font-size: 13px; }
-    .btn-ghost:hover { color: var(--ink); }
-    .btn-danger { background: var(--error); color: var(--on-dark); border: none; }
-    .btn-full { width: 100%; }
-    .btn-sm { height: 32px; padding: 0 14px; font-size: 13px; }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-active);
+    }
+
+    .btn-primary:disabled {
+      background: var(--primary-disabled);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--canvas);
+      color: var(--ink);
+      border: 1px solid var(--hairline);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--ink);
+    }
+
+    .btn-ghost {
+      background: none;
+      color: var(--muted);
+      border: none;
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--ink);
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: var(--on-dark);
+      border: none;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .btn-sm {
+      height: 32px;
+      padding: 0 14px;
+      font-size: 13px;
+    }
 
     /* Text link (Claude text-link coral) */
     .text-link {
-      background: none; border: none; padding: 0; cursor: pointer;
-      font-family: inherit; font-size: 12px; font-weight: 500;
-      color: var(--primary); text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      text-decoration: none;
     }
-    .text-link:hover { color: var(--primary-active); text-decoration: underline; }
+
+    .text-link:hover {
+      color: var(--primary-active);
+      text-decoration: underline;
+    }
 
     /* ── Inputs (Claude text-input) ── */
-    .form-group { margin-bottom: 14px; }
+    .form-group {
+      margin-bottom: 14px;
+    }
+
     .form-label {
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
-      font-size: 12px; font-weight: 600; color: var(--body-strong);
-      letter-spacing: 0.3px; margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--body-strong);
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
     }
-    .form-label .label-left { display: flex; align-items: center; gap: 6px; }
+
+    .form-label .label-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .form-label .info-icon {
-      width: 13px; height: 13px; color: var(--muted-soft); cursor: help;
-      flex-shrink: 0; transition: color 0.15s ease;
+      width: 13px;
+      height: 13px;
+      color: var(--muted-soft);
+      cursor: help;
+      flex-shrink: 0;
+      transition: color 0.15s ease;
     }
-    .form-label .info-icon:hover { color: var(--primary); }
-    .form-input, .form-textarea {
-      width: 100%; padding: 0 14px; height: 40px; font-family: inherit; font-size: 13px;
-      color: var(--ink); background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); outline: none;
+
+    .form-label .info-icon:hover {
+      color: var(--primary);
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 0 14px;
+      height: 40px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      outline: none;
       transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
-    .form-textarea { padding: 9px 14px; height: auto; resize: vertical; min-height: 62px; line-height: 1.35; }
-    .form-input:focus, .form-textarea:focus {
-      background: var(--canvas);
-      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(204,120,92,0.15);
+
+    .form-textarea {
+      padding: 9px 14px;
+      height: auto;
+      resize: vertical;
+      min-height: 62px;
+      line-height: 1.35;
     }
-    .form-input::placeholder, .form-textarea::placeholder { font-size: 12px; color: var(--muted-soft); line-height: 1.3; }
-    .form-hint { font-size: 11px; color: var(--muted-soft); margin-top: 5px; line-height: 1.4; }
-    select.form-input { appearance: auto; }
-    .input-row { display: flex; gap: 8px; }
-    .input-row .form-input { flex: 1; }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      background: var(--canvas);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.15);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      font-size: 12px;
+      color: var(--muted-soft);
+      line-height: 1.3;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--muted-soft);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    select.form-input {
+      appearance: auto;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-row .form-input {
+      flex: 1;
+    }
 
     /* ── Tooltip ── */
-    [data-tooltip] { position: relative; }
-    [data-tooltip]:hover::after {
-      content: attr(data-tooltip);
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: calc(100% + 6px); padding: 5px 10px;
-      background: var(--surface-dark); color: var(--on-dark);
-      font-size: 11px; font-weight: 500; border-radius: var(--radius-sm);
-      white-space: nowrap; z-index: 100; pointer-events: none;
+    [data-tooltip] {
+      position: relative;
     }
 
-    .scroll-area { flex: 1; overflow-y: auto; padding-right: 2px; }
-    .scroll-area::-webkit-scrollbar { width: 4px; }
-    .scroll-area::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(100% + 6px);
+      padding: 5px 10px;
+      background: var(--surface-dark);
+      color: var(--on-dark);
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .scroll-area::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: var(--hairline);
+      border-radius: 4px;
+    }
 
     /* ── Size Control ── */
     .size-control {
-      display: inline-flex; align-items: center; gap: 2px;
-      background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-pill); padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      padding: 2px;
     }
+
     .size-control button {
-      border: none; background: transparent; color: var(--muted);
-      font-family: inherit; font-size: 10px; font-weight: 700;
-      padding: 3px 9px; border-radius: var(--radius-pill); cursor: pointer;
-      line-height: 1.6; transition: all 0.12s ease;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      line-height: 1.6;
+      transition: all 0.12s ease;
     }
-    .size-control button.active { background: var(--surface-dark); color: var(--on-dark); }
+
+    .size-control button.active {
+      background: var(--surface-dark);
+      color: var(--on-dark);
+    }
 
     /* ── Context note (AGENTS.md merge hint) ── */
     .context-note {
-      display: flex; gap: 8px; align-items: flex-start;
-      background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 16px;
-      font-size: 11px; color: var(--muted); line-height: 1.5;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
     }
-    .context-note svg { flex-shrink: 0; margin-top: 1px; color: var(--primary); }
-    .context-note b { color: var(--body-strong); }
+
+    .context-note svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--primary);
+    }
+
+    .context-note b {
+      color: var(--body-strong);
+    }
 
     /* ═════════════════ VIEW 0: ONBOARDING ═════════════════ */
-    .onboarding-view { justify-content: center; align-items: center; padding: 40px 32px; text-align: center; }
+    .onboarding-view {
+      justify-content: center;
+      align-items: center;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
     .spike-mark {
-      width: 56px; height: 56px; margin: 0 auto 18px;
-      background: var(--surface-dark); border-radius: 16px;
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 18px;
+      background: var(--surface-dark);
+      border-radius: 16px;
       box-shadow: var(--shadow-md);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .spike-mark svg { width: 32px; height: 32px; }
+
+    .spike-mark svg {
+      width: 32px;
+      height: 32px;
+    }
+
     .onboarding-title {
-      font-family: 'Copernicus', Georgia, serif; font-size: 34px; font-weight: 400;
-      letter-spacing: -0.8px; line-height: 1.05; margin-bottom: 12px;
+      font-family: 'Copernicus', Georgia, serif;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -0.8px;
+      line-height: 1.05;
+      margin-bottom: 12px;
     }
-    .onboarding-title em { color: var(--primary); font-style: normal; }
-    .onboarding-sub { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 26px; }
-    .onboarding-sub strong { color: var(--body-strong); font-weight: 500; }
-    .onboarding-name-label { display: block; text-align: left; font-size: 12px; font-weight: 500; color: var(--body-strong); margin-bottom: 8px; }
+
+    .onboarding-title em {
+      color: var(--primary);
+      font-style: normal;
+    }
+
+    .onboarding-sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+
+    .onboarding-sub strong {
+      color: var(--body-strong);
+      font-weight: 500;
+    }
+
+    .onboarding-name-label {
+      display: block;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--body-strong);
+      margin-bottom: 8px;
+    }
+
     .onboarding-input {
-      width: 100%; height: 44px; padding: 0 14px; text-align: center;
-      font-family: inherit; font-size: 15px; color: var(--ink);
-      background: var(--canvas); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); outline: none;
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      text-align: center;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--ink);
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      outline: none;
       transition: border-color 0.12s ease, box-shadow 0.12s ease;
     }
-    .onboarding-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(204,120,92,0.15); }
-    .onboarding-btn {
-      margin-top: 14px; width: 100%; height: 44px;
-      background: var(--primary); color: var(--on-primary);
-      border: none; border-radius: var(--radius-md);
-      font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer;
+
+    .onboarding-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.15);
     }
-    .onboarding-btn:hover { background: var(--primary-active); }
-    .onboarding-skip { margin-top: 14px; background: none; border: none; color: var(--muted-soft); font-family: inherit; font-size: 12px; cursor: pointer; }
-    .onboarding-skip:hover { color: var(--ink); }
+
+    .onboarding-btn {
+      margin-top: 14px;
+      width: 100%;
+      height: 44px;
+      background: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .onboarding-btn:hover {
+      background: var(--primary-active);
+    }
+
+    .onboarding-skip {
+      margin-top: 14px;
+      background: none;
+      border: none;
+      color: var(--muted-soft);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .onboarding-skip:hover {
+      color: var(--ink);
+    }
 
     /* ═════════════════ VIEW 1: HOME ═════════════════ */
     .home-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--hairline);
     }
-    .home-brand { display: flex; align-items: center; gap: 10px; }
+
+    .home-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .home-brand-icon {
-      width: 32px; height: 32px; background: var(--surface-dark); border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      background: var(--surface-dark);
+      border-radius: 10px;
       box-shadow: var(--shadow-sm);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .home-brand-icon svg { width: 20px; height: 20px; }
-    .home-brand-name { font-family: 'Copernicus', Georgia, serif; font-size: 18px; font-weight: 400; letter-spacing: -0.3px; }
-    .home-brand-name span { color: var(--primary); }
-    .home-header-right { display: flex; align-items: center; gap: 8px; }
+
+    .home-brand-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .home-brand-name {
+      font-family: 'Copernicus', Georgia, serif;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+    }
+
+    .home-brand-name span {
+      color: var(--primary);
+    }
+
+    .home-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .connection-bar {
-      display: flex; align-items: center; gap: 6px;
-      padding: 4px 10px; background: var(--surface-soft); border-radius: var(--radius-pill);
-      font-size: 11px; font-weight: 500; color: var(--success);
-      border: 1px solid rgba(93,184,114,0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--surface-soft);
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--success);
+      border: 1px solid rgba(93, 184, 114, 0.3);
     }
-    .connection-bar.offline { color: var(--error); border-color: rgba(198,69,69,0.3); }
-    .connection-bar .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-    .home-content { flex: 1; padding: 16px; overflow-y: auto; }
-    .greeting-block { margin-bottom: 18px; }
-    .greeting-title { font-family: 'Copernicus', Georgia, serif; font-size: 26px; font-weight: 400; letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 4px; }
-    .greeting-sub { font-size: 13px; color: var(--muted); }
+    .connection-bar.offline {
+      color: var(--error);
+      border-color: rgba(198, 69, 69, 0.3);
+    }
 
-    .section-label { font-size: 11px; font-weight: 600; color: var(--muted-soft); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .connection-bar .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .home-content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .greeting-block {
+      margin-bottom: 18px;
+    }
+
+    .greeting-title {
+      font-family: 'Copernicus', Georgia, serif;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .greeting-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted-soft);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
     .empty-state {
-      text-align: center; padding: 28px 16px;
-      border: 2px dashed var(--hairline); border-radius: var(--radius-lg);
-      margin-bottom: 16px; background: var(--surface-soft);
+      text-align: center;
+      padding: 28px 16px;
+      border: 2px dashed var(--hairline);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      background: var(--surface-soft);
     }
-    .empty-state-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-    .empty-state-text { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+    .empty-state-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .empty-state-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
 
     .project-card {
-      background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg);
-      padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s ease;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
-    .project-card:hover { border-color: var(--primary); background: var(--surface-card); }
-    .project-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .project-card-name { font-size: 14px; font-weight: 600; }
-    .project-card-badge { font-size: 10px; font-weight: 600; padding: 2px 9px; background: var(--surface-cream-strong); color: var(--body-strong); border-radius: var(--radius-pill); }
-    .project-card-meta { font-size: 11px; color: var(--muted); display: flex; gap: 14px; }
-    .project-card-meta span { display: flex; align-items: center; gap: 5px; }
+
+    .project-card:hover {
+      border-color: var(--primary);
+      background: var(--surface-card);
+    }
+
+    .project-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .project-card-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .project-card-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 9px;
+      background: var(--surface-cream-strong);
+      color: var(--body-strong);
+      border-radius: var(--radius-pill);
+    }
+
+    .project-card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      gap: 14px;
+    }
+
+    .project-card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
     /* ═════════════════ VIEW 2: NEW PROJECT ═════════════════ */
     .form-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 14px 16px; border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--hairline);
     }
-    .form-header-title { font-size: 15px; font-weight: 600; flex: 1; }
-    .form-body { flex: 1; padding: 16px; overflow-y: auto; }
-    .form-actions { padding: 12px 16px; border-top: 1px solid var(--hairline); }
+
+    .form-header-title {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .form-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .form-actions {
+      padding: 12px 16px;
+      border-top: 1px solid var(--hairline);
+    }
 
     /* Color duo picker — compact circular swatches */
-    .color-duo { display: flex; justify-content: flex-start; align-items: flex-start; gap: 22px; }
-    .color-duo-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .color-duo {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 22px;
+    }
+
+    .color-duo-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
     .color-swatch {
-      width: 42px; height: 42px; border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
       border: 2px solid var(--canvas);
       box-shadow: 0 0 0 1px var(--hairline), var(--shadow-sm);
-      cursor: pointer; position: relative; overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .color-swatch:hover { transform: scale(1.07); box-shadow: 0 0 0 1px var(--hairline), var(--shadow-md); }
-    .color-duo-item.primary .color-swatch { box-shadow: 0 0 0 2px var(--primary), var(--shadow-sm); }
-    .color-swatch input[type="color"] { position: absolute; inset: -10px; width: 70px; height: 70px; border: none; cursor: pointer; opacity: 0; }
-    .color-role-chip {
-      font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
-      padding: 2px 8px; border-radius: var(--radius-pill);
-      background: var(--surface-cream-strong); color: var(--body-strong);
+
+    .color-swatch:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 0 1px var(--hairline), var(--shadow-md);
     }
-    .color-duo-item.primary .color-role-chip { background: var(--primary); color: var(--on-primary); }
-    .color-hex { font-size: 10px; font-weight: 600; color: var(--muted); font-family: ui-monospace, monospace; }
-    .color-duo-swap { text-align: left; margin-top: 10px; }
+
+    .color-duo-item.primary .color-swatch {
+      box-shadow: 0 0 0 2px var(--primary), var(--shadow-sm);
+    }
+
+    .color-swatch input[type="color"] {
+      position: absolute;
+      inset: -10px;
+      width: 70px;
+      height: 70px;
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .color-role-chip {
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-cream-strong);
+      color: var(--body-strong);
+    }
+
+    .color-duo-item.primary .color-role-chip {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .color-hex {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      font-family: ui-monospace, monospace;
+    }
+
+    .color-duo-swap {
+      text-align: left;
+      margin-top: 10px;
+    }
 
     /* Brief live preview (markdown → normal text) */
     .preview-card {
-      background: var(--surface-card); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); padding: 12px 14px; margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--body);
-      max-height: 140px; overflow-y: auto;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--body);
+      max-height: 140px;
+      overflow-y: auto;
     }
-    .preview-card b { color: var(--ink); }
-    .preview-card .pv-title { font-family: 'Copernicus', Georgia, serif; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+
+    .preview-card b {
+      color: var(--ink);
+    }
+
+    .preview-card .pv-title {
+      font-family: 'Copernicus', Georgia, serif;
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
 
     /* ═════════════════ VIEW 3: WORKSPACE ═════════════════ */
     .workspace-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--hairline);
     }
-    .workspace-project-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .workspace-header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .workspace-project-name {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .workspace-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .icon-btn {
-      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--hairline); border-radius: var(--radius-md);
-      background: var(--surface-soft); color: var(--muted); cursor: pointer; transition: all 0.12s ease;
-    }
-    .icon-btn:hover { border-color: var(--ink); color: var(--ink); }
-    .icon-btn svg { width: 15px; height: 15px; stroke-width: 2; }
-
-    .workspace-body { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
-
-    /* Tabs on TOP */
-    .tab-bar { display: flex; gap: 2px; background: var(--canvas); }
-    .tab-btn {
-      flex: 1; padding: 11px 14px; background: transparent; color: var(--muted);
-      border: none; border-bottom: 2px solid transparent; cursor: pointer;
-      font-family: inherit; font-size: 13px; font-weight: 600; text-align: center;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--surface-soft);
+      color: var(--muted);
+      cursor: pointer;
       transition: all 0.12s ease;
     }
-    .tab-btn:hover { color: var(--ink); background: var(--surface-soft); }
-    .tab-btn.active { color: var(--ink); background: var(--surface-soft); border-bottom-color: var(--primary); }
+
+    .icon-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .icon-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+    }
+
+    .workspace-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Tabs on TOP */
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      background: var(--canvas);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 11px 14px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.12s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--ink);
+      background: var(--surface-soft);
+    }
+
+    .tab-btn.active {
+      color: var(--ink);
+      background: var(--surface-soft);
+      border-bottom-color: var(--primary);
+    }
 
     /* Model + credits + generate actions (below tabs) */
     .action-bar {
-      background: var(--surface-soft); border-bottom: 1px solid var(--hairline);
-      padding: 10px 16px; display: flex; flex-direction: column; gap: 10px;
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--hairline);
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .model-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .model-select {
-      flex: 1; padding: 0 10px; height: 34px; font-family: inherit; font-size: 12px; font-weight: 500;
-      color: var(--ink); background: var(--canvas); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); outline: none;
-    }
-    .credit-badge {
-      display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px;
-      font-size: 11px; font-weight: 600; border-radius: var(--radius-pill);
-      background: var(--surface-cream-strong); color: var(--body-strong); border: 1px solid var(--hairline); white-space: nowrap;
-    }
-    .credit-badge.low { background: rgba(198,69,69,0.1); color: var(--error); border-color: rgba(198,69,69,0.3); }
-    .cta-row { display: flex; gap: 10px; }
-    .cta-row .btn { flex: 1; font-size: 13px; height: 38px; }
 
-    .tab-panel { display: none; flex-direction: column; flex: 1; min-height: 0; }
-    .tab-panel.active { display: flex; }
+    .model-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .model-select {
+      flex: 1;
+      padding: 0 10px;
+      height: 34px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      outline: none;
+    }
+
+    .credit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      background: var(--surface-cream-strong);
+      color: var(--body-strong);
+      border: 1px solid var(--hairline);
+      white-space: nowrap;
+    }
+
+    .credit-badge.low {
+      background: rgba(198, 69, 69, 0.1);
+      color: var(--error);
+      border-color: rgba(198, 69, 69, 0.3);
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .cta-row .btn {
+      flex: 1;
+      font-size: 13px;
+      height: 38px;
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
 
     /* Screens panel */
-    .screen-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; }
+    .screen-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 16px;
+    }
+
     .screen-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 12px; background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); cursor: pointer; transition: all 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.12s ease;
     }
-    .screen-item:hover { border-color: var(--primary); background: var(--surface-card); }
-    .screen-item-main { flex: 1; min-width: 0; }
-    .screen-item-name { font-size: 12px; font-weight: 600; }
-    .screen-item-type { font-size: 9px; color: var(--muted-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .screen-item-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .screen-item:hover {
+      border-color: var(--primary);
+      background: var(--surface-card);
+    }
+
+    .screen-item-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .screen-item-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .screen-item-type {
+      font-size: 9px;
+      color: var(--muted-soft);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .screen-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
     .screen-item-play {
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      background: var(--primary); color: var(--on-primary); border: none; border-radius: var(--radius-sm); cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
     }
-    .screen-item-play:hover { background: var(--primary-active); }
-    .screen-item-play svg { width: 11px; height: 11px; fill: currentColor; }
+
+    .screen-item-play:hover {
+      background: var(--primary-active);
+    }
+
+    .screen-item-play svg {
+      width: 11px;
+      height: 11px;
+      fill: currentColor;
+    }
+
     .screen-item-delete {
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      background: transparent; color: var(--muted-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s ease;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--muted-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.12s ease;
     }
-    .screen-item-delete:hover { color: var(--error); border-color: var(--error); background: rgba(198,69,69,0.06); }
-    .screen-item-delete svg { width: 12px; height: 12px; stroke-width: 2; }
-    .type-section { margin-bottom: 10px; }
+
+    .screen-item-delete:hover {
+      color: var(--error);
+      border-color: var(--error);
+      background: rgba(198, 69, 69, 0.06);
+    }
+
+    .screen-item-delete svg {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2;
+    }
+
+    .type-section {
+      margin-bottom: 10px;
+    }
 
     /* Details panel */
-    .details-panel { flex: 1; overflow-y: auto; padding: 16px; }
-    .details-panel .form-actions-pad { margin-top: 4px; }
+    .details-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .details-panel .form-actions-pad {
+      margin-top: 4px;
+    }
 
     /* ═════════════════ VIEW 4: LOADING ═════════════════ */
-    .loading-view { justify-content: center; align-items: center; padding: 32px; text-align: center; }
-    .spinner {
-      width: 42px; height: 42px; border: 3px solid var(--hairline);
-      border-top-color: var(--primary); border-radius: 50%;
-      animation: spin 0.8s linear infinite; margin: 0 auto 18px;
+    .loading-view {
+      justify-content: center;
+      align-items: center;
+      padding: 32px;
+      text-align: center;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-title { font-family: 'Copernicus', Georgia, serif; font-size: 22px; font-weight: 400; letter-spacing: -0.3px; margin-bottom: 6px; }
-    .loading-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 22px; line-height: 1.5; }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--hairline);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-title {
+      font-family: 'Copernicus', Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .loading-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
 
     /* ═════════════════ BOTTOM SHEETS ═════════════════ */
     .sheet-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(24,23,21,0.45);
-      z-index: 999; justify-content: flex-end; align-items: flex-end; backdrop-filter: blur(2px);
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 23, 21, 0.45);
+      z-index: 999;
+      justify-content: flex-end;
+      align-items: flex-end;
+      backdrop-filter: blur(2px);
     }
-    .sheet-overlay.active { display: flex; }
+
+    .sheet-overlay.active {
+      display: flex;
+    }
+
     .sheet-panel {
-      width: 100%; height: 82vh; max-height: 88vh; background: var(--canvas);
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 12px 20px 24px;
-      animation: sheetUp 0.24s ease; box-shadow: var(--shadow-lg); overflow-y: auto;
-      display: flex; flex-direction: column;
+      width: 100%;
+      height: 82vh;
+      max-height: 88vh;
+      background: var(--canvas);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: 12px 20px 24px;
+      animation: sheetUp 0.24s ease;
+      box-shadow: var(--shadow-lg);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
-    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .sheet-handle { width: 40px; height: 5px; background: var(--hairline); border-radius: var(--radius-pill); margin: 0 auto 12px; flex-shrink: 0; }
-    .sheet-title { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
-    .sheet-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
-    .sheet-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; flex-shrink: 0; }
-    .sheet-actions .btn { min-width: 104px; }
-    .mention-wrap { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 110px; }
+
+    @keyframes sheetUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      background: var(--hairline);
+      border-radius: var(--radius-pill);
+      margin: 0 auto 12px;
+      flex-shrink: 0;
+    }
+
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .sheet-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .sheet-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      flex-shrink: 0;
+    }
+
+    .sheet-actions .btn {
+      min-width: 104px;
+    }
+
+    .mention-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 110px;
+    }
+
     .mention-dropdown {
-      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-      background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
-      z-index: 20; max-height: 190px; overflow-y: auto; display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      z-index: 20;
+      max-height: 190px;
+      overflow-y: auto;
+      display: none;
     }
-    .mention-dropdown.open { display: block; }
+
+    .mention-dropdown.open {
+      display: block;
+    }
+
     .mention-item {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-      padding: 8px 12px; cursor: pointer; font-size: 12px; transition: background 0.1s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.1s ease;
     }
-    .mention-item .cmd { font-family: ui-monospace, monospace; font-weight: 600; color: var(--primary); }
-    .mention-item .desc { color: var(--muted); font-size: 11px; text-align: right; }
-    .mention-item.selected, .mention-item:hover { background: var(--surface-cream-strong); }
-    .mention-hint { font-size: 11px; color: var(--muted-soft); margin-top: 6px; line-height: 1.4; flex-shrink: 0; }
+
+    .mention-item .cmd {
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .mention-item .desc {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .mention-item.selected,
+    .mention-item:hover {
+      background: var(--surface-cream-strong);
+    }
+
+    .mention-hint {
+      font-size: 11px;
+      color: var(--muted-soft);
+      margin-top: 6px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
 
     /* Image Reference Dropzone / Attach */
     .image-upload-btn {
-      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 9px 12px; background: var(--surface-soft); border: 1px dashed var(--hairline);
-      border-radius: var(--radius-md); font-size: 11px; font-weight: 500; color: var(--muted);
-      cursor: pointer; transition: all 0.15s ease; margin-top: 8px; flex-shrink: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 12px;
+      background: var(--surface-soft);
+      border: 1px dashed var(--hairline);
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 8px;
+      flex-shrink: 0;
     }
-    .image-upload-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--surface-card); }
+
+    .image-upload-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--surface-card);
+    }
+
     .image-preview-card {
-      display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-top: 8px;
-      background: var(--surface-card); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); animation: popIn 0.15s ease; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      margin-top: 8px;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      animation: popIn 0.15s ease;
+      flex-shrink: 0;
     }
+
     .image-preview-card img {
-      width: 44px; height: 44px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--hairline);
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--hairline);
     }
-    .image-preview-info { flex: 1; min-width: 0; }
-    .image-preview-title { font-size: 11px; font-weight: 600; color: var(--ink); display: block; }
-    .image-preview-sub { font-size: 10px; color: var(--muted-soft); display: block; }
+
+    .image-preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .image-preview-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink);
+      display: block;
+    }
+
+    .image-preview-sub {
+      font-size: 10px;
+      color: var(--muted-soft);
+      display: block;
+    }
+
     .image-preview-remove {
-      width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(198,69,69,0.1);
-      color: var(--error); font-size: 14px; line-height: 1; cursor: pointer; display: flex;
-      align-items: center; justify-content: center; transition: background 0.1s ease;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(198, 69, 69, 0.1);
+      color: var(--error);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s ease;
     }
-    .image-preview-remove:hover { background: rgba(198,69,69,0.25); }
+
+    .image-preview-remove:hover {
+      background: rgba(198, 69, 69, 0.25);
+    }
 
     /* Design System Checkbox Items */
     .ds-option-item {
-      display: flex; align-items: flex-start; gap: 10px; padding: 9px 11px;
-      background: var(--surface-soft); border: 1px solid var(--hairline);
-      border-radius: var(--radius-md); cursor: pointer; transition: all 0.12s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 11px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.12s ease;
     }
-    .ds-option-item:hover { border-color: var(--primary); background: var(--surface-card); }
+
+    .ds-option-item:hover {
+      border-color: var(--primary);
+      background: var(--surface-card);
+    }
+
     .ds-option-item input[type="checkbox"] {
-      margin-top: 2px; width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0;
+      margin-top: 2px;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
     }
-    .ds-option-label { display: flex; flex-direction: column; gap: 2px; }
-    .ds-option-label strong { font-size: 11px; font-weight: 600; color: var(--ink); }
-    .ds-option-label span { font-size: 10px; color: var(--muted); line-height: 1.35; }
+
+    .ds-option-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ds-option-label strong {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .ds-option-label span {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
 
     /* ═════════════════ CENTER MODALS ═════════════════ */
     .modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(24,23,21,0.45);
-      z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px);
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 23, 21, 0.45);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(2px);
     }
-    .modal-overlay.active { display: flex; }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
     .modal-panel {
-      width: calc(100% - 40px); max-width: 360px; background: var(--canvas);
-      border: 1px solid var(--hairline); border-radius: var(--radius-xl);
-      padding: 20px; animation: popIn 0.16s ease; box-shadow: var(--shadow-lg);
+      width: calc(100% - 40px);
+      max-width: 360px;
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      animation: popIn 0.16s ease;
+      box-shadow: var(--shadow-lg);
     }
-    @keyframes popIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-    .modal-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+    @keyframes popIn {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
 
     /* Toast */
     .toast {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--surface-dark); color: var(--on-dark);
-      padding: 9px 16px; border-radius: var(--radius-md); font-size: 12px;
-      box-shadow: var(--shadow-lg); z-index: 2000; opacity: 0;
-      transition: all 0.25s ease; pointer-events: none; max-width: 90%;
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface-dark);
+      color: var(--on-dark);
+      padding: 9px 16px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      box-shadow: var(--shadow-lg);
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+      max-width: 90%;
     }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ═════════════════ VIEW 0: ONBOARDING ═════════════════ -->
-<div class="view onboarding-view" id="viewOnboarding">
-  <div class="spike-mark">
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="morphGSpark" x1="9" y1="9" x2="25" y2="25" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#e8a55a"/>
-          <stop offset="0.55" stop-color="#cc785c"/>
-          <stop offset="1" stop-color="#b95a80"/>
-        </linearGradient>
-      </defs>
-      <ellipse cx="16" cy="16" rx="11.5" ry="4.2" stroke="url(#morphGSpark)" stroke-width="1.6" opacity="0.95" transform="rotate(-18 16 16)"/>
-      <circle cx="16" cy="16" r="7.5" fill="url(#morphGSpark)"/>
-      <circle cx="13" cy="12.5" r="1.6" fill="#faf9f5" opacity="0.18"/>
-    </svg>
+  <!-- ═════════════════ VIEW 0: ONBOARDING ═════════════════ -->
+  <div class="view onboarding-view" id="viewOnboarding">
+    <div class="spike-mark">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="morphGSpark" x1="9" y1="9" x2="25" y2="25" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#e8a55a" />
+            <stop offset="0.55" stop-color="#cc785c" />
+            <stop offset="1" stop-color="#b95a80" />
+          </linearGradient>
+        </defs>
+        <ellipse cx="16" cy="16" rx="11.5" ry="4.2" stroke="url(#morphGSpark)" stroke-width="1.6" opacity="0.95"
+          transform="rotate(-18 16 16)" />
+        <circle cx="16" cy="16" r="7.5" fill="url(#morphGSpark)" />
+        <circle cx="13" cy="12.5" r="1.6" fill="#faf9f5" opacity="0.18" />
+      </svg>
+    </div>
+    <h1 class="onboarding-title">Welcome to <em>Morph</em></h1>
+    <p class="onboarding-sub">No login. No account. No setup.<br>
+      Just you, your ideas, and AI — <strong>Morph</strong> turns plain words into living Figma screens.</p>
+    <label class="onboarding-name-label">What should we call you?</label>
+    <input type="text" class="onboarding-input" id="onboardingNameInput" placeholder="Your first name"
+      autocomplete="off" />
+    <button class="onboarding-btn" id="btnOnboardingBegin">Let's begin</button>
+    <button class="onboarding-skip" id="btnOnboardingSkip">Continue as a guest</button>
   </div>
-  <h1 class="onboarding-title">Welcome to <em>Morph</em></h1>
-  <p class="onboarding-sub">No login. No account. No setup.<br>
-    Just you, your ideas, and AI — <strong>Morph</strong> turns plain words into living Figma screens.</p>
-  <label class="onboarding-name-label">What should we call you?</label>
-  <input type="text" class="onboarding-input" id="onboardingNameInput" placeholder="Your first name" autocomplete="off" />
-  <button class="onboarding-btn" id="btnOnboardingBegin">Let's begin</button>
-  <button class="onboarding-skip" id="btnOnboardingSkip">Continue as a guest</button>
-</div>
 
-<!-- ═════════════════ VIEW 1: HOME ═════════════════ -->
-<div class="view active" id="viewHome">
-  <div class="home-header">
-    <div class="home-brand">
-      <div class="home-brand-icon">
-        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="morphGBrand" x1="9" y1="9" x2="25" y2="25" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#e8a55a"/>
-              <stop offset="0.55" stop-color="#cc785c"/>
-              <stop offset="1" stop-color="#b95a80"/>
-            </linearGradient>
-          </defs>
-          <ellipse cx="16" cy="16" rx="11.5" ry="4.2" stroke="url(#morphGBrand)" stroke-width="1.6" opacity="0.95" transform="rotate(-18 16 16)"/>
-          <circle cx="16" cy="16" r="7.5" fill="url(#morphGBrand)"/>
-          <circle cx="13" cy="12.5" r="1.6" fill="#faf9f5" opacity="0.18"/>
+  <!-- ═════════════════ VIEW 1: HOME ═════════════════ -->
+  <div class="view active" id="viewHome">
+    <div class="home-header">
+      <div class="home-brand">
+        <div class="home-brand-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="morphGBrand" x1="9" y1="9" x2="25" y2="25" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#e8a55a" />
+                <stop offset="0.55" stop-color="#cc785c" />
+                <stop offset="1" stop-color="#b95a80" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="16" cy="16" rx="11.5" ry="4.2" stroke="url(#morphGBrand)" stroke-width="1.6" opacity="0.95"
+              transform="rotate(-18 16 16)" />
+            <circle cx="16" cy="16" r="7.5" fill="url(#morphGBrand)" />
+            <circle cx="13" cy="12.5" r="1.6" fill="#faf9f5" opacity="0.18" />
+          </svg>
+        </div>
+        <span class="home-brand-name">Morph<span>.</span></span>
+      </div>
+      <div class="home-header-right">
+        <div class="size-control" id="sizeControlHome"></div>
+        <div id="connectionIndicator" class="connection-bar">
+          <span class="dot"></span>
+          <span id="connectionLabel">Connecting...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-content" id="homeContent"></div>
+
+    <div
+      style="padding: 10px 16px 14px; border-top: 1px solid var(--hairline); background: var(--canvas); display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-primary btn-full" id="btnNewProject">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
         </svg>
-      </div>
-      <span class="home-brand-name">Morph<span>.</span></span>
-    </div>
-    <div class="home-header-right">
-      <div class="size-control" id="sizeControlHome"></div>
-      <div id="connectionIndicator" class="connection-bar">
-        <span class="dot"></span>
-        <span id="connectionLabel">Connecting...</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="home-content" id="homeContent"></div>
-
-  <div style="padding: 10px 16px 14px; border-top: 1px solid var(--hairline); background: var(--canvas); display:flex; flex-direction:column; gap:8px;">
-    <button class="btn btn-primary btn-full" id="btnNewProject">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-      New Project
-    </button>
-    <div style="text-align:center;">
-      <button class="text-link" id="btnOpenContactModal" onclick="openContactModal()" style="font-size:11px; cursor:pointer; background:none; border:none; color:var(--primary); text-decoration:underline;">Contact Us / Support</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════ VIEW 2: NEW PROJECT ═════════════════ -->
-<div class="view" id="viewNewProject">
-  <div class="form-header">
-    <button class="icon-btn" id="btnBackFromNew">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    </button>
-    <span class="form-header-title">Create New Project</span>
-  </div>
-
-  <div class="form-body">
-    <div class="form-group">
-      <label class="form-label">
-        <span class="label-left">Project Name</span>
-        <svg class="info-icon" data-tooltip="Folder name for project files (no spaces)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      </label>
-      <input type="text" class="form-input" id="inputProjectName" placeholder="e.g. Reddit, TravelApp" />
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <span class="label-left">
-          Brief
-          <button class="text-link" id="btnLoadDemo">Load demo (Reddit)</button>
-          <button class="text-link" id="btnPreviewBrief" style="margin-left:6px; display:none;">View brief</button>
-        </span>
-        <svg class="info-icon" data-tooltip="What does the app do? Audience, domain & core features" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      </label>
-      <textarea class="form-textarea" id="inputBrief" placeholder="Community discussion platform where users post text, images, and links in subreddits, upvote/downvote content, and comment in nested threads." style="min-height:72px;"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <span class="label-left">Color Palette</span>
-        <svg class="info-icon" data-tooltip="Pick 2 brand colors and mark the primary one" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      </label>
-      <div class="color-duo" id="newColorDuo"></div>
-      <div class="color-duo-swap">
-        <button class="text-link" id="btnSwapPrimary">Swap primary</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <span class="label-left">Font Family</span>
-        <svg class="info-icon" data-tooltip="Primary Google Font for generated screens" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      </label>
-      <select class="form-input" id="inputFont">
-        <option>DM Sans</option>
-        <option>Instrument Sans</option>
-        <option>Inter</option>
-        <option>Poppins</option>
-        <option>Roboto</option>
-        <option>Plus Jakarta Sans</option>
-        <option>Nunito</option>
-        <option>Space Grotesk</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <span class="label-left">Visual Taste</span>
-        <svg class="info-icon" data-tooltip="Design theme: glassmorphism, brutalist, soft shadows, dark mode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      </label>
-      <textarea class="form-textarea" id="inputTaste" placeholder="e.g. glassmorphism, dark mode, brutalist, soft pastels — plus your visual direction"></textarea>
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button class="btn btn-primary btn-full" id="btnCreateProject">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Create Project
-    </button>
-  </div>
-</div>
-
-<!-- ═════════════════ VIEW 3: WORKSPACE ═════════════════ -->
-<div class="view" id="viewWorkspace">
-  <div class="workspace-header">
-    <div class="workspace-project-name">
-      <button class="icon-btn" id="btnBackFromWorkspace">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        New Project
       </button>
-      <span id="workspaceProjectTitle">Project</span>
+      <div style="text-align:center;">
+        <button class="text-link" id="btnOpenContactModal" onclick="openContactModal()"
+          style="font-size:11px; cursor:pointer; background:none; border:none; color:var(--primary); text-decoration:underline;">Contact
+          Us / Support</button>
+      </div>
     </div>
-    <div class="workspace-header-actions">
-      <div class="size-control" id="sizeControlWorkspace"></div>
-      <button class="icon-btn" id="btnRefreshScreens" data-tooltip="Refresh Files">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
-          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/>
+  </div>
+
+  <!-- ═════════════════ VIEW 2: NEW PROJECT ═════════════════ -->
+  <div class="view" id="viewNewProject">
+    <div class="form-header">
+      <button class="icon-btn" id="btnBackFromNew">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
         </svg>
       </button>
-    </div>
-  </div>
-
-  <div class="workspace-body">
-    <!-- Tabs on top -->
-    <div class="tab-bar">
-      <button class="tab-btn active" id="tabScreens" data-tab="screens">Screens</button>
-      <button class="tab-btn" id="tabDetails" data-tab="details">Project Details</button>
+      <span class="form-header-title">Create New Project</span>
     </div>
 
-    <!-- Model + credits + generate actions -->
-    <div class="action-bar">
-      <div class="model-row">
-        <select class="model-select" id="modelSelect">
-          <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
+    <div class="form-body">
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-left">Project Name</span>
+          <svg class="info-icon" data-tooltip="Folder name for project files (no spaces)"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </label>
+        <input type="text" class="form-input" id="inputProjectName" placeholder="e.g. Reddit, TravelApp" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-left">
+            Brief
+            <button class="text-link" id="btnLoadDemo">Load demo (Reddit)</button>
+            <button class="text-link" id="btnPreviewBrief" style="margin-left:6px; display:none;">View brief</button>
+          </span>
+          <svg class="info-icon" data-tooltip="What does the app do? Audience, domain & core features"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </label>
+        <textarea class="form-textarea" id="inputBrief"
+          placeholder="Community discussion platform where users post text, images, and links in subreddits, upvote/downvote content, and comment in nested threads."
+          style="min-height:72px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-left">Color Palette</span>
+          <svg class="info-icon" data-tooltip="Pick 2 brand colors and mark the primary one"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </label>
+        <div class="color-duo" id="newColorDuo"></div>
+        <div class="color-duo-swap">
+          <button class="text-link" id="btnSwapPrimary">Swap primary</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-left">Font Family</span>
+          <svg class="info-icon" data-tooltip="Primary Google Font for generated screens"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </label>
+        <select class="form-input" id="inputFont">
+          <option>DM Sans</option>
+          <option>Instrument Sans</option>
+          <option>Inter</option>
+          <option>Poppins</option>
+          <option>Roboto</option>
+          <option>Plus Jakarta Sans</option>
+          <option>Nunito</option>
+          <option>Space Grotesk</option>
         </select>
-        <div class="credit-badge" id="creditBadge">
-          <span>●</span>
-          <span id="creditText">10/10 today</span>
-        </div>
       </div>
-      <div class="cta-row">
-        <button class="btn btn-primary" id="btnGenerateScreen">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/>
+
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-left">Visual Taste</span>
+          <svg class="info-icon" data-tooltip="Design theme: glassmorphism, brutalist, soft shadows, dark mode"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
           </svg>
-          Generate New Screen
+        </label>
+        <textarea class="form-textarea" id="inputTaste"
+          placeholder="e.g. glassmorphism, dark mode, brutalist, soft pastels — plus your visual direction"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary btn-full" id="btnCreateProject">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        Create Project
+      </button>
+    </div>
+  </div>
+
+  <!-- ═════════════════ VIEW 3: WORKSPACE ═════════════════ -->
+  <div class="view" id="viewWorkspace">
+    <div class="workspace-header">
+      <div class="workspace-project-name">
+        <button class="icon-btn" id="btnBackFromWorkspace">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
         </button>
-        <button class="btn btn-secondary" id="btnGenDesignSystem">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/>
-            <rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
+        <span id="workspaceProjectTitle">Project</span>
+      </div>
+      <div class="workspace-header-actions">
+        <div class="size-control" id="sizeControlWorkspace"></div>
+        <button class="icon-btn" id="btnRefreshScreens" data-tooltip="Refresh Files">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 16h5v5" />
           </svg>
-          Design System
         </button>
       </div>
     </div>
 
-    <!-- Screens panel -->
-    <div class="tab-panel active" id="panelScreens">
-      <div class="screen-list" id="workspaceScreenList">
-        <div style="text-align:center; padding:20px; color:var(--muted-soft); font-size:12px;">No files yet — generate a screen to begin.</div>
+    <div class="workspace-body">
+      <!-- Tabs on top -->
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabScreens" data-tab="screens">Screens</button>
+        <button class="tab-btn" id="tabDetails" data-tab="details">Project Details</button>
       </div>
-    </div>
 
-    <!-- Project Details panel -->
-    <div class="tab-panel" id="panelDetails">
-      <div class="details-panel">
-        <div class="form-group">
-          <label class="form-label">
-            <span class="label-left">
-              Brief
-              <button class="text-link" id="btnLoadDemoDetails">Load demo (Reddit)</button>
-              <button class="text-link" id="btnPreviewBriefDetails" style="margin-left:6px; display:none;">View brief</button>
-            </span>
-          </label>
-          <textarea class="form-textarea" id="detailsBrief" placeholder="What does the app do?" style="min-height:72px;"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            <span class="label-left">Color Palette</span>
-            <svg class="info-icon" data-tooltip="2 brand colors — primary + secondary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          </label>
-          <div class="color-duo" id="detailsColorDuo"></div>
-          <div class="color-duo-swap">
-            <button class="text-link" id="btnSwapPrimaryDetails">Swap primary</button>
+      <!-- Model + credits + generate actions -->
+      <div class="action-bar">
+        <div class="model-row">
+          <select class="model-select" id="modelSelect">
+            <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
+          </select>
+          <div class="credit-badge" id="creditBadge">
+            <span>●</span>
+            <span id="creditText">10/10 today</span>
           </div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Font Family</label>
-          <select class="form-input" id="detailsFont">
-            <option>DM Sans</option>
-            <option>Instrument Sans</option>
-            <option>Inter</option>
-            <option>Poppins</option>
-            <option>Roboto</option>
-            <option>Plus Jakarta Sans</option>
-            <option>Nunito</option>
-            <option>Space Grotesk</option>
-          </select>
+        <div class="cta-row">
+          <button class="btn btn-primary" id="btnGenerateScreen">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z" />
+              <path d="m14 7 3 3" />
+              <path d="M5 6v4" />
+              <path d="M19 14v4" />
+              <path d="M10 2v2" />
+              <path d="M7 8H3" />
+              <path d="M21 16h-4" />
+            </svg>
+            Generate New Screen
+          </button>
+          <button class="btn btn-secondary" id="btnGenDesignSystem">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="7" height="7" x="3" y="3" rx="1" />
+              <rect width="7" height="7" x="14" y="3" rx="1" />
+              <rect width="7" height="7" x="14" y="14" rx="1" />
+              <rect width="7" height="7" x="3" y="14" rx="1" />
+            </svg>
+            Design System
+          </button>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Visual Taste</label>
-          <textarea class="form-textarea" id="detailsTaste" placeholder="Design theme..."></textarea>
+      <!-- Screens panel -->
+      <div class="tab-panel active" id="panelScreens">
+        <div class="screen-list" id="workspaceScreenList">
+          <div style="text-align:center; padding:20px; color:var(--muted-soft); font-size:12px;">No files yet — generate
+            a screen to begin.</div>
         </div>
+      </div>
 
-        <button class="btn btn-primary btn-full" id="btnSaveDetails">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Save Changes
+      <!-- Project Details panel -->
+      <div class="tab-panel" id="panelDetails">
+        <div class="details-panel">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-left">
+                Brief
+                <button class="text-link" id="btnLoadDemoDetails">Load demo (Reddit)</button>
+                <button class="text-link" id="btnPreviewBriefDetails" style="margin-left:6px; display:none;">View
+                  brief</button>
+              </span>
+            </label>
+            <textarea class="form-textarea" id="detailsBrief" placeholder="What does the app do?"
+              style="min-height:72px;"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-left">Color Palette</span>
+              <svg class="info-icon" data-tooltip="2 brand colors — primary + secondary"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+            </label>
+            <div class="color-duo" id="detailsColorDuo"></div>
+            <div class="color-duo-swap">
+              <button class="text-link" id="btnSwapPrimaryDetails">Swap primary</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Font Family</label>
+            <select class="form-input" id="detailsFont">
+              <option>DM Sans</option>
+              <option>Instrument Sans</option>
+              <option>Inter</option>
+              <option>Poppins</option>
+              <option>Roboto</option>
+              <option>Plus Jakarta Sans</option>
+              <option>Nunito</option>
+              <option>Space Grotesk</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Visual Taste</label>
+            <textarea class="form-textarea" id="detailsTaste" placeholder="Design theme..."></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="btnSaveDetails">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <polyline points="17 21 17 13 7 13 7 21" />
+              <polyline points="7 3 7 8 15 8" />
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ VIEW 4: LOADING ═════════════════ -->
+  <div class="view loading-view" id="viewLoading">
+    <div class="spinner"></div>
+    <div class="loading-title" id="loadingTitle">Generating...</div>
+    <div class="loading-subtitle" id="loadingSubtitle">Analyzing brief, building layout, rendering assets</div>
+    <button class="btn btn-secondary" id="btnCancelGeneration">Cancel</button>
+    <div class="form-hint" style="margin-top:8px;">Cancel before generation starts to keep your credit.</div>
+  </div>
+
+  <!-- ═════════════════ BOTTOM SHEET: GENERATE SCREEN ═════════════════ -->
+  <div class="sheet-overlay" id="promptSheet">
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Generate Screen</div>
+      <div class="sheet-subtitle">Describe your screen or paste/upload a reference image.</div>
+
+      <div class="model-row" style="margin-bottom:10px;">
+        <select class="model-select" id="sheetModelSelect">
+          <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
+        </select>
+        <div class="credit-badge" id="sheetCreditBadge">
+          <span>●</span>
+          <span id="sheetCreditText">10/10</span>
+        </div>
+      </div>
+
+      <div class="mention-wrap">
+        <textarea class="form-textarea" id="promptInput"
+          placeholder="e.g. Onboarding screen with hero banner, CTA button... (or paste reference screenshot with Ctrl+V)"
+          style="flex:1; min-height:84px; resize:none;"></textarea>
+        <div class="mention-dropdown" id="mentionDropdown"></div>
+      </div>
+
+      <!-- Reference Image Attachment Section -->
+      <div class="image-attach-area">
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none;" />
+        <button class="image-upload-btn" id="btnUploadImage" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+          </svg>
+          <span>Attach or Paste Reference Image (Ctrl+V)</span>
+        </button>
+
+        <div class="image-preview-card" id="imagePreviewCard" style="display:none;">
+          <img id="imagePreviewImg" src="" alt="Reference UI" />
+          <div class="image-preview-info">
+            <span class="image-preview-title">Reference Image Attached</span>
+            <span class="image-preview-sub">AI will analyze visual layout & components</span>
+          </div>
+          <button class="image-preview-remove" id="btnRemoveImage" type="button" title="Remove image">&times;</button>
+        </div>
+      </div>
+
+      <div class="mention-hint">Shortcuts: @skip-autolayout · @font · @color · @taste</div>
+
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" id="btnPromptCancel">Cancel</button>
+        <button class="btn btn-primary" id="btnPromptGenerate">Generate Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ BOTTOM SHEET: DESIGN SYSTEM ═════════════════ -->
+  <div class="sheet-overlay" id="dsSheet">
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Build Design System</div>
+      <div class="sheet-subtitle">Generates native Figma variables, typography specimens, and master component sets for
+        <strong id="dsProjectName"></strong>. Uses 1 credit.</div>
+
+      <div style="display:flex; gap:8px; margin-top:2px; margin-bottom:10px;">
+        <select class="model-select" id="dsModelSelect" style="flex:1;">
+          <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
+        </select>
+      </div>
+
+      <div class="ds-options-group"
+        style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+        <div
+          style="font-size:11px; font-weight:600; color:var(--muted-soft); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
+          Include in Design System</div>
+
+        <label class="ds-option-item">
+          <input type="checkbox" id="dsOptVariables" checked />
+          <span class="ds-option-label">
+            <strong>Figma Native Variables & Local Styles</strong>
+            <span>Publishes color collections, typography scales & radii tokens to Figma inspection panel</span>
+          </span>
+        </label>
+
+        <label class="ds-option-item">
+          <input type="checkbox" id="dsOptColors" checked />
+          <span class="ds-option-label">
+            <strong>Color Palette Swatches & Scale System</strong>
+            <span>Brand primary, secondary tints, full neutral scale (900-white) & status tokens</span>
+          </span>
+        </label>
+
+        <label class="ds-option-item">
+          <input type="checkbox" id="dsOptTypography" checked />
+          <span class="ds-option-label">
+            <strong>Typography Scale & Specimens</strong>
+            <span>Strict even scale (32, 24, 20, 16, 14, 12, 10px) in Regular, Medium & Bold weights</span>
+          </span>
+        </label>
+
+        <label class="ds-option-item">
+          <input type="checkbox" id="dsOptComponents" checked />
+          <span class="ds-option-label">
+            <strong>Master Components & Multi-State Variants</strong>
+            <span>Interactive state matrix (Default, Hover, Active, Disabled) for Buttons, Cards & Pills</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" id="btnDsCancel">Cancel</button>
+        <button class="btn btn-primary" id="btnDsConfirm">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ CONFIRM DELETE MODAL ═════════════════ -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-panel">
+      <div class="modal-title">Delete this file?</div>
+      <div class="modal-subtitle" id="confirmMessage">This will remove the generated file from your project.</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btnConfirmCancel">Keep it</button>
+        <button class="btn btn-danger" id="btnConfirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ BRIEF PREVIEW MODAL ═════════════════ -->
+  <div class="modal-overlay" id="briefModal">
+    <div class="modal-panel" style="max-width:340px; width:88%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="modal-title" style="margin:0; font-size:15px;">Project Brief Preview</div>
+        <button class="icon-btn" id="btnCloseBriefModal" style="width:24px; height:24px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
         </button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════ VIEW 4: LOADING ═════════════════ -->
-<div class="view loading-view" id="viewLoading">
-  <div class="spinner"></div>
-  <div class="loading-title" id="loadingTitle">Generating...</div>
-  <div class="loading-subtitle" id="loadingSubtitle">Analyzing brief, building layout, rendering assets</div>
-  <button class="btn btn-secondary" id="btnCancelGeneration">Cancel</button>
-  <div class="form-hint" style="margin-top:8px;">Cancel before generation starts to keep your credit.</div>
-</div>
-
-<!-- ═════════════════ BOTTOM SHEET: GENERATE SCREEN ═════════════════ -->
-<div class="sheet-overlay" id="promptSheet">
-  <div class="sheet-panel">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Generate Screen</div>
-    <div class="sheet-subtitle">Describe your screen or paste/upload a reference image.</div>
-
-    <div class="model-row" style="margin-bottom:10px;">
-      <select class="model-select" id="sheetModelSelect">
-        <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
-      </select>
-      <div class="credit-badge" id="sheetCreditBadge">
-        <span>●</span>
-        <span id="sheetCreditText">10/10</span>
+      <div id="briefModalContent"
+        style="font-size:12px; color:var(--body); line-height:1.55; max-height:240px; overflow-y:auto; padding:12px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline);">
+      </div>
+      <div class="modal-actions" style="margin-top:12px;">
+        <button class="btn btn-primary" id="btnDoneBriefModal" style="height:32px; font-size:12px;">Close</button>
       </div>
     </div>
+  </div>
 
-    <div class="mention-wrap">
-      <textarea class="form-textarea" id="promptInput" placeholder="e.g. Onboarding screen with hero banner, CTA button... (or paste reference screenshot with Ctrl+V)" style="flex:1; min-height:84px; resize:none;"></textarea>
-      <div class="mention-dropdown" id="mentionDropdown"></div>
-    </div>
-
-    <!-- Reference Image Attachment Section -->
-    <div class="image-attach-area">
-      <input type="file" id="imageFileInput" accept="image/*" style="display:none;" />
-      <button class="image-upload-btn" id="btnUploadImage" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-        <span>Attach or Paste Reference Image (Ctrl+V)</span>
-      </button>
-
-      <div class="image-preview-card" id="imagePreviewCard" style="display:none;">
-        <img id="imagePreviewImg" src="" alt="Reference UI" />
-        <div class="image-preview-info">
-          <span class="image-preview-title">Reference Image Attached</span>
-          <span class="image-preview-sub">AI will analyze visual layout & components</span>
+  <!-- ═════════════════ CONTACT US / SUPPORT MODAL ═════════════════ -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-panel"
+      style="max-width:340px; width:88%; padding:20px; border-radius: var(--radius-xl); border: 1px solid var(--hairline); box-shadow: var(--shadow-lg);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div>
+          <div class="modal-title" style="margin:0; font-size:16px; font-weight:700; color:var(--ink);">Contact &
+            Support</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">Reach out directly for assistance or feedback
+          </div>
         </div>
-        <button class="image-preview-remove" id="btnRemoveImage" type="button" title="Remove image">&times;</button>
+        <button class="icon-btn" id="btnCloseContactModal" onclick="closeContactModal()"
+          style="width:26px; height:26px; border-radius:50%; background:var(--surface-soft);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
+        <!-- Email Card -->
+        <a href="mailto:gyansharma9103@gmail.com" target="_blank"
+          style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline); transition:all 0.15s ease;"
+          onmouseover="this.style.borderColor='var(--primary)'; this.style.background='var(--surface-card)';"
+          onmouseout="this.style.borderColor='var(--hairline)'; this.style.background='var(--surface-soft)';">
+          <div
+            style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(204,120,92,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <span
+              style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; letter-spacing:0.5px;">Email
+              Support</span>
+            <span
+              style="font-size:12px; font-weight:600; color:var(--ink); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">gyansharma9103@gmail.com</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="flex-shrink:0;">
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          </svg>
+        </a>
+
+        <!-- LinkedIn Card -->
+        <a href="https://www.linkedin.com/in/gyan-prakash-sharma" target="_blank"
+          style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline); transition:all 0.15s ease;"
+          onmouseover="this.style.borderColor='#0A66C2'; this.style.background='var(--surface-card)';"
+          onmouseout="this.style.borderColor='var(--hairline)'; this.style.background='var(--surface-soft)';">
+          <div
+            style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(10,102,194,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2">
+              <path
+                d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+            </svg>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <span
+              style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; letter-spacing:0.5px;">LinkedIn
+              Profile</span>
+            <span
+              style="font-size:12px; font-weight:600; color:var(--ink); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Gyan
+              Prakash Sharma</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="flex-shrink:0;">
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          </svg>
+        </a>
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn btn-primary btn-full" id="btnDoneContactModal" onclick="closeContactModal()"
+          style="height:36px; font-size:13px; font-weight:600;">Close</button>
       </div>
     </div>
-
-    <div class="mention-hint">Shortcuts: @skip-autolayout · @font · @color · @taste</div>
-
-    <div class="sheet-actions">
-      <button class="btn btn-ghost" id="btnPromptCancel">Cancel</button>
-      <button class="btn btn-primary" id="btnPromptGenerate">Generate Screen</button>
-    </div>
   </div>
-</div>
 
-<!-- ═════════════════ BOTTOM SHEET: DESIGN SYSTEM ═════════════════ -->
-<div class="sheet-overlay" id="dsSheet">
-  <div class="sheet-panel">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Build Design System</div>
-    <div class="sheet-subtitle">Generates native Figma variables, typography specimens, and master component sets for <strong id="dsProjectName"></strong>. Uses 1 credit.</div>
+  <div class="toast" id="toast"></div>
 
-    <div style="display:flex; gap:8px; margin-top:2px; margin-bottom:10px;">
-      <select class="model-select" id="dsModelSelect" style="flex:1;">
-        <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
-      </select>
-    </div>
+  <!-- ═════════════════ JAVASCRIPT ═════════════════ -->
+  <script>
+    // ── Server Connection Endpoint ──
+    // Default: Production Vercel Cloud Server (Hosted Plugin Mode)
+    const SERVER = 'https://figma-mcp-topaz.vercel.app';
 
-    <div class="ds-options-group" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
-      <div style="font-size:11px; font-weight:600; color:var(--muted-soft); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Include in Design System</div>
+    // For Local Development & Local Bridge Server (run 'node server.js'):
+    // const SERVER = 'http://localhost:3003';
 
-      <label class="ds-option-item">
-        <input type="checkbox" id="dsOptVariables" checked />
-        <span class="ds-option-label">
-          <strong>Figma Native Variables & Local Styles</strong>
-          <span>Publishes color collections, typography scales & radii tokens to Figma inspection panel</span>
-        </span>
-      </label>
-
-      <label class="ds-option-item">
-        <input type="checkbox" id="dsOptColors" checked />
-        <span class="ds-option-label">
-          <strong>Color Palette Swatches & Scale System</strong>
-          <span>Brand primary, secondary tints, full neutral scale (900-white) & status tokens</span>
-        </span>
-      </label>
-
-      <label class="ds-option-item">
-        <input type="checkbox" id="dsOptTypography" checked />
-        <span class="ds-option-label">
-          <strong>Typography Scale & Specimens</strong>
-          <span>Strict even scale (32, 24, 20, 16, 14, 12, 10px) in Regular, Medium & Bold weights</span>
-        </span>
-      </label>
-
-      <label class="ds-option-item">
-        <input type="checkbox" id="dsOptComponents" checked />
-        <span class="ds-option-label">
-          <strong>Master Components & Multi-State Variants</strong>
-          <span>Interactive state matrix (Default, Hover, Active, Disabled) for Buttons, Cards & Pills</span>
-        </span>
-      </label>
-    </div>
-
-    <div class="sheet-actions">
-      <button class="btn btn-ghost" id="btnDsCancel">Cancel</button>
-      <button class="btn btn-primary" id="btnDsConfirm">Generate</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════ CONFIRM DELETE MODAL ═════════════════ -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-panel">
-    <div class="modal-title">Delete this file?</div>
-    <div class="modal-subtitle" id="confirmMessage">This will remove the generated file from your project.</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="btnConfirmCancel">Keep it</button>
-      <button class="btn btn-danger" id="btnConfirmDelete">Delete</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════ BRIEF PREVIEW MODAL ═════════════════ -->
-<div class="modal-overlay" id="briefModal">
-  <div class="modal-panel" style="max-width:340px; width:88%;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <div class="modal-title" style="margin:0; font-size:15px;">Project Brief Preview</div>
-      <button class="icon-btn" id="btnCloseBriefModal" style="width:24px; height:24px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    <div id="briefModalContent" style="font-size:12px; color:var(--body); line-height:1.55; max-height:240px; overflow-y:auto; padding:12px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline);"></div>
-    <div class="modal-actions" style="margin-top:12px;">
-      <button class="btn btn-primary" id="btnDoneBriefModal" style="height:32px; font-size:12px;">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════════ CONTACT US / SUPPORT MODAL ═════════════════ -->
-<div class="modal-overlay" id="contactModal">
-  <div class="modal-panel" style="max-width:340px; width:88%; padding:20px; border-radius: var(--radius-xl); border: 1px solid var(--hairline); box-shadow: var(--shadow-lg);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <div>
-        <div class="modal-title" style="margin:0; font-size:16px; font-weight:700; color:var(--ink);">Contact & Support</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:2px;">Reach out directly for assistance or feedback</div>
-      </div>
-      <button class="icon-btn" id="btnCloseContactModal" onclick="closeContactModal()" style="width:26px; height:26px; border-radius:50%; background:var(--surface-soft);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
-      <!-- Email Card -->
-      <a href="mailto:gyansharma9103@gmail.com" target="_blank" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline); transition:all 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='var(--surface-card)';" onmouseout="this.style.borderColor='var(--hairline)'; this.style.background='var(--surface-soft)';">
-        <div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(204,120,92,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        </div>
-        <div style="flex:1; min-width:0;">
-          <span style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; letter-spacing:0.5px;">Email Support</span>
-          <span style="font-size:12px; font-weight:600; color:var(--ink); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">gyansharma9103@gmail.com</span>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-      </a>
-
-      <!-- LinkedIn Card -->
-      <a href="https://www.linkedin.com/in/gyan-prakash-sharma" target="_blank" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-soft); border-radius:var(--radius-md); border:1px solid var(--hairline); transition:all 0.15s ease;" onmouseover="this.style.borderColor='#0A66C2'; this.style.background='var(--surface-card)';" onmouseout="this.style.borderColor='var(--hairline)'; this.style.background='var(--surface-soft)';">
-        <div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(10,102,194,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-        </div>
-        <div style="flex:1; min-width:0;">
-          <span style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; letter-spacing:0.5px;">LinkedIn Profile</span>
-          <span style="font-size:12px; font-weight:600; color:var(--ink); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Gyan Prakash Sharma</span>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-      </a>
-    </div>
-
-    <div class="modal-actions" style="margin-top:16px;">
-      <button class="btn btn-primary btn-full" id="btnDoneContactModal" onclick="closeContactModal()" style="height:36px; font-size:13px; font-weight:600;">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- ═════════════════ JAVASCRIPT ═════════════════ -->
-<script>
-// Production Vercel Cloud Server
-const SERVER = 'https://figma-mcp-topaz.vercel.app';
-
-// ── Contact Us Modal Functions (Top-level) ──
-function openContactModal() {
-  console.log('[ContactModal] Opening modal...');
-  const m = document.getElementById('contactModal');
-  if (m) {
-    m.classList.add('active');
-    m.style.setProperty('display', 'flex', 'important');
-    m.style.setProperty('z-index', '99999', 'important');
-    m.style.setProperty('visibility', 'visible', 'important');
-    m.style.setProperty('opacity', '1', 'important');
-  } else {
-    alert("Contact & Support:\n\nEmail: gyansharma9103@gmail.com\nLinkedIn: https://www.linkedin.com/in/gyan-prakash-sharma");
-  }
-}
-function closeContactModal() {
-  const m = document.getElementById('contactModal');
-  if (m) {
-    m.classList.remove('active');
-    m.style.setProperty('display', 'none', 'important');
-  }
-}
-window.openContactModal = openContactModal;
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-// ── State ──
-let currentProject = null;
-let projectsCache = [];
-let modelsCache = [];
-let creditsCache = {};
-let sseSource = null;
-let isConnected = false;
-let userName = '';
-let uiSize = 'm';
-let currentTab = 'screens';
-let abortController = null;
-let pendingDeletePath = null;
-
-// ── Color duo state per container ──
-const colorDuo = {}; // containerId -> [{hex, primary}] in [primary, secondary] display order
-
-// ── DOM refs ──
-const views = {
-  onboarding: document.getElementById('viewOnboarding'),
-  home: document.getElementById('viewHome'),
-  newProject: document.getElementById('viewNewProject'),
-  workspace: document.getElementById('viewWorkspace'),
-  loading: document.getElementById('viewLoading'),
-};
-
-// ── Window sizing ──
-const UI_SIZE_SCALE = { s: 0.8, m: 1.0, xl: 1.4 };
-const VIEW_BASE = {
-  onboarding: [440, 560],
-  home: [420, 620],
-  newProject: [440, 720],
-  workspace: [460, 700],
-  loading: [400, 420],
-};
-function currentViewName() {
-  for (const [k, v] of Object.entries(views)) { if (v.classList.contains('active')) return k; }
-  return 'home';
-}
-function applyWindowSize() {
-  const scale = UI_SIZE_SCALE[uiSize] || 1;
-  const [bw, bh] = VIEW_BASE[currentViewName()] || [400, 600];
-  const w = Math.max(320, Math.round(bw * scale));
-  const h = Math.max(360, Math.round(bh * scale));
-  parent.postMessage({ pluginMessage: { type: 'resize-window', width: w, height: h } }, '*');
-}
-function setUiSize(size) {
-  uiSize = size;
-  document.querySelectorAll('.size-control button').forEach(b => b.classList.toggle('active', b.dataset.size === uiSize));
-  parent.postMessage({ pluginMessage: { type: 'save-ui-size', size } }, '*');
-  applyWindowSize();
-}
-function renderSizeControls() {
-  ['sizeControlHome', 'sizeControlWorkspace'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = ['s', 'm', 'xl'].map(s => `<button data-size="${s}" class="${uiSize === s ? 'active' : ''}">${s.toUpperCase()}</button>`).join('');
-    el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => setUiSize(b.dataset.size)));
-  });
-}
-
-function showView(viewName) {
-  Object.values(views).forEach(v => v.classList.remove('active'));
-  if (views[viewName]) views[viewName].classList.add('active');
-  applyWindowSize();
-}
-
-let toastTimer = null;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-async function safeFetchJson(url, options = {}) {
-  const res = await fetch(url, options);
-  let data;
-  try { data = await res.json(); }
-  catch (e) { throw new Error(`Server connection error (HTTP ${res.status}). Make sure 'node server.js' is running.`); }
-  if (!res.ok && data.message) throw new Error(data.message);
-  return data;
-}
-
-// ══════════ CONNECTION (SSE locally, polling on cloud/serverless) ══════════
-const IS_LOCAL = /localhost|127\.0\.0\.1/.test(SERVER);
-let pollTimer = null;
-
-function stopPolling() {
-  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-}
-
-function startPolling() {
-  if (pollTimer) return;
-  pollTimer = setInterval(async () => {
-    try {
-      if (currentProject) await loadProjectScreens(currentProject);
-      else await loadProjects();
-      isConnected = true;
-      updateConnectionUI(true);
-    } catch (e) { /* network hiccup — keep polling */ }
-  }, 8000);
-}
-
-function setupSSE() {
-  if (sseSource) sseSource.close();
-  sseSource = new EventSource(`${SERVER}/api/watch`);
-  sseSource.onopen = () => { isConnected = true; updateConnectionUI(true); stopPolling(); };
-  sseSource.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.event === 'change' || data.event === 'run-generated') {
-        if (!data.filename) return;
-        executeScript(data.filename);
-        if (currentProject) loadProjectScreens(currentProject);
+    // ── Contact Us Modal Functions (Top-level) ──
+    function openContactModal() {
+      console.log('[ContactModal] Opening modal...');
+      const m = document.getElementById('contactModal');
+      if (m) {
+        m.classList.add('active');
+        m.style.setProperty('display', 'flex', 'important');
+        m.style.setProperty('z-index', '99999', 'important');
+        m.style.setProperty('visibility', 'visible', 'important');
+        m.style.setProperty('opacity', '1', 'important');
+      } else {
+        alert("Contact & Support:\n\nEmail: gyansharma9103@gmail.com\nLinkedIn: https://www.linkedin.com/in/gyan-prakash-sharma");
       }
-    } catch (e) { console.error('SSE parse error', e); }
-  };
-  sseSource.onerror = () => {
-    isConnected = false;
-    updateConnectionUI(false);
-    sseSource.close();
-    startPolling();
-    setTimeout(setupSSE, 8000);
-  };
-}
+    }
+    function closeContactModal() {
+      const m = document.getElementById('contactModal');
+      if (m) {
+        m.classList.remove('active');
+        m.style.setProperty('display', 'none', 'important');
+      }
+    }
+    window.openContactModal = openContactModal;
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
-function setupConnection() {
-  if (IS_LOCAL) setupSSE();
-  else startPolling();
-}
-function updateConnectionUI(connected) {
-  const indicator = document.getElementById('connectionIndicator');
-  const label = document.getElementById('connectionLabel');
-  indicator.className = 'connection-bar' + (connected ? '' : ' offline');
-  label.textContent = connected ? 'Connected' : 'Offline';
-}
+    // ── State ──
+    let currentProject = null;
+    let projectsCache = [];
+    let modelsCache = [];
+    let creditsCache = {};
+    let sseSource = null;
+    let isConnected = false;
+    let userName = '';
+    let uiSize = 'm';
+    let currentTab = 'screens';
+    let abortController = null;
+    let pendingDeletePath = null;
 
-// ══════════ PROJECTS ══════════
-async function loadProjects() {
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/projects`);
-    projectsCache = data.projects || [];
-  } catch (e) { projectsCache = []; }
-  renderHomeContent();
-}
+    // ── Color duo state per container ──
+    const colorDuo = {}; // containerId -> [{hex, primary}] in [primary, secondary] display order
 
-function greetingFor() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
+    // ── DOM refs ──
+    const views = {
+      onboarding: document.getElementById('viewOnboarding'),
+      home: document.getElementById('viewHome'),
+      newProject: document.getElementById('viewNewProject'),
+      workspace: document.getElementById('viewWorkspace'),
+      loading: document.getElementById('viewLoading'),
+    };
 
-let lastHomeKey = '';
-function renderHomeContent() {
-  const container = document.getElementById('homeContent');
-  const homeKey = projectsCache.map(p => `${p.name}:${p.screenCount}:${p.componentCount}:${p.tokenCount}`).join('|');
-  if (homeKey === lastHomeKey) return;
-  lastHomeKey = homeKey;
-  const name = userName ? `, ${userName}` : '';
-  const greet = `
+    // ── Window sizing ──
+    const UI_SIZE_SCALE = { s: 0.8, m: 1.0, xl: 1.4 };
+    const VIEW_BASE = {
+      onboarding: [440, 560],
+      home: [420, 620],
+      newProject: [440, 720],
+      workspace: [460, 700],
+      loading: [400, 420],
+    };
+    function currentViewName() {
+      for (const [k, v] of Object.entries(views)) { if (v.classList.contains('active')) return k; }
+      return 'home';
+    }
+    function applyWindowSize() {
+      const scale = UI_SIZE_SCALE[uiSize] || 1;
+      const [bw, bh] = VIEW_BASE[currentViewName()] || [400, 600];
+      const w = Math.max(320, Math.round(bw * scale));
+      const h = Math.max(360, Math.round(bh * scale));
+      parent.postMessage({ pluginMessage: { type: 'resize-window', width: w, height: h } }, '*');
+    }
+    function setUiSize(size) {
+      uiSize = size;
+      document.querySelectorAll('.size-control button').forEach(b => b.classList.toggle('active', b.dataset.size === uiSize));
+      parent.postMessage({ pluginMessage: { type: 'save-ui-size', size } }, '*');
+      applyWindowSize();
+    }
+    function renderSizeControls() {
+      ['sizeControlHome', 'sizeControlWorkspace'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = ['s', 'm', 'xl'].map(s => `<button data-size="${s}" class="${uiSize === s ? 'active' : ''}">${s.toUpperCase()}</button>`).join('');
+        el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => setUiSize(b.dataset.size)));
+      });
+    }
+
+    function showView(viewName) {
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      if (views[viewName]) views[viewName].classList.add('active');
+      applyWindowSize();
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    async function safeFetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      let data;
+      try { data = await res.json(); }
+      catch (e) { throw new Error(`Server connection error (HTTP ${res.status}). Make sure 'node server.js' is running.`); }
+      if (!res.ok && data.message) throw new Error(data.message);
+      return data;
+    }
+
+    // ══════════ CONNECTION (SSE locally, polling on cloud/serverless) ══════════
+    const IS_LOCAL = /localhost|127\.0\.0\.1/.test(SERVER);
+    let pollTimer = null;
+
+    function stopPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    function startPolling() {
+      if (pollTimer) return;
+      pollTimer = setInterval(async () => {
+        try {
+          if (currentProject) await loadProjectScreens(currentProject);
+          else await loadProjects();
+          isConnected = true;
+          updateConnectionUI(true);
+        } catch (e) { /* network hiccup — keep polling */ }
+      }, 8000);
+    }
+
+    function setupSSE() {
+      if (sseSource) sseSource.close();
+      sseSource = new EventSource(`${SERVER}/api/watch`);
+      sseSource.onopen = () => { isConnected = true; updateConnectionUI(true); stopPolling(); };
+      sseSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === 'change' || data.event === 'run-generated') {
+            if (!data.filename) return;
+            executeScript(data.filename);
+            if (currentProject) loadProjectScreens(currentProject);
+          }
+        } catch (e) { console.error('SSE parse error', e); }
+      };
+      sseSource.onerror = () => {
+        isConnected = false;
+        updateConnectionUI(false);
+        sseSource.close();
+        startPolling();
+        setTimeout(setupSSE, 8000);
+      };
+    }
+
+    function setupConnection() {
+      if (IS_LOCAL) setupSSE();
+      else startPolling();
+    }
+    function updateConnectionUI(connected) {
+      const indicator = document.getElementById('connectionIndicator');
+      const label = document.getElementById('connectionLabel');
+      indicator.className = 'connection-bar' + (connected ? '' : ' offline');
+      label.textContent = connected ? 'Connected' : 'Offline';
+    }
+
+    // ══════════ PROJECTS ══════════
+    async function loadProjects() {
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/projects`);
+        projectsCache = data.projects || [];
+      } catch (e) { projectsCache = []; }
+      renderHomeContent();
+    }
+
+    function greetingFor() {
+      const h = new Date().getHours();
+      if (h < 12) return 'Good morning';
+      if (h < 17) return 'Good afternoon';
+      return 'Good evening';
+    }
+
+    let lastHomeKey = '';
+    function renderHomeContent() {
+      const container = document.getElementById('homeContent');
+      const homeKey = projectsCache.map(p => `${p.name}:${p.screenCount}:${p.componentCount}:${p.tokenCount}`).join('|');
+      if (homeKey === lastHomeKey) return;
+      lastHomeKey = homeKey;
+      const name = userName ? `, ${userName}` : '';
+      const greet = `
     <div class="greeting-block">
       <div class="greeting-title">${greetingFor()}${name}.</div>
       <div class="greeting-sub">Ready to morph an idea into a Figma screen?</div>
     </div>`;
 
-  if (projectsCache.length === 0) {
-    container.innerHTML = `
+      if (projectsCache.length === 0) {
+        container.innerHTML = `
       ${greet}
       <div class="empty-state">
         <div class="empty-state-icon" style="margin-bottom:10px;color:var(--muted-soft);display:flex;justify-content:center;">
@@ -1151,14 +2259,14 @@ function renderHomeContent() {
           4. Watch it render live on your Figma canvas
         </div>
       </div>`;
-    return;
-  }
+        return;
+      }
 
-  let html = greet + '<div class="section-label">Your Projects</div>';
-  for (const proj of projectsCache) {
-    const total = proj.screenCount + proj.componentCount + proj.tokenCount;
-    const safeName = escapeHtml(proj.name);
-    html += `
+      let html = greet + '<div class="section-label">Your Projects</div>';
+      for (const proj of projectsCache) {
+        const total = proj.screenCount + proj.componentCount + proj.tokenCount;
+        const safeName = escapeHtml(proj.name);
+        html += `
       <div class="project-card" onclick="openProject('${safeName}')">
         <div class="project-card-header">
           <span class="project-card-name">${safeName}</span>
@@ -1180,56 +2288,56 @@ function renderHomeContent() {
           </span>
         </div>
       </div>`;
-  }
-  container.innerHTML = html;
-}
-
-function promptDeleteProject(projectName) {
-  pendingDeletePath = `project:${projectName}`;
-  document.getElementById('confirmMessage').innerHTML = `You're about to delete project <strong>"${projectName}"</strong> and all its generated screens. This can't be undone.`;
-  document.getElementById('confirmModal').classList.add('active');
-}
-
-function openProject(name) {
-  currentProject = name;
-  document.getElementById('workspaceProjectTitle').textContent = name;
-  switchTab('screens');
-  loadProjectScreens(name);
-  loadModels();
-  showView('workspace');
-}
-
-let lastScreensKey = '';
-async function loadProjectScreens(projectName) {
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/projects`);
-    const proj = (data.projects || []).find(p => p.name === projectName);
-    const key = `${projectName}:` + (proj ? [proj.screens || [], proj.components || [], proj.tokens || []].flat().join(',') : '');
-    if (key !== lastScreensKey) {
-      lastScreensKey = key;
-      renderWorkspaceScreens(proj);
+      }
+      container.innerHTML = html;
     }
-  } catch (e) { /* ignore */ }
-}
 
-function renderWorkspaceScreens(proj) {
-  const list = document.getElementById('workspaceScreenList');
-  const allItems = [
-    ...(proj && proj.screens ? proj.screens.map(f => ({ name: f, type: 'screen', path: `${proj.name}/screens/${f}` })) : []),
-    ...(proj && proj.components ? proj.components.map(f => ({ name: f, type: 'component', path: `${proj.name}/components/${f}` })) : []),
-    ...(proj && proj.tokens ? proj.tokens.map(f => ({ name: f, type: 'token', path: `${proj.name}/tokens/${f}` })) : []),
-  ];
+    function promptDeleteProject(projectName) {
+      pendingDeletePath = `project:${projectName}`;
+      document.getElementById('confirmMessage').innerHTML = `You're about to delete project <strong>"${projectName}"</strong> and all its generated screens. This can't be undone.`;
+      document.getElementById('confirmModal').classList.add('active');
+    }
 
-  if (allItems.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-soft);font-size:12px;">No files yet — generate a screen to begin.</div>';
-    return;
-  }
+    function openProject(name) {
+      currentProject = name;
+      document.getElementById('workspaceProjectTitle').textContent = name;
+      switchTab('screens');
+      loadProjectScreens(name);
+      loadModels();
+      showView('workspace');
+    }
 
-  const groups = [ { key: 'screen', label: 'Screens' }, { key: 'component', label: 'Components' }, { key: 'token', label: 'Tokens' } ];
-  list.innerHTML = groups.map(g => {
-    const items = allItems.filter(i => i.type === g.key);
-    if (items.length === 0) return '';
-    return `
+    let lastScreensKey = '';
+    async function loadProjectScreens(projectName) {
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/projects`);
+        const proj = (data.projects || []).find(p => p.name === projectName);
+        const key = `${projectName}:` + (proj ? [proj.screens || [], proj.components || [], proj.tokens || []].flat().join(',') : '');
+        if (key !== lastScreensKey) {
+          lastScreensKey = key;
+          renderWorkspaceScreens(proj);
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function renderWorkspaceScreens(proj) {
+      const list = document.getElementById('workspaceScreenList');
+      const allItems = [
+        ...(proj && proj.screens ? proj.screens.map(f => ({ name: f, type: 'screen', path: `${proj.name}/screens/${f}` })) : []),
+        ...(proj && proj.components ? proj.components.map(f => ({ name: f, type: 'component', path: `${proj.name}/components/${f}` })) : []),
+        ...(proj && proj.tokens ? proj.tokens.map(f => ({ name: f, type: 'token', path: `${proj.name}/tokens/${f}` })) : []),
+      ];
+
+      if (allItems.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-soft);font-size:12px;">No files yet — generate a screen to begin.</div>';
+        return;
+      }
+
+      const groups = [{ key: 'screen', label: 'Screens' }, { key: 'component', label: 'Components' }, { key: 'token', label: 'Tokens' }];
+      list.innerHTML = groups.map(g => {
+        const items = allItems.filter(i => i.type === g.key);
+        if (items.length === 0) return '';
+        return `
       <div class="type-section">
         <div class="section-label" style="margin-bottom:6px;">${g.label}</div>
         ${items.map(item => `
@@ -1248,169 +2356,169 @@ function renderWorkspaceScreens(proj) {
             </div>
           </div>`).join('')}
       </div>`;
-  }).join('');
-}
-
-// ══════════ DELETE ══════════
-function requestDelete(path) {
-  pendingDeletePath = path;
-  const name = path.split('/').pop();
-  document.getElementById('confirmMessage').innerHTML = `You're about to remove <strong>${name}</strong>. This can't be undone.`;
-  document.getElementById('confirmModal').classList.add('active');
-}
-document.getElementById('btnConfirmCancel').addEventListener('click', () => { pendingDeletePath = null; document.getElementById('confirmModal').classList.remove('active'); });
-document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
-  const path = pendingDeletePath;
-  pendingDeletePath = null;
-  document.getElementById('confirmModal').classList.remove('active');
-  if (!path) return;
-
-  if (path.startsWith('project:')) {
-    const projName = path.replace('project:', '');
-    try {
-      const data = await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(projName)}`, { method: 'DELETE' });
-      if (data.success) {
-        showToast(`Deleted project "${projName}"`);
-        if (currentProject === projName) {
-          currentProject = null;
-          showView('home');
-        }
-        loadProjects();
-      } else {
-        alert(data.message || 'Failed to delete project');
-      }
-    } catch (e) {
-      alert(e.message);
+      }).join('');
     }
-  } else {
-    try {
-      const data = await safeFetchJson(`${SERVER}/api/scripts/${encodeURIComponent(path)}`, { method: 'DELETE' });
-      if (data.success) { showToast(`Deleted ${path.split('/').pop()}`); if (currentProject) loadProjectScreens(currentProject); }
-      else alert(data.message || 'Failed to delete file');
-    } catch (e) { alert(e.message); }
-  }
-});
-document.getElementById('confirmModal').addEventListener('click', (e) => {
-  if (e.target.id === 'confirmModal') { pendingDeletePath = null; document.getElementById('confirmModal').classList.remove('active'); }
-});
 
-// ══════════ TABS ══════════
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.getElementById('panelScreens').classList.toggle('active', tab === 'screens');
-  document.getElementById('panelDetails').classList.toggle('active', tab === 'details');
-  if (tab === 'details' && currentProject) loadProjectDetails();
-}
-document.getElementById('tabScreens').addEventListener('click', () => switchTab('screens'));
-document.getElementById('tabDetails').addEventListener('click', () => switchTab('details'));
+    // ══════════ DELETE ══════════
+    function requestDelete(path) {
+      pendingDeletePath = path;
+      const name = path.split('/').pop();
+      document.getElementById('confirmMessage').innerHTML = `You're about to remove <strong>${name}</strong>. This can't be undone.`;
+      document.getElementById('confirmModal').classList.add('active');
+    }
+    document.getElementById('btnConfirmCancel').addEventListener('click', () => { pendingDeletePath = null; document.getElementById('confirmModal').classList.remove('active'); });
+    document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+      const path = pendingDeletePath;
+      pendingDeletePath = null;
+      document.getElementById('confirmModal').classList.remove('active');
+      if (!path) return;
 
-async function loadProjectDetails() {
-  if (!currentProject) return;
-  try {
-    const config = await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(currentProject)}/config`);
-    const briefVal = typeof config.brief === 'string' ? config.brief : '';
-    document.getElementById('detailsBrief').value = briefVal;
-    document.getElementById('detailsFont').value = (typeof config.fonts === 'string' && config.fonts) ? config.fonts : 'DM Sans';
-    document.getElementById('detailsTaste').value = typeof config.taste === 'string' ? config.taste : '';
-    const colors = Array.isArray(config.colors) && config.colors.length >= 2 ? config.colors : ['#FF4500', '#0079D3'];
-    renderColorDuo('detailsColorDuo', colors);
-    const btnDet = document.getElementById('btnPreviewBriefDetails');
-    if (btnDet) btnDet.style.display = briefVal.trim() ? 'inline-block' : 'none';
-  } catch (e) { /* ignore */ }
-}
-
-document.getElementById('btnSaveDetails').addEventListener('click', async () => {
-  if (!currentProject) return;
-  const body = {
-    brief: document.getElementById('detailsBrief').value.trim(),
-    colors: getColorDuo('detailsColorDuo').map(c => ({ hex: c.hex, primary: c.primary })),
-    fonts: document.getElementById('detailsFont').value.trim(),
-    taste: document.getElementById('detailsTaste').value.trim(),
-  };
-  try {
-    await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(currentProject)}/config`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      if (path.startsWith('project:')) {
+        const projName = path.replace('project:', '');
+        try {
+          const data = await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(projName)}`, { method: 'DELETE' });
+          if (data.success) {
+            showToast(`Deleted project "${projName}"`);
+            if (currentProject === projName) {
+              currentProject = null;
+              showView('home');
+            }
+            loadProjects();
+          } else {
+            alert(data.message || 'Failed to delete project');
+          }
+        } catch (e) {
+          alert(e.message);
+        }
+      } else {
+        try {
+          const data = await safeFetchJson(`${SERVER}/api/scripts/${encodeURIComponent(path)}`, { method: 'DELETE' });
+          if (data.success) { showToast(`Deleted ${path.split('/').pop()}`); if (currentProject) loadProjectScreens(currentProject); }
+          else alert(data.message || 'Failed to delete file');
+        } catch (e) { alert(e.message); }
+      }
     });
-    showToast('Project details saved');
-  } catch (e) { alert('Failed to save: ' + e.message); }
-});
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if (e.target.id === 'confirmModal') { pendingDeletePath = null; document.getElementById('confirmModal').classList.remove('active'); }
+    });
 
-// ══════════ MODELS & CREDITS ══════════
-async function loadModels() {
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/models`);
-    modelsCache = data.models || [];
-    creditsCache = data.credits || {};
-    const opts = modelsCache.map(m => {
-      const cr = creditsCache[m.id] || { remaining: 10, total: 10 };
-      return `<option value="${m.id}">${m.label} (${cr.remaining}/${cr.total} left)</option>`;
-    }).join('');
-    document.getElementById('modelSelect').innerHTML = opts;
-    document.getElementById('sheetModelSelect').innerHTML = opts;
-    document.getElementById('dsModelSelect').innerHTML = opts;
-    updateCreditBadge();
-  } catch (e) { /* fallback */ }
-}
-document.getElementById('modelSelect').addEventListener('change', updateCreditBadge);
+    // ══════════ TABS ══════════
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.getElementById('panelScreens').classList.toggle('active', tab === 'screens');
+      document.getElementById('panelDetails').classList.toggle('active', tab === 'details');
+      if (tab === 'details' && currentProject) loadProjectDetails();
+    }
+    document.getElementById('tabScreens').addEventListener('click', () => switchTab('screens'));
+    document.getElementById('tabDetails').addEventListener('click', () => switchTab('details'));
 
-function creditsFor(modelId) {
-  return creditsCache[modelId] || { remaining: 10, total: 10 };
-}
+    async function loadProjectDetails() {
+      if (!currentProject) return;
+      try {
+        const config = await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(currentProject)}/config`);
+        const briefVal = typeof config.brief === 'string' ? config.brief : '';
+        document.getElementById('detailsBrief').value = briefVal;
+        document.getElementById('detailsFont').value = (typeof config.fonts === 'string' && config.fonts) ? config.fonts : 'DM Sans';
+        document.getElementById('detailsTaste').value = typeof config.taste === 'string' ? config.taste : '';
+        const colors = Array.isArray(config.colors) && config.colors.length >= 2 ? config.colors : ['#FF4500', '#0079D3'];
+        renderColorDuo('detailsColorDuo', colors);
+        const btnDet = document.getElementById('btnPreviewBriefDetails');
+        if (btnDet) btnDet.style.display = briefVal.trim() ? 'inline-block' : 'none';
+      } catch (e) { /* ignore */ }
+    }
 
-function updateCreditBadge() {
-  const selectedModel = document.getElementById('modelSelect').value;
-  const cr = creditsFor(selectedModel);
-  const textEl = document.getElementById('creditText');
-  const badgeEl = document.getElementById('creditBadge');
-  const genBtn = document.getElementById('btnGenerateScreen');
-  const dsBtn = document.getElementById('btnGenDesignSystem');
-  textEl.textContent = `${cr.remaining}/${cr.total} today`;
-  badgeEl.className = 'credit-badge' + (cr.remaining <= 0 ? ' low' : '');
-  genBtn.disabled = cr.remaining <= 0;
-  dsBtn.disabled = cr.remaining <= 0;
-}
+    document.getElementById('btnSaveDetails').addEventListener('click', async () => {
+      if (!currentProject) return;
+      const body = {
+        brief: document.getElementById('detailsBrief').value.trim(),
+        colors: getColorDuo('detailsColorDuo').map(c => ({ hex: c.hex, primary: c.primary })),
+        fonts: document.getElementById('detailsFont').value.trim(),
+        taste: document.getElementById('detailsTaste').value.trim(),
+      };
+      try {
+        await safeFetchJson(`${SERVER}/api/projects/${encodeURIComponent(currentProject)}/config`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        showToast('Project details saved');
+      } catch (e) { alert('Failed to save: ' + e.message); }
+    });
 
-function updateSheetCredit() {
-  const model = document.getElementById('sheetModelSelect').value;
-  const cr = creditsFor(model);
-  const badge = document.getElementById('sheetCreditBadge');
-  document.getElementById('sheetCreditText').textContent = `${cr.remaining}/${cr.total}`;
-  badge.classList.toggle('low', cr.remaining <= 0);
-}
-document.getElementById('sheetModelSelect').addEventListener('change', updateSheetCredit);
+    // ══════════ MODELS & CREDITS ══════════
+    async function loadModels() {
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/models`);
+        modelsCache = data.models || [];
+        creditsCache = data.credits || {};
+        const opts = modelsCache.map(m => {
+          const cr = creditsCache[m.id] || { remaining: 10, total: 10 };
+          return `<option value="${m.id}">${m.label} (${cr.remaining}/${cr.total} left)</option>`;
+        }).join('');
+        document.getElementById('modelSelect').innerHTML = opts;
+        document.getElementById('sheetModelSelect').innerHTML = opts;
+        document.getElementById('dsModelSelect').innerHTML = opts;
+        updateCreditBadge();
+      } catch (e) { /* fallback */ }
+    }
+    document.getElementById('modelSelect').addEventListener('change', updateCreditBadge);
 
-// ══════════ ONBOARDING ══════════
-function registerUser(name) {
-  fetch(`${SERVER}/api/users/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name || '' }),
-  }).catch(() => {});
-}
-function completeOnboarding(name) {
-  userName = name || '';
-  parent.postMessage({ pluginMessage: { type: 'save-name', name: userName } }, '*');
-  registerUser(userName);
-  showView('home');
-  renderHomeContent();
-}
-document.getElementById('btnOnboardingBegin').addEventListener('click', () => completeOnboarding(document.getElementById('onboardingNameInput').value.trim()));
-document.getElementById('btnOnboardingSkip').addEventListener('click', () => completeOnboarding(''));
-document.getElementById('onboardingNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('btnOnboardingBegin').click(); });
+    function creditsFor(modelId) {
+      return creditsCache[modelId] || { remaining: 10, total: 10 };
+    }
 
-// ══════════ COLOR DUO PICKER ══════════
-function renderColorDuo(containerId, colors) {
-  const container = document.getElementById(containerId);
-  const state = [
-    { hex: colors[0] || '#cc785c', primary: true },
-    { hex: colors[1] || '#5db8a6', primary: false },
-  ];
-  colorDuo[containerId] = state;
+    function updateCreditBadge() {
+      const selectedModel = document.getElementById('modelSelect').value;
+      const cr = creditsFor(selectedModel);
+      const textEl = document.getElementById('creditText');
+      const badgeEl = document.getElementById('creditBadge');
+      const genBtn = document.getElementById('btnGenerateScreen');
+      const dsBtn = document.getElementById('btnGenDesignSystem');
+      textEl.textContent = `${cr.remaining}/${cr.total} today`;
+      badgeEl.className = 'credit-badge' + (cr.remaining <= 0 ? ' low' : '');
+      genBtn.disabled = cr.remaining <= 0;
+      dsBtn.disabled = cr.remaining <= 0;
+    }
 
-  container.innerHTML = state.map((c, i) => `
+    function updateSheetCredit() {
+      const model = document.getElementById('sheetModelSelect').value;
+      const cr = creditsFor(model);
+      const badge = document.getElementById('sheetCreditBadge');
+      document.getElementById('sheetCreditText').textContent = `${cr.remaining}/${cr.total}`;
+      badge.classList.toggle('low', cr.remaining <= 0);
+    }
+    document.getElementById('sheetModelSelect').addEventListener('change', updateSheetCredit);
+
+    // ══════════ ONBOARDING ══════════
+    function registerUser(name) {
+      fetch(`${SERVER}/api/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name || '' }),
+      }).catch(() => { });
+    }
+    function completeOnboarding(name) {
+      userName = name || '';
+      parent.postMessage({ pluginMessage: { type: 'save-name', name: userName } }, '*');
+      registerUser(userName);
+      showView('home');
+      renderHomeContent();
+    }
+    document.getElementById('btnOnboardingBegin').addEventListener('click', () => completeOnboarding(document.getElementById('onboardingNameInput').value.trim()));
+    document.getElementById('btnOnboardingSkip').addEventListener('click', () => completeOnboarding(''));
+    document.getElementById('onboardingNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('btnOnboardingBegin').click(); });
+
+    // ══════════ COLOR DUO PICKER ══════════
+    function renderColorDuo(containerId, colors) {
+      const container = document.getElementById(containerId);
+      const state = [
+        { hex: colors[0] || '#cc785c', primary: true },
+        { hex: colors[1] || '#5db8a6', primary: false },
+      ];
+      colorDuo[containerId] = state;
+
+      container.innerHTML = state.map((c, i) => `
     <div class="color-duo-item ${c.primary ? 'primary' : 'secondary'}" id="cduo_${containerId}_${i}">
       <span class="color-role-chip">${c.primary ? 'Primary' : 'Secondary'}</span>
       <div class="color-swatch" id="swatch_${containerId}_${i}" style="background:${c.hex}">
@@ -1418,504 +2526,505 @@ function renderColorDuo(containerId, colors) {
       </div>
       <span class="color-hex" id="hex_${containerId}_${i}">${c.hex}</span>
     </div>`).join('');
-}
+    }
 
-function updateDuoSwatch(containerId, index, hex) {
-  const state = colorDuo[containerId];
-  if (state && state[index]) state[index].hex = hex.toUpperCase();
-  document.getElementById(`swatch_${containerId}_${index}`).style.background = hex.toUpperCase();
-  document.getElementById(`hex_${containerId}_${index}`).textContent = hex.toUpperCase();
-}
+    function updateDuoSwatch(containerId, index, hex) {
+      const state = colorDuo[containerId];
+      if (state && state[index]) state[index].hex = hex.toUpperCase();
+      document.getElementById(`swatch_${containerId}_${index}`).style.background = hex.toUpperCase();
+      document.getElementById(`hex_${containerId}_${index}`).textContent = hex.toUpperCase();
+    }
 
-function swapDuoPrimary(containerId) {
-  const state = colorDuo[containerId];
-  if (!state || state.length < 2) return;
-  state[0].primary = !state[0].primary;
-  state[1].primary = !state[1].primary;
-  [state[0], state[1]] = [state[1], state[0]];
-  renderColorDuo(containerId, state.map(c => c.hex));
-}
+    function swapDuoPrimary(containerId) {
+      const state = colorDuo[containerId];
+      if (!state || state.length < 2) return;
+      state[0].primary = !state[0].primary;
+      state[1].primary = !state[1].primary;
+      [state[0], state[1]] = [state[1], state[0]];
+      renderColorDuo(containerId, state.map(c => c.hex));
+    }
 
-function getColorDuo(containerId) {
-  return (colorDuo[containerId] || []).map(c => ({ hex: c.hex, primary: c.primary }));
-}
+    function getColorDuo(containerId) {
+      return (colorDuo[containerId] || []).map(c => ({ hex: c.hex, primary: c.primary }));
+    }
 
-document.getElementById('btnSwapPrimary').addEventListener('click', () => swapDuoPrimary('newColorDuo'));
-document.getElementById('btnSwapPrimaryDetails').addEventListener('click', () => swapDuoPrimary('detailsColorDuo'));
+    document.getElementById('btnSwapPrimary').addEventListener('click', () => swapDuoPrimary('newColorDuo'));
+    document.getElementById('btnSwapPrimaryDetails').addEventListener('click', () => swapDuoPrimary('detailsColorDuo'));
 
-// ══════════ REDDIT DEMO ══════════
-const REDDIT_DEMO = {
-  name: 'Reddit',
-  brief: `**Reddit — Community & Discussion Platform**
+    // ══════════ REDDIT DEMO ══════════
+    const REDDIT_DEMO = {
+      name: 'Reddit',
+      brief: `**Reddit — Community & Discussion Platform**
 
 Social news aggregation, web content rating, and discussion website where users post content, vote, and comment in subreddits.
 
 - **Audience:** Online communities, subreddits, daily news readers, hobbyists
 - **Core Value:** Upvoting/downvoting content, nested comment trees, community moderation
 - **Key flows:** Home Feed / Popular → Subreddit Community → Post Detail & Nested Comments`,
-  colors: ['#FF4500', '#0079D3'],   // Reddit Orange primary, Reddit Blue secondary
-  font: 'DM Sans',
-  taste: 'Modern community UI with upvote pill controls, card post list, light/dark mode option, and clean nested comment trees.',
-};
+      colors: ['#FF4500', '#0079D3'],   // Reddit Orange primary, Reddit Blue secondary
+      font: 'DM Sans',
+      taste: 'Modern community UI with upvote pill controls, card post list, light/dark mode option, and clean nested comment trees.',
+    };
 
-function loadRedditDemo(containerId, briefId, fontId, tasteId) {
-  document.getElementById(briefId).value = REDDIT_DEMO.brief;
-  if (fontId) document.getElementById(fontId).value = REDDIT_DEMO.font;
-  if (tasteId) document.getElementById(tasteId).value = REDDIT_DEMO.taste;
-  renderColorDuo(containerId, REDDIT_DEMO.colors);
-  if (briefId === 'inputBrief') {
-    document.getElementById('inputProjectName').value = REDDIT_DEMO.name;
-    const btn = document.getElementById('btnPreviewBrief');
-    if (btn) btn.style.display = 'inline-block';
-  } else {
-    const btn = document.getElementById('btnPreviewBriefDetails');
-    if (btn) btn.style.display = 'inline-block';
-  }
-  showToast('Reddit demo loaded');
-}
-
-document.getElementById('btnLoadDemo').addEventListener('click', () => loadRedditDemo('newColorDuo', 'inputBrief', 'inputFont', 'inputTaste'));
-document.getElementById('btnLoadDemoDetails').addEventListener('click', () => loadRedditDemo('detailsColorDuo', 'detailsBrief', 'detailsFont', 'detailsTaste'));
-
-// ══════════ BRIEF PREVIEW MODAL ══════════
-function openBriefModal(briefText) {
-  const modal = document.getElementById('briefModal');
-  const content = document.getElementById('briefModalContent');
-  if (!briefText || !briefText.trim()) {
-    showToast('No brief entered yet');
-    return;
-  }
-  content.innerHTML = previewMarkdown(briefText);
-  modal.classList.add('active');
-}
-
-const btnPrev = document.getElementById('btnPreviewBrief');
-if (btnPrev) btnPrev.addEventListener('click', () => openBriefModal(document.getElementById('inputBrief').value));
-
-const btnPrevDet = document.getElementById('btnPreviewBriefDetails');
-if (btnPrevDet) btnPrevDet.addEventListener('click', () => openBriefModal(document.getElementById('detailsBrief').value));
-
-document.getElementById('btnCloseBriefModal').addEventListener('click', () => document.getElementById('briefModal').classList.remove('active'));
-document.getElementById('btnDoneBriefModal').addEventListener('click', () => document.getElementById('briefModal').classList.remove('active'));
-document.getElementById('briefModal').addEventListener('click', (e) => {
-  if (e.target.id === 'briefModal') document.getElementById('briefModal').classList.remove('active');
-});
-
-// Contact Us / Support Modal event listeners
-const btnContact = document.getElementById('btnOpenContactModal');
-if (btnContact) btnContact.addEventListener('click', openContactModal);
-
-const btnCloseC = document.getElementById('btnCloseContactModal');
-if (btnCloseC) btnCloseC.addEventListener('click', closeContactModal);
-
-const btnDoneC = document.getElementById('btnDoneContactModal');
-if (btnDoneC) btnDoneC.addEventListener('click', closeContactModal);
-
-const cModal = document.getElementById('contactModal');
-if (cModal) cModal.addEventListener('click', (e) => {
-  if (e.target.id === 'contactModal') closeContactModal();
-});
-
-// ══════════ NEW PROJECT ══════════
-document.getElementById('btnNewProject').addEventListener('click', () => {
-  resetNewProjectForm();
-  showView('newProject');
-});
-document.getElementById('btnBackFromNew').addEventListener('click', () => showView('home'));
-
-function resetNewProjectForm() {
-  document.getElementById('inputProjectName').value = '';
-  document.getElementById('inputBrief').value = '';
-  document.getElementById('inputFont').value = 'DM Sans';
-  document.getElementById('inputTaste').value = '';
-  renderColorDuo('newColorDuo', ['#FF4500', '#0079D3']);
-  const btn = document.getElementById('btnPreviewBrief');
-  if (btn) btn.style.display = 'none';
-}
-
-// Live brief preview modal button visibility
-document.getElementById('inputBrief').addEventListener('input', (e) => {
-  const btn = document.getElementById('btnPreviewBrief');
-  if (btn) btn.style.display = e.target.value.trim() ? 'inline-block' : 'none';
-});
-document.getElementById('detailsBrief').addEventListener('input', (e) => {
-  const btn = document.getElementById('btnPreviewBriefDetails');
-  if (btn) btn.style.display = e.target.value.trim() ? 'inline-block' : 'none';
-});
-
-function renderPreview(elId, md) {
-  const card = document.getElementById(elId);
-  if (!md || !md.trim()) { card.style.display = 'none'; card.innerHTML = ''; return; }
-  card.style.display = 'block';
-  card.innerHTML = previewMarkdown(md);
-}
-
-function previewMarkdown(md) {
-  const esc = md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const lines = esc.split('\n').map(l => l.trim()).filter(Boolean);
-  return lines.map(line => {
-    if (/^#+\s+/.test(line)) {
-      const t = line.replace(/^#+\s+/, '');
-      return `<div class="pv-title">${boldify(t)}</div>`;
+    function loadRedditDemo(containerId, briefId, fontId, tasteId) {
+      document.getElementById(briefId).value = REDDIT_DEMO.brief;
+      if (fontId) document.getElementById(fontId).value = REDDIT_DEMO.font;
+      if (tasteId) document.getElementById(tasteId).value = REDDIT_DEMO.taste;
+      renderColorDuo(containerId, REDDIT_DEMO.colors);
+      if (briefId === 'inputBrief') {
+        document.getElementById('inputProjectName').value = REDDIT_DEMO.name;
+        const btn = document.getElementById('btnPreviewBrief');
+        if (btn) btn.style.display = 'inline-block';
+      } else {
+        const btn = document.getElementById('btnPreviewBriefDetails');
+        if (btn) btn.style.display = 'inline-block';
+      }
+      showToast('Reddit demo loaded');
     }
-    if (/^-\s+/.test(line)) { return `<div style="padding-left:6px;">• ${boldify(line.replace(/^-\s+/, ''))}</div>`; }
-    if (/^\*\*.*\*\*:/.test(line)) {
-      const m = line.match(/^\*\*(.+?)\*\*:\s*(.*)$/);
-      if (m) return `<div><b>${m[1]}:</b> ${m[2]}</div>`;
+
+    document.getElementById('btnLoadDemo').addEventListener('click', () => loadRedditDemo('newColorDuo', 'inputBrief', 'inputFont', 'inputTaste'));
+    document.getElementById('btnLoadDemoDetails').addEventListener('click', () => loadRedditDemo('detailsColorDuo', 'detailsBrief', 'detailsFont', 'detailsTaste'));
+
+    // ══════════ BRIEF PREVIEW MODAL ══════════
+    function openBriefModal(briefText) {
+      const modal = document.getElementById('briefModal');
+      const content = document.getElementById('briefModalContent');
+      if (!briefText || !briefText.trim()) {
+        showToast('No brief entered yet');
+        return;
+      }
+      content.innerHTML = previewMarkdown(briefText);
+      modal.classList.add('active');
     }
-    return `<div>${boldify(line)}</div>`;
-  }).join('');
-}
-function boldify(text) {
-  return text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
-}
 
-document.getElementById('btnCreateProject').addEventListener('click', async () => {
-  const name = document.getElementById('inputProjectName').value.trim().replace(/\s+/g, '_');
-  if (!name) { document.getElementById('inputProjectName').style.borderColor = 'var(--error)'; return; }
+    const btnPrev = document.getElementById('btnPreviewBrief');
+    if (btnPrev) btnPrev.addEventListener('click', () => openBriefModal(document.getElementById('inputBrief').value));
 
-  const body = {
-    name,
-    brief: document.getElementById('inputBrief').value.trim(),
-    colors: getColorDuo('newColorDuo').map(c => ({ hex: c.hex, primary: c.primary })),
-    fonts: document.getElementById('inputFont').value.trim(),
-    taste: document.getElementById('inputTaste').value.trim(),
-  };
+    const btnPrevDet = document.getElementById('btnPreviewBriefDetails');
+    if (btnPrevDet) btnPrevDet.addEventListener('click', () => openBriefModal(document.getElementById('detailsBrief').value));
 
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+    document.getElementById('btnCloseBriefModal').addEventListener('click', () => document.getElementById('briefModal').classList.remove('active'));
+    document.getElementById('btnDoneBriefModal').addEventListener('click', () => document.getElementById('briefModal').classList.remove('active'));
+    document.getElementById('briefModal').addEventListener('click', (e) => {
+      if (e.target.id === 'briefModal') document.getElementById('briefModal').classList.remove('active');
     });
-    if (data.success) { await loadProjects(); openProject(name); }
-    else alert(data.message || 'Failed to create project');
-  } catch (e) { alert(e.message); }
-});
 
-// ══════════ WORKSPACE ACTIONS ══════════
-document.getElementById('btnBackFromWorkspace').addEventListener('click', () => { currentProject = null; loadProjects(); showView('home'); });
-document.getElementById('btnRefreshScreens').addEventListener('click', () => { if (currentProject) { loadProjectScreens(currentProject); loadModels(); } });
+    // Contact Us / Support Modal event listeners
+    const btnContact = document.getElementById('btnOpenContactModal');
+    if (btnContact) btnContact.addEventListener('click', openContactModal);
 
-function executeScript(scriptPath) {
-  parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: scriptPath } }, '*');
-}
+    const btnCloseC = document.getElementById('btnCloseContactModal');
+    if (btnCloseC) btnCloseC.addEventListener('click', closeContactModal);
 
-// ══════════ GENERATE SCREEN (bottom sheet + @ mentions) ══════════
-const COMMANDS = [
-  { cmd: '@skip-autolayout', desc: 'Static X/Y layout' },
-  { cmd: '@designsystem', desc: 'Full design system pipeline' },
-  { cmd: '@gen-variables', desc: 'Publish Figma Variables' },
-  { cmd: '@gen-components', desc: 'Master components' },
-  { cmd: '@use-components', desc: 'Reuse components' },
-  { cmd: '@brief', desc: 'Set product brief' },
-  { cmd: '@font', desc: 'Override font family' },
-  { cmd: '@color', desc: 'Override brand colors' },
-  { cmd: '@taste', desc: 'Override visual styling' },
-];
+    const btnDoneC = document.getElementById('btnDoneContactModal');
+    if (btnDoneC) btnDoneC.addEventListener('click', closeContactModal);
 
-document.getElementById('btnGenerateScreen').addEventListener('click', () => {
-  if (!currentProject) return;
-  document.getElementById('promptInput').value = '';
-  closeMentionDropdown();
-  document.getElementById('promptSheet').classList.add('active');
-  updateSheetCredit();
-  setTimeout(() => document.getElementById('promptInput').focus(), 80);
-});
-document.getElementById('btnPromptCancel').addEventListener('click', () => { document.getElementById('promptSheet').classList.remove('active'); closeMentionDropdown(); });
-document.getElementById('promptSheet').addEventListener('click', (e) => { if (e.target.id === 'promptSheet') { document.getElementById('promptSheet').classList.remove('active'); closeMentionDropdown(); } });
+    const cModal = document.getElementById('contactModal');
+    if (cModal) cModal.addEventListener('click', (e) => {
+      if (e.target.id === 'contactModal') closeContactModal();
+    });
 
-// @ mention suggestions
-const mentionInput = document.getElementById('promptInput');
-const mentionDropdown = document.getElementById('mentionDropdown');
-let mentionIndex = -1;
+    // ══════════ NEW PROJECT ══════════
+    document.getElementById('btnNewProject').addEventListener('click', () => {
+      resetNewProjectForm();
+      showView('newProject');
+    });
+    document.getElementById('btnBackFromNew').addEventListener('click', () => showView('home'));
 
-function getMentionState(text, caretPos) {
-  const before = text.slice(0, caretPos);
-  const match = before.match(/@(\w*)$/);
-  if (!match) return null;
-  return { filter: match[1] };
-}
-function renderMention(filter) {
-  const filtered = COMMANDS.filter(c => c.cmd.includes('@' + filter));
-  if (filtered.length === 0) { closeMentionDropdown(); return; }
-  mentionIndex = 0;
-  mentionDropdown.innerHTML = filtered.map((c, i) => `
+    function resetNewProjectForm() {
+      document.getElementById('inputProjectName').value = '';
+      document.getElementById('inputBrief').value = '';
+      document.getElementById('inputFont').value = 'DM Sans';
+      document.getElementById('inputTaste').value = '';
+      renderColorDuo('newColorDuo', ['#FF4500', '#0079D3']);
+      const btn = document.getElementById('btnPreviewBrief');
+      if (btn) btn.style.display = 'none';
+    }
+
+    // Live brief preview modal button visibility
+    document.getElementById('inputBrief').addEventListener('input', (e) => {
+      const btn = document.getElementById('btnPreviewBrief');
+      if (btn) btn.style.display = e.target.value.trim() ? 'inline-block' : 'none';
+    });
+    document.getElementById('detailsBrief').addEventListener('input', (e) => {
+      const btn = document.getElementById('btnPreviewBriefDetails');
+      if (btn) btn.style.display = e.target.value.trim() ? 'inline-block' : 'none';
+    });
+
+    function renderPreview(elId, md) {
+      const card = document.getElementById(elId);
+      if (!md || !md.trim()) { card.style.display = 'none'; card.innerHTML = ''; return; }
+      card.style.display = 'block';
+      card.innerHTML = previewMarkdown(md);
+    }
+
+    function previewMarkdown(md) {
+      const esc = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const lines = esc.split('\n').map(l => l.trim()).filter(Boolean);
+      return lines.map(line => {
+        if (/^#+\s+/.test(line)) {
+          const t = line.replace(/^#+\s+/, '');
+          return `<div class="pv-title">${boldify(t)}</div>`;
+        }
+        if (/^-\s+/.test(line)) { return `<div style="padding-left:6px;">• ${boldify(line.replace(/^-\s+/, ''))}</div>`; }
+        if (/^\*\*.*\*\*:/.test(line)) {
+          const m = line.match(/^\*\*(.+?)\*\*:\s*(.*)$/);
+          if (m) return `<div><b>${m[1]}:</b> ${m[2]}</div>`;
+        }
+        return `<div>${boldify(line)}</div>`;
+      }).join('');
+    }
+    function boldify(text) {
+      return text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
+    }
+
+    document.getElementById('btnCreateProject').addEventListener('click', async () => {
+      const name = document.getElementById('inputProjectName').value.trim().replace(/\s+/g, '_');
+      if (!name) { document.getElementById('inputProjectName').style.borderColor = 'var(--error)'; return; }
+
+      const body = {
+        name,
+        brief: document.getElementById('inputBrief').value.trim(),
+        colors: getColorDuo('newColorDuo').map(c => ({ hex: c.hex, primary: c.primary })),
+        fonts: document.getElementById('inputFont').value.trim(),
+        taste: document.getElementById('inputTaste').value.trim(),
+      };
+
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/projects`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (data.success) { await loadProjects(); openProject(name); }
+        else alert(data.message || 'Failed to create project');
+      } catch (e) { alert(e.message); }
+    });
+
+    // ══════════ WORKSPACE ACTIONS ══════════
+    document.getElementById('btnBackFromWorkspace').addEventListener('click', () => { currentProject = null; loadProjects(); showView('home'); });
+    document.getElementById('btnRefreshScreens').addEventListener('click', () => { if (currentProject) { loadProjectScreens(currentProject); loadModels(); } });
+
+    function executeScript(scriptPath) {
+      parent.postMessage({ pluginMessage: { type: 'run-script', scriptName: scriptPath } }, '*');
+    }
+
+    // ══════════ GENERATE SCREEN (bottom sheet + @ mentions) ══════════
+    const COMMANDS = [
+      { cmd: '@skip-autolayout', desc: 'Static X/Y layout' },
+      { cmd: '@designsystem', desc: 'Full design system pipeline' },
+      { cmd: '@gen-variables', desc: 'Publish Figma Variables' },
+      { cmd: '@gen-components', desc: 'Master components' },
+      { cmd: '@use-components', desc: 'Reuse components' },
+      { cmd: '@brief', desc: 'Set product brief' },
+      { cmd: '@font', desc: 'Override font family' },
+      { cmd: '@color', desc: 'Override brand colors' },
+      { cmd: '@taste', desc: 'Override visual styling' },
+    ];
+
+    document.getElementById('btnGenerateScreen').addEventListener('click', () => {
+      if (!currentProject) return;
+      document.getElementById('promptInput').value = '';
+      closeMentionDropdown();
+      document.getElementById('promptSheet').classList.add('active');
+      updateSheetCredit();
+      setTimeout(() => document.getElementById('promptInput').focus(), 80);
+    });
+    document.getElementById('btnPromptCancel').addEventListener('click', () => { document.getElementById('promptSheet').classList.remove('active'); closeMentionDropdown(); });
+    document.getElementById('promptSheet').addEventListener('click', (e) => { if (e.target.id === 'promptSheet') { document.getElementById('promptSheet').classList.remove('active'); closeMentionDropdown(); } });
+
+    // @ mention suggestions
+    const mentionInput = document.getElementById('promptInput');
+    const mentionDropdown = document.getElementById('mentionDropdown');
+    let mentionIndex = -1;
+
+    function getMentionState(text, caretPos) {
+      const before = text.slice(0, caretPos);
+      const match = before.match(/@(\w*)$/);
+      if (!match) return null;
+      return { filter: match[1] };
+    }
+    function renderMention(filter) {
+      const filtered = COMMANDS.filter(c => c.cmd.includes('@' + filter));
+      if (filtered.length === 0) { closeMentionDropdown(); return; }
+      mentionIndex = 0;
+      mentionDropdown.innerHTML = filtered.map((c, i) => `
     <div class="mention-item" data-index="${i}">
       <span class="cmd">${c.cmd}</span>
       <span class="desc">${c.desc}</span>
     </div>`).join('');
-  mentionDropdown.classList.add('open');
-  mentionDropdown.querySelector('.mention-item').classList.add('selected');
-  mentionDropdown.querySelectorAll('.mention-item').forEach(el => {
-    el.addEventListener('click', () => insertMention(filtered, parseInt(el.dataset.index, 10)));
-  });
-}
-function closeMentionDropdown() { mentionDropdown.classList.remove('open'); mentionDropdown.innerHTML = ''; mentionIndex = -1; }
-function insertMention(commands, idx) {
-  const item = commands[idx];
-  if (!item) return;
-  const text = mentionInput.value;
-  const caret = mentionInput.selectionStart;
-  const before = text.slice(0, caret).replace(/@(\w*)$/, item.cmd + ' ');
-  const after = text.slice(caret);
-  mentionInput.value = before + after;
-  const pos = before.length;
-  mentionInput.selectionStart = pos; mentionInput.selectionEnd = pos;
-  closeMentionDropdown();
-  mentionInput.focus();
-}
-mentionInput.addEventListener('input', () => {
-  const state = getMentionState(mentionInput.value, mentionInput.selectionStart);
-  if (state) renderMention(state.filter); else closeMentionDropdown();
-});
-mentionInput.addEventListener('keydown', (e) => {
-  if (!mentionDropdown.classList.contains('open')) return;
-  const items = mentionDropdown.querySelectorAll('.mention-item');
-  if (e.key === 'ArrowDown') { e.preventDefault(); mentionIndex = (mentionIndex + 1) % items.length; }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); mentionIndex = (mentionIndex - 1 + items.length) % items.length; }
-  else if (e.key === 'Enter' || e.key === 'Tab') {
-    const state = getMentionState(mentionInput.value, mentionInput.selectionStart);
-    const filtered = state ? COMMANDS.filter(c => c.cmd.includes('@' + state.filter)) : [];
-    if (mentionIndex >= 0 && filtered.length) { e.preventDefault(); insertMention(filtered, mentionIndex); return; }
-  } else if (e.key === 'Escape') { closeMentionDropdown(); return; }
-  items.forEach((el, i) => el.classList.toggle('selected', i === mentionIndex));
-});
+      mentionDropdown.classList.add('open');
+      mentionDropdown.querySelector('.mention-item').classList.add('selected');
+      mentionDropdown.querySelectorAll('.mention-item').forEach(el => {
+        el.addEventListener('click', () => insertMention(filtered, parseInt(el.dataset.index, 10)));
+      });
+    }
+    function closeMentionDropdown() { mentionDropdown.classList.remove('open'); mentionDropdown.innerHTML = ''; mentionIndex = -1; }
+    function insertMention(commands, idx) {
+      const item = commands[idx];
+      if (!item) return;
+      const text = mentionInput.value;
+      const caret = mentionInput.selectionStart;
+      const before = text.slice(0, caret).replace(/@(\w*)$/, item.cmd + ' ');
+      const after = text.slice(caret);
+      mentionInput.value = before + after;
+      const pos = before.length;
+      mentionInput.selectionStart = pos; mentionInput.selectionEnd = pos;
+      closeMentionDropdown();
+      mentionInput.focus();
+    }
+    mentionInput.addEventListener('input', () => {
+      const state = getMentionState(mentionInput.value, mentionInput.selectionStart);
+      if (state) renderMention(state.filter); else closeMentionDropdown();
+    });
+    mentionInput.addEventListener('keydown', (e) => {
+      if (!mentionDropdown.classList.contains('open')) return;
+      const items = mentionDropdown.querySelectorAll('.mention-item');
+      if (e.key === 'ArrowDown') { e.preventDefault(); mentionIndex = (mentionIndex + 1) % items.length; }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); mentionIndex = (mentionIndex - 1 + items.length) % items.length; }
+      else if (e.key === 'Enter' || e.key === 'Tab') {
+        const state = getMentionState(mentionInput.value, mentionInput.selectionStart);
+        const filtered = state ? COMMANDS.filter(c => c.cmd.includes('@' + state.filter)) : [];
+        if (mentionIndex >= 0 && filtered.length) { e.preventDefault(); insertMention(filtered, mentionIndex); return; }
+      } else if (e.key === 'Escape') { closeMentionDropdown(); return; }
+      items.forEach((el, i) => el.classList.toggle('selected', i === mentionIndex));
+    });
 
-let attachedImageBase64 = null;
+    let attachedImageBase64 = null;
 
-document.getElementById('btnUploadImage').addEventListener('click', () => {
-  document.getElementById('imageFileInput').click();
-});
+    document.getElementById('btnUploadImage').addEventListener('click', () => {
+      document.getElementById('imageFileInput').click();
+    });
 
-document.getElementById('imageFileInput').addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (file) handleImageFile(file);
-});
+    document.getElementById('imageFileInput').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleImageFile(file);
+    });
 
-// Ctrl+V / Cmd+V paste listener for reference images
-window.addEventListener('paste', (e) => {
-  const sheet = document.getElementById('promptSheet');
-  if (!sheet || !sheet.classList.contains('active')) return;
+    // Ctrl+V / Cmd+V paste listener for reference images
+    window.addEventListener('paste', (e) => {
+      const sheet = document.getElementById('promptSheet');
+      if (!sheet || !sheet.classList.contains('active')) return;
 
-  const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
-  if (!items) return;
+      const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
+      if (!items) return;
 
-  for (const item of items) {
-    if (item.type && item.type.startsWith('image/')) {
-      const file = item.getAsFile();
-      if (file) {
-        handleImageFile(file);
-        showToast('Reference image pasted!');
-        break;
+      for (const item of items) {
+        if (item.type && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            handleImageFile(file);
+            showToast('Reference image pasted!');
+            break;
+          }
+        }
+      }
+    });
+
+    function handleImageFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        attachedImageBase64 = e.target.result;
+        document.getElementById('imagePreviewImg').src = attachedImageBase64;
+        document.getElementById('imagePreviewCard').style.display = 'flex';
+        document.getElementById('btnUploadImage').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('btnRemoveImage').addEventListener('click', clearAttachedImage);
+
+    function clearAttachedImage() {
+      attachedImageBase64 = null;
+      document.getElementById('imageFileInput').value = '';
+      document.getElementById('imagePreviewImg').src = '';
+      document.getElementById('imagePreviewCard').style.display = 'none';
+      document.getElementById('btnUploadImage').style.display = 'flex';
+    }
+
+    document.getElementById('btnPromptGenerate').addEventListener('click', runScreenGeneration);
+    async function runScreenGeneration() {
+      const prompt = document.getElementById('promptInput').value.trim();
+      const model = document.getElementById('sheetModelSelect').value;
+      const cr = creditsFor(model);
+
+      if ((!prompt && !attachedImageBase64) || !currentProject) return;
+      if (cr.remaining <= 0) { showToast(`No credits left for ${model}`); return; }
+
+      const promptText = prompt || 'Generate a production UI screen matching the attached reference image layout and structure.';
+
+      document.getElementById('promptSheet').classList.remove('active');
+      closeMentionDropdown();
+      showView('loading');
+      document.getElementById('loadingTitle').textContent = attachedImageBase64 ? 'Analyzing reference image...' : 'Morphing your idea...';
+      document.getElementById('loadingSubtitle').textContent = attachedImageBase64 ? 'Extracting layout, colors & components into Figma script' : 'Merging brief with design rules & auto layout';
+
+      abortController = new AbortController();
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/generate/screen`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project: currentProject,
+            prompt: promptText,
+            model,
+            name: userName,
+            imageBase64: attachedImageBase64 || null,
+          }),
+          signal: abortController.signal,
+        });
+        if (data.success) {
+          document.getElementById('promptInput').value = '';
+          clearAttachedImage();
+          if (data.filename) executeScript(data.filename);
+          await loadProjectScreens(currentProject);
+          await loadModels();
+          showView('workspace');
+          showToast('Screen generated on canvas');
+        } else {
+          alert('Generation note: ' + (data.message || 'Unknown error'));
+          await loadModels(); showView('workspace');
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') alert(e.message);
+        showView('workspace');
       }
     }
-  }
-});
+    const API_URL = SERVER;
 
-function handleImageFile(file) {
-  if (!file.type.startsWith('image/')) {
-    showToast('Please select a valid image file');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    attachedImageBase64 = e.target.result;
-    document.getElementById('imagePreviewImg').src = attachedImageBase64;
-    document.getElementById('imagePreviewCard').style.display = 'flex';
-    document.getElementById('btnUploadImage').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-document.getElementById('btnRemoveImage').addEventListener('click', clearAttachedImage);
-
-function clearAttachedImage() {
-  attachedImageBase64 = null;
-  document.getElementById('imageFileInput').value = '';
-  document.getElementById('imagePreviewImg').src = '';
-  document.getElementById('imagePreviewCard').style.display = 'none';
-  document.getElementById('btnUploadImage').style.display = 'flex';
-}
-
-document.getElementById('btnPromptGenerate').addEventListener('click', runScreenGeneration);
-async function runScreenGeneration() {
-  const prompt = document.getElementById('promptInput').value.trim();
-  const model = document.getElementById('sheetModelSelect').value;
-  const cr = creditsFor(model);
-  
-  if ((!prompt && !attachedImageBase64) || !currentProject) return;
-  if (cr.remaining <= 0) { showToast(`No credits left for ${model}`); return; }
-
-  const promptText = prompt || 'Generate a production UI screen matching the attached reference image layout and structure.';
-
-  document.getElementById('promptSheet').classList.remove('active');
-  closeMentionDropdown();
-  showView('loading');
-  document.getElementById('loadingTitle').textContent = attachedImageBase64 ? 'Analyzing reference image...' : 'Morphing your idea...';
-  document.getElementById('loadingSubtitle').textContent = attachedImageBase64 ? 'Extracting layout, colors & components into Figma script' : 'Merging brief with design rules & auto layout';
-
-  abortController = new AbortController();
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/generate/screen`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project: currentProject,
-        prompt: promptText,
-        model,
-        name: userName,
-        imageBase64: attachedImageBase64 || null,
-      }),
-      signal: abortController.signal,
+    // ══════════ GENERATE DESIGN SYSTEM ══════════
+    document.getElementById('btnGenDesignSystem').addEventListener('click', () => {
+      if (!currentProject) return;
+      document.getElementById('dsProjectName').textContent = currentProject;
+      document.getElementById('dsSheet').classList.add('active');
+      const cr = creditsFor(document.getElementById('modelSelect').value);
+      document.getElementById('dsModelSelect').value = document.getElementById('modelSelect').value;
+      if (cr.remaining <= 0) showToast('No credits left for this model');
     });
-    if (data.success) {
-      document.getElementById('promptInput').value = '';
-      clearAttachedImage();
-      if (data.filename) executeScript(data.filename);
-      await loadProjectScreens(currentProject);
-      await loadModels();
-      showView('workspace');
-      showToast('Screen generated on canvas');
-    } else {
-      alert('Generation note: ' + (data.message || 'Unknown error'));
-      await loadModels(); showView('workspace');
-    }
-  } catch (e) {
-    if (e.name !== 'AbortError') alert(e.message);
-    showView('workspace');
-  }
-}
-const API_URL = SERVER;
+    document.getElementById('btnDsCancel').addEventListener('click', () => document.getElementById('dsSheet').classList.remove('active'));
+    document.getElementById('dsSheet').addEventListener('click', (e) => { if (e.target.id === 'dsSheet') document.getElementById('dsSheet').classList.remove('active'); });
 
-// ══════════ GENERATE DESIGN SYSTEM ══════════
-document.getElementById('btnGenDesignSystem').addEventListener('click', () => {
-  if (!currentProject) return;
-  document.getElementById('dsProjectName').textContent = currentProject;
-  document.getElementById('dsSheet').classList.add('active');
-  const cr = creditsFor(document.getElementById('modelSelect').value);
-  document.getElementById('dsModelSelect').value = document.getElementById('modelSelect').value;
-  if (cr.remaining <= 0) showToast('No credits left for this model');
-});
-document.getElementById('btnDsCancel').addEventListener('click', () => document.getElementById('dsSheet').classList.remove('active'));
-document.getElementById('dsSheet').addEventListener('click', (e) => { if (e.target.id === 'dsSheet') document.getElementById('dsSheet').classList.remove('active'); });
+    document.getElementById('btnDsConfirm').addEventListener('click', async () => {
+      if (!currentProject) return;
+      const model = document.getElementById('dsModelSelect').value;
+      const cr = creditsFor(model);
+      if (cr.remaining <= 0) { showToast('No credits left for this model'); return; }
 
-document.getElementById('btnDsConfirm').addEventListener('click', async () => {
-  if (!currentProject) return;
-  const model = document.getElementById('dsModelSelect').value;
-  const cr = creditsFor(model);
-  if (cr.remaining <= 0) { showToast('No credits left for this model'); return; }
+      const options = {
+        variables: document.getElementById('dsOptVariables').checked,
+        colors: document.getElementById('dsOptColors').checked,
+        typography: document.getElementById('dsOptTypography').checked,
+        components: document.getElementById('dsOptComponents').checked,
+      };
 
-  const options = {
-    variables: document.getElementById('dsOptVariables').checked,
-    colors: document.getElementById('dsOptColors').checked,
-    typography: document.getElementById('dsOptTypography').checked,
-    components: document.getElementById('dsOptComponents').checked,
-  };
+      document.getElementById('dsSheet').classList.remove('active');
+      showView('loading');
+      document.getElementById('loadingTitle').textContent = 'Building Design System...';
+      document.getElementById('loadingSubtitle').textContent = 'Publishing native variables & rendering swatches + typography scale';
 
-  document.getElementById('dsSheet').classList.remove('active');
-  showView('loading');
-  document.getElementById('loadingTitle').textContent = 'Building Design System...';
-  document.getElementById('loadingSubtitle').textContent = 'Publishing native variables & rendering swatches + typography scale';
-
-  abortController = new AbortController();
-  try {
-    const data = await safeFetchJson(`${SERVER}/api/generate/designsystem`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ project: currentProject, model, name: userName, options }),
-      signal: abortController.signal,
+      abortController = new AbortController();
+      try {
+        const data = await safeFetchJson(`${SERVER}/api/generate/designsystem`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project: currentProject, model, name: userName, options }),
+          signal: abortController.signal,
+        });
+        if (data.success) {
+          if (data.variablesFile) executeScript(data.variablesFile);
+          if (data.designSystemFile) executeScript(data.designSystemFile);
+          await loadProjectScreens(currentProject);
+          await loadModels();
+          showView('workspace');
+          showToast('Design system generated');
+        } else {
+          alert('Design system generation note: ' + (data.message || 'Unknown error'));
+          await loadModels(); showView('workspace');
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') alert(e.message);
+        showView('workspace');
+      }
     });
-    if (data.success) {
-      if (data.variablesFile) executeScript(data.variablesFile);
-      if (data.designSystemFile) executeScript(data.designSystemFile);
-      await loadProjectScreens(currentProject);
-      await loadModels();
+
+    document.getElementById('btnCancelGeneration').addEventListener('click', () => {
+      if (abortController) abortController.abort();
+      abortController = null;
       showView('workspace');
-      showToast('Design system generated');
-    } else {
-      alert('Design system generation note: ' + (data.message || 'Unknown error'));
-      await loadModels(); showView('workspace');
+      if (currentProject) loadProjectScreens(currentProject);
+    });
+
+    // ══════════ MESSAGES FROM code.js ══════════
+    window.onmessage = async (event) => {
+      const msg = event.data ? event.data.pluginMessage : null;
+      if (!msg) return;
+
+      if (msg.type === 'init-state') {
+        userName = msg.userName || '';
+        uiSize = msg.uiSize || 'm';
+        renderSizeControls();
+        if (!userName) { showView('onboarding'); }
+        else { showView('home'); renderHomeContent(); registerUser(userName); }
+        return;
+      }
+
+      if (msg.type === 'fetch-and-eval') {
+        try {
+          const res = await fetch(`${SERVER}/api/scripts/${encodeURIComponent(msg.scriptName)}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const code = await res.text();
+          parent.postMessage({ pluginMessage: { type: 'eval-code', scriptName: msg.scriptName, code } }, '*');
+        } catch (e) { console.error('Fetch error:', e.message); }
+      }
+    };
+
+    // ══════════ HELPERS ══════════
+    function stripMarkdown(md) {
+      if (!md) return '';
+      return md
+        .replace(/^---.*$/gm, '')
+        .replace(/^#+\s+/gm, '')
+        .replace(/^\*\*\*.*?\*\*\*/gs, '')
+        .replace(/^\*?\*?([^*\n]+?)\*?\*?:/gm, '$1:')
+        .replace(/\*\*/g, '')
+        .replace(/`/g, '')
+        .trim();
     }
-  } catch (e) {
-    if (e.name !== 'AbortError') alert(e.message);
-    showView('workspace');
-  }
-});
+    function stripConfigMarkdown(md) {
+      if (!md) return '';
+      return md
+        .replace(/^---.*$/gm, '')
+        .replace(/^#+\s+/gm, '')
+        .replace(/^\*\*\s*(.+?)$/gm, (m, t) => t + ':')
+        .trim();
+    }
 
-document.getElementById('btnCancelGeneration').addEventListener('click', () => {
-  if (abortController) abortController.abort();
-  abortController = null;
-  showView('workspace');
-  if (currentProject) loadProjectScreens(currentProject);
-});
+    function extractFontFromMd(md) {
+      if (!md) return '';
+      const match = md.match(/Primary Font:\*?\*?\s*(.+)/i);
+      return match ? match[1].trim().replace(/^[^a-zA-Z]+/, '') : '';
+    }
 
-// ══════════ MESSAGES FROM code.js ══════════
-window.onmessage = async (event) => {
-  const msg = event.data ? event.data.pluginMessage : null;
-  if (!msg) return;
+    function extractColorsFromMd(md) {
+      if (!md) return [];
+      const matches = md.match(/#[0-9A-Fa-f]{6}/g);
+      return matches ? matches.slice(0, 4) : [];
+    }
 
-  if (msg.type === 'init-state') {
-    userName = msg.userName || '';
-    uiSize = msg.uiSize || 'm';
-    renderSizeControls();
-    if (!userName) { showView('onboarding'); }
-    else { showView('home'); renderHomeContent(); registerUser(userName); }
-    return;
-  }
+    // ══════════ INIT ══════════
+    renderColorDuo('newColorDuo', ['#cc785c', '#5db8a6']);
+    renderColorDuo('detailsColorDuo', ['#cc785c', '#5db8a6']);
+    loadProjects();
+    setupConnection();
 
-  if (msg.type === 'fetch-and-eval') {
-    try {
-      const res = await fetch(`${SERVER}/api/scripts/${encodeURIComponent(msg.scriptName)}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const code = await res.text();
-      parent.postMessage({ pluginMessage: { type: 'eval-code', scriptName: msg.scriptName, code } }, '*');
-    } catch (e) { console.error('Fetch error:', e.message); }
-  }
-};
-
-// ══════════ HELPERS ══════════
-function stripMarkdown(md) {
-  if (!md) return '';
-  return md
-    .replace(/^---.*$/gm, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/^\*\*\*.*?\*\*\*/gs, '')
-    .replace(/^\*?\*?([^*\n]+?)\*?\*?:/gm, '$1:')
-    .replace(/\*\*/g, '')
-    .replace(/`/g, '')
-    .trim();
-}
-function stripConfigMarkdown(md) {
-  if (!md) return '';
-  return md
-    .replace(/^---.*$/gm, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/^\*\*\s*(.+?)$/gm, (m, t) => t + ':')
-    .trim();
-}
-
-function extractFontFromMd(md) {
-  if (!md) return '';
-  const match = md.match(/Primary Font:\*?\*?\s*(.+)/i);
-  return match ? match[1].trim().replace(/^[^a-zA-Z]+/, '') : '';
-}
-
-function extractColorsFromMd(md) {
-  if (!md) return [];
-  const matches = md.match(/#[0-9A-Fa-f]{6}/g);
-  return matches ? matches.slice(0, 4) : [];
-}
-
-// ══════════ INIT ══════════
-renderColorDuo('newColorDuo', ['#cc785c', '#5db8a6']);
-renderColorDuo('detailsColorDuo', ['#cc785c', '#5db8a6']);
-loadProjects();
-setupConnection();
-
-setTimeout(() => {
-  if (!userName && !views.onboarding.classList.contains('active')) showView('onboarding');
-}, 1500);
-</script>
+    setTimeout(() => {
+      if (!userName && !views.onboarding.classList.contains('active')) showView('onboarding');
+    }, 1500);
+  </script>
 </body>
+
 </html>
