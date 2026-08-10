@@ -1,15 +1,22 @@
 /**
  * Morph — User Registry & Activity Tracker
  *
- * Records every plugin user (name + IP + first/last seen + per-model usage)
- * so the developer can see who is using the plugin and how many of their
- * 10 daily credits they have burned per IP.
+ * Records every plugin user (name + IP + first/last seen) so the developer
+ * can see who is using the plugin and how many of their daily credits they
+ * have burned per IP.
  *
- * Stored under `_users/<ip>.json` through cloud-store, so it works on both
- * the local filesystem and Vercel Blob.
+ * Storage is two-tier:
+ *  - Supabase Postgres `users` table when SUPABASE_URL +
+ *    SUPABASE_SERVICE_ROLE_KEY are set (production, survives serverless).
+ *  - Local `_users/<ip>.json` files via cloud-store otherwise (plain local
+ *    development without Supabase).
+ *
+ * Daily credit usage lives in the same `users.usage` jsonb column and is
+ * consumed atomically by the rate limiter (see rate-limiter.js).
  */
 
 const store = require('./cloud-store');
+const supabase = require('./supabase');
 
 const USERS_PREFIX = '_users/';
 
@@ -27,10 +34,39 @@ function userKey(ip) {
  */
 async function recordUser({ name, ip, model }) {
   if (!ip || ip === 'unknown') return;
+
+  if (supabase.isConfigured()) {
+    await recordUserDb({ name, ip });
+    return;
+  }
+
+  await recordUserLocal({ name, ip, model });
+}
+
+/**
+ * Postgres-backed upsert. Never touches `usage` (the rate limiter owns it)
+ * so a concurrent credit bump is never overwritten. Swallows DB errors so a
+ * missing `users` table (migration not run yet) never breaks the app.
+ */
+async function recordUserDb({ name, ip }) {
+  const payload = { ip, last_seen: new Date().toISOString() };
+  const cleanName = name && String(name).trim() ? String(name).trim() : '';
+  if (cleanName) payload.name = cleanName;
+  try {
+    const { error } = await supabase.getClient().from('users').upsert(payload, { onConflict: 'ip' });
+    if (error) console.warn('[UserTracker] Upsert failed:', error.message);
+  } catch (e) {
+    console.warn('[UserTracker] Upsert failed:', e.message);
+  }
+}
+
+/**
+ * Local-file fallback used without Supabase credentials.
+ */
+async function recordUserLocal({ name, ip, model }) {
   const key = userKey(ip);
   let user = {};
-  // `retry: false` -> an instant miss is expected on first arrival (no Blob
-  // eventual-consistency wait, keeps /api/users/register snappy).
+  // `retry: false` -> an instant miss is expected on first arrival.
   const existing = await store.readText(key, { retry: false });
   if (existing) {
     try {
@@ -51,6 +87,20 @@ async function recordUser({ name, ip, model }) {
  * @returns {Promise<Array<object>>}
  */
 async function listUsers() {
+  if (supabase.isConfigured()) {
+    try {
+      const { data, error } = await supabase.getClient()
+        .from('users')
+        .select('*')
+        .order('last_seen', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('[UserTracker] List failed:', e.message);
+      return [];
+    }
+  }
+
   const paths = await store.scanTree(USERS_PREFIX);
   const users = [];
   for (const f of paths) {
@@ -66,11 +116,19 @@ async function listUsers() {
 }
 
 /**
- * Delete the record for an IP (used by the admin dashboard).
+ * Delete the record for an IP.
  * @param {string} ip
  */
 async function deleteUser(ip) {
   if (!ip) return;
+  if (supabase.isConfigured()) {
+    try {
+      await supabase.getClient().from('users').delete().eq('ip', ip);
+    } catch (e) {
+      console.warn('[UserTracker] Delete failed:', e.message);
+    }
+    return;
+  }
   await store.deletePath(userKey(ip));
 }
 

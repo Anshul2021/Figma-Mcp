@@ -249,7 +249,8 @@ async function listFileNames(relPrefix) {
   for (const p of paths) {
     if (!p.includes('/')) names.push(p);
   }
-  return names;
+  // Hide scaffolding placeholder files (e.g. .gitkeep) from "real" listings.
+  return names.filter(n => !n.startsWith('.'));
 }
 
 let projectCache = null;

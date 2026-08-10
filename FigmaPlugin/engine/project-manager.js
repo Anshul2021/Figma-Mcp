@@ -66,6 +66,15 @@ async function createProject(projectName, config = {}) {
   await writeFonts(projectName, config.fonts || '');
   await writeTaste(projectName, config.taste || '');
 
+  // Cloud scaffold: Supabase Storage has no empty folders, so materialize the
+  // screens/ / components/ / tokens/ structure with a hidden placeholder file
+  // (filtered out of every listing) so the project scaffold matches AGENTS.md.
+  if (store.isCloud()) {
+    for (const sub of ['screens', 'components', 'tokens']) {
+      await store.writeText(`${projectName}/${sub}/.gitkeep`, '', 'text/plain');
+    }
+  }
+
   return { success: true, message: `Project "${projectName}" created successfully.` };
 }
 
@@ -140,6 +149,7 @@ async function listProjects() {
     }
     const entry = byProject.get(proj);
     const fileName = parts[parts.length - 1];
+    if (fileName.startsWith('.')) continue; // scaffold placeholders (.gitkeep)
     if (sub === 'screens' && fileName.endsWith('.js')) entry.screens.push(fileName);
     else if (sub === 'components' && fileName.endsWith('.js')) entry.components.push(fileName);
     else if (sub === 'tokens' && fileName.endsWith('.js')) entry.tokens.push(fileName);

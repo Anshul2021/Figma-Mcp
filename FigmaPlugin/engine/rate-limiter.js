@@ -1,12 +1,20 @@
 /**
  * Morph — Daily Rate Limiter Engine
- * 
- * Manages daily credit allocation: 10 generations per model per user IP/ID per day.
- * Resets automatically at midnight.
+ *
+ * Manages daily credit allocation: 10 generations per model per user IP/ID
+ * per day. Resets automatically at midnight UTC.
+ *
+ * Storage is two-tier:
+ *  - Supabase Postgres: usage lives in the `users.usage` jsonb column as
+ *    `{ "<YYYY-MM-DD>": { "<model>": count } }`. Credits are consumed
+ *    atomically via the `bump_usage` DB function (row-locked), so it works
+ *    reliably on serverless and survives cold starts.
+ *  - Local `.rate-limit.json` file fallback when Supabase is not configured.
  */
 
 const fs = require('fs');
 const path = require('path');
+const supabase = require('./supabase');
 
 const LIMIT_PER_MODEL_PER_DAY = 10;
 const STORAGE_FILE = path.join(__dirname, '..', '.rate-limit.json');
@@ -14,6 +22,8 @@ const STORAGE_FILE = path.join(__dirname, '..', '.rate-limit.json');
 function getTodayString() {
   return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 }
+
+// ── Local file fallback state ─────────────────────────────────
 
 let inMemoryState = { date: getTodayString(), usage: {} };
 
@@ -46,13 +56,39 @@ function saveState(state) {
   }
 }
 
+// ── Supabase Postgres helpers ─────────────────────────────────
+
+async function dbUsage(clientId) {
+  const { data, error } = await supabase.getClient()
+    .from('users')
+    .select('usage')
+    .eq('ip', clientId)
+    .maybeSingle();
+  if (error) return null;
+  return (data && data.usage) || {};
+}
+
 /**
  * Get credit info for a single model.
- * @param {string} modelId 
+ * @param {string} modelId
  * @param {string} [clientId] - User IP or User ID
- * @returns {{ remaining: number, total: number, used: number, date: string }}
+ * @returns {Promise<{ remaining: number, total: number, used: number, date: string }>}
  */
-function getCredits(modelId, clientId = 'global') {
+async function getCredits(modelId, clientId = 'global') {
+  if (supabase.isConfigured()) {
+    const today = getTodayString();
+    let usage = {};
+    try { usage = await dbUsage(clientId); } catch (e) { usage = {}; }
+    const used = (usage[today] && usage[today][modelId]) || 0;
+    return {
+      modelId,
+      remaining: Math.max(0, LIMIT_PER_MODEL_PER_DAY - used),
+      total: LIMIT_PER_MODEL_PER_DAY,
+      used,
+      date: today,
+    };
+  }
+
   const state = loadState();
   const key = `${clientId}:${modelId}`;
   const used = state.usage[key] || state.usage[modelId] || 0;
@@ -68,11 +104,28 @@ function getCredits(modelId, clientId = 'global') {
 
 /**
  * Get credit info for an array of model objects.
- * @param {Array<{ id: string, label: string }>} models 
+ * @param {Array<{ id: string, label: string }>} models
  * @param {string} [clientId] - User IP or User ID
- * @returns {Object.<string, { remaining: number, total: number, used: number }>}
+ * @returns {Promise<Object.<string, { remaining: number, total: number, used: number }>>}
  */
-function getAllCredits(models = [], clientId = 'global') {
+async function getAllCredits(models = [], clientId = 'global') {
+  if (supabase.isConfigured()) {
+    const today = getTodayString();
+    let usage = {};
+    try { usage = await dbUsage(clientId); } catch (e) { usage = {}; }
+    const usedByModel = usage[today] || {};
+    const result = {};
+    for (const m of models) {
+      const used = usedByModel[m.id] || 0;
+      result[m.id] = {
+        remaining: Math.max(0, LIMIT_PER_MODEL_PER_DAY - used),
+        total: LIMIT_PER_MODEL_PER_DAY,
+        used,
+      };
+    }
+    return result;
+  }
+
   const state = loadState();
   const result = {};
   for (const m of models) {
@@ -89,11 +142,38 @@ function getAllCredits(models = [], clientId = 'global') {
 
 /**
  * Consume 1 credit for a model for a specific client IP / ID.
- * @param {string} modelId 
+ * @param {string} modelId
  * @param {string} [clientId] - User IP or User ID
- * @returns {{ success: boolean, remaining: number, message?: string }}
+ * @returns {Promise<{ success: boolean, remaining: number, message?: string }>}
  */
-function consumeCredit(modelId, clientId = 'global') {
+async function consumeCredit(modelId, clientId = 'global') {
+  if (supabase.isConfigured()) {
+    const today = getTodayString();
+    try {
+      const { data, error } = await supabase.getClient().rpc('bump_usage', {
+        p_ip: clientId,
+        p_day: today,
+        p_model: modelId,
+        p_limit: LIMIT_PER_MODEL_PER_DAY,
+      });
+      if (error) {
+        console.warn('[RateLimiter] bump_usage failed (is supabase/schema.sql installed?):', error.message);
+        return { success: true, remaining: LIMIT_PER_MODEL_PER_DAY };
+      }
+      if (!data || data.success === false) {
+        return {
+          success: false,
+          remaining: data ? data.remaining : 0,
+          message: `Daily limit of ${LIMIT_PER_MODEL_PER_DAY} generations reached for model "${modelId}". Resets at midnight UTC.`,
+        };
+      }
+      return { success: true, remaining: data.remaining };
+    } catch (e) {
+      console.warn('[RateLimiter] bump_usage failed:', e.message);
+      return { success: true, remaining: LIMIT_PER_MODEL_PER_DAY };
+    }
+  }
+
   const state = loadState();
   const key = `${clientId}:${modelId}`;
   const used = state.usage[key] || 0;

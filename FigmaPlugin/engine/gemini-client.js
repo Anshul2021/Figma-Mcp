@@ -93,10 +93,51 @@ async function generate({ systemPrompt, userPrompt, model, imageBase64 }) {
   const text = response.text();
 
   // Extract JavaScript code from the response
-  const code = extractJavaScript(text);
+  let code = extractJavaScript(text);
+
+  // Validate the extracted code BEFORE writing to disk. If Gemini produced a
+  // syntax error (e.g. `itemSpacing = 12` inside an object literal), retry once
+  // with a corrective hint instead of shipping a broken script to Figma.
+  const check = validateJavaScript(code);
+  if (!check.valid) {
+    console.warn(`[Gemini] Generated code failed syntax check: ${check.message}`);
+    try {
+      const fixPrompt = `${userPrompt}\n\n---\n\nThe JavaScript code you just generated has a SYNTAX ERROR:\n${check.message}\n\nCarefully fix the syntax error (e.g. object properties MUST use colons "key: value", NEVER "key = value") and output the COMPLETE corrected script in full. Do not truncate.`;
+      const retryResult = await generativeModel.generateContent([fixPrompt]);
+      const retryText = retryResult.response.text();
+      code = extractJavaScript(retryText);
+      const recheck = validateJavaScript(code);
+      if (!recheck.valid) {
+        console.warn(`[Gemini] Retry still failed syntax check: ${recheck.message}`);
+      } else {
+        console.log(`[Gemini] Retry produced valid JavaScript.`);
+      }
+    } catch (retryErr) {
+      console.warn('[Gemini] Retry failed:', retryErr.message);
+    }
+  }
 
   console.log(`[Gemini] Generated ${code.length} chars of JavaScript.`);
   return { code, model: modelId };
+}
+
+/**
+ * Validate that generated code is syntactically valid JavaScript.
+ * Uses `new Function` which parses (but does not execute) the body, so
+ * broken scripts are caught before they are written to disk and before
+ * Figma tries to eval them.
+ * @param {string} code
+ * @returns {{ valid: boolean, message?: string }}
+ */
+function validateJavaScript(code) {
+  if (!code || typeof code !== 'string') return { valid: false, message: 'Empty generated code' };
+  try {
+    // eslint-disable-next-line no-new-func
+    new Function('figma', code);
+    return { valid: true };
+  } catch (e) {
+    return { valid: false, message: e.message };
+  }
 }
 
 /**
@@ -140,4 +181,5 @@ module.exports = {
   generate,
   getAvailableModels,
   extractJavaScript,
+  validateJavaScript,
 };

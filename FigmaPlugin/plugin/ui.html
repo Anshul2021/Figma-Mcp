@@ -527,9 +527,6 @@
     </div>
     <div class="home-header-right">
       <div class="size-control" id="sizeControlHome"></div>
-      <button class="icon-btn" id="btnActivity" title="Users &amp; Activity (admin)" onclick="openActivity()" style="width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; color:var(--muted); background:none; border:none; cursor:pointer;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </button>
       <div id="connectionIndicator" class="connection-bar">
         <span class="dot"></span>
         <span id="connectionLabel">Connecting...</span>
@@ -927,23 +924,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="activityModal">
-  <div class="modal-panel" style="max-width:360px; width:92%; max-height:82vh; display:flex; flex-direction:column;">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-      <div class="modal-title" style="margin:0; font-size:15px;">Users &amp; Activity</div>
-      <button class="icon-btn" onclick="closeActivity()" style="width:26px; height:26px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    <div id="activityTokenWrap" style="display:none; gap:8px; margin-bottom:10px;">
-      <input type="password" id="activityTokenInput" placeholder="Admin token" style="flex:1; padding:8px 10px; border:1px solid var(--hairline); border-radius:var(--radius-md); font-size:13px; font-family:inherit; min-width:0;" />
-      <button class="btn btn-primary" onclick="saveActivityToken()" style="height:36px; padding:0 14px; font-size:12px;">Save</button>
-    </div>
-    <div style="font-size:11px; color:var(--muted); margin-bottom:8px;" id="activityStatus"></div>
-    <div id="activityList" style="overflow-y:auto; flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; padding-right:2px;"></div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <!-- ═════════════════ JAVASCRIPT ═════════════════ -->
@@ -991,7 +971,6 @@ let creditsCache = {};
 let sseSource = null;
 let isConnected = false;
 let userName = '';
-let adminToken = '';
 let uiSize = 'm';
 let currentTab = 'screens';
 let abortController = null;
@@ -1871,84 +1850,6 @@ document.getElementById('btnCancelGeneration').addEventListener('click', () => {
   if (currentProject) loadProjectScreens(currentProject);
 });
 
-// ══════════ ACTIVITY / ADMIN PANEL ══════════
-function openActivity() {
-  document.getElementById('activityModal').classList.add('active');
-  loadActivity();
-}
-function closeActivity() {
-  document.getElementById('activityModal').classList.remove('active');
-}
-function saveActivityToken() {
-  adminToken = document.getElementById('activityTokenInput').value.trim() || '';
-  parent.postMessage({ pluginMessage: { type: 'save-admin-token', adminToken } }, '*');
-  loadActivity();
-}
-async function loadActivity() {
-  const status = document.getElementById('activityStatus');
-  const tokenWrap = document.getElementById('activityTokenWrap');
-  const list = document.getElementById('activityList');
-  if (!adminToken) {
-    tokenWrap.style.display = 'flex';
-    list.innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:16px;">Enter the admin token to view the recorded users &amp; usage.</div>';
-    status.textContent = '';
-    return;
-  }
-  tokenWrap.style.display = 'none';
-  status.textContent = 'Loading...';
-  try {
-    const res = await fetch(`${SERVER}/api/users?token=${encodeURIComponent(adminToken)}`);
-    const data = await res.json();
-    if (!res.ok) {
-      status.textContent = data.message || `HTTP ${res.status}`;
-      return;
-    }
-    const users = data.users || [];
-    if (users.length === 0) {
-      status.textContent = 'No users recorded yet.';
-      list.innerHTML = '';
-      return;
-    }
-    status.textContent = `${users.length} user(s) · ${data.onlineClients || 0} online`;
-    list.innerHTML = users.map(u => {
-      const usage = u.usage || {};
-      const total = Object.values(usage).reduce((a, b) => a + b, 0);
-      const credits = u.credits || {};
-      const rem = Object.keys(credits).reduce((a, k) => a + (credits[k].remaining || 0), 0);
-      const modelLine = Object.keys(usage).length
-        ? '<div style="margin-top:6px; font-size:11px; color:var(--muted-soft);">' + Object.keys(usage).map(m => `${m}: ${usage[m]} used`).join(' · ') + '</div>'
-        : '';
-      return `
-        <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-md); padding:10px 12px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <div style="min-width:0;">
-              <div style="font-size:13px; font-weight:600; color:var(--ink);">${escapeHtml(u.name || 'Guest')}</div>
-              <div style="font-size:11px; color:var(--muted); font-family:ui-monospace,monospace; word-break:break-all;">${escapeHtml(u.ip || '-')}</div>
-            </div>
-            <div style="text-align:right; flex-shrink:0;">
-              <div style="font-size:12px; font-weight:600; color:var(--ink);">${total} gen · ${rem} left</div>
-              <button class="text-link" onclick="deleteActivityUser('${escapeHtml(u.ip || '')}')" style="font-size:10px; background:none; border:none; color:var(--error); text-decoration:underline; cursor:pointer; padding:0;">remove</button>            </div>
-          </div>
-          <div style="font-size:11px; color:var(--muted-soft); margin-top:6px;">First seen: ${fmtTime(u.firstSeen)} · Last seen: ${fmtTime(u.lastSeen)}</div>
-          ${modelLine}
-        </div>`;
-    }).join('');
-  } catch (e) {
-    status.textContent = 'Error: ' + e.message;
-  }
-}
-function fmtTime(iso) {
-  if (!iso) return '-';
-  try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
-}
-async function deleteActivityUser(ip) {
-  if (!ip) return;
-  const res = await fetch(`${SERVER}/api/users/${encodeURIComponent(ip)}?token=${encodeURIComponent(adminToken)}`, { method: 'DELETE' });
-  await res.json();
-  showToast('User record removed');
-  loadActivity();
-}
-
 // ══════════ MESSAGES FROM code.js ══════════
 window.onmessage = async (event) => {
   const msg = event.data ? event.data.pluginMessage : null;
@@ -1956,7 +1857,6 @@ window.onmessage = async (event) => {
 
   if (msg.type === 'init-state') {
     userName = msg.userName || '';
-    adminToken = msg.adminToken || '';
     uiSize = msg.uiSize || 'm';
     renderSizeControls();
     if (!userName) { showView('onboarding'); }

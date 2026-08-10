@@ -22,6 +22,7 @@ const geminiClient = require('./engine/gemini-client');
 const rateLimiter = require('./engine/rate-limiter');
 const cloudStore = require('./engine/cloud-store');
 const userTracker = require('./engine/user-tracker');
+const supabase = require('./engine/supabase');
 
 const PORT = process.env.PORT || 3003;
 const ROOT_DIR = __dirname;
@@ -84,6 +85,10 @@ function watchProjectDirs() {
 
 watchProjectDirs();
 setInterval(watchProjectDirs, 10000);
+
+// Best-effort check: tell the user to run supabase/schema.sql if the `users`
+// table is missing (user tracking + rate limiting need it).
+supabase.warnIfTableMissing();
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -152,155 +157,6 @@ function getClientIp(req) {
   return req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
 }
 
-function isAdminAuthed(req) {
-  const expected = process.env.ADMIN_TOKEN;
-  if (!expected) return false;
-  const provided = parsedUrlQueryToken(req) || req.headers['x-admin-token'] || '';
-  return String(provided) === String(expected);
-}
-
-function parsedUrlQueryToken(req) {
-  const q = url.parse(req.url, true).query;
-  return (q && q.token) ? String(q.token) : '';
-}
-
-function renderAdminPage() {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Morph — Users & Activity</title>
-<style>
-  :root { --ink:#0F172A; --muted:#64748B; --line:#E2E8F0; --card:#FFFFFF; --bg:#F1F5F9; --primary:#cc785c; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
-  header { background:var(--card); border-bottom:1px solid var(--line); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  h1 { font-size:18px; margin:0; }
-  .bar { display:flex; align-items:center; gap:10px; }
-  input[type=password] { padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; }
-  button { padding:7px 14px; border:none; border-radius:8px; background:var(--primary); color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
-  main { padding:24px; max-width:1100px; margin:0 auto; }
-  .cards { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
-  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; min-width:150px; }
-  .stat b { font-size:22px; display:block; }
-  .stat span { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
-  table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; border:1px solid var(--line); }
-  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top; }
-  th { background:#F8FAFC; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); }
-  tr:last-child td { border-bottom:none; }
-  .pill { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:600; }
-  .pill.ok { background:#ECFDF5; color:#047857; }
-  .pill.warn { background:#FEF3C7; color:#B45309; }
-  .pill.none { background:#FEE2E2; color:#B91C1C; }
-  .code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
-  .muted { color:var(--muted); }
-  .del { color:#B91C1C; background:none; border:none; cursor:pointer; font-size:12px; text-decoration:underline; padding:0; }
-</style>
-</head>
-<body>
-<header>
-  <h1>Morph — Users &amp; Activity</h1>
-  <div class="bar">
-    <input type="password" id="token" placeholder="Admin token" autocomplete="off" />
-    <button onclick="load()">Load users</button>
-    <button class="ghost" onclick="load()">Refresh</button>
-  </div>
-</header>
-<main id="main">
-  <div class="cards">
-    <div class="stat"><span>Users</span><b id="statUsers">-</b></div>
-    <div class="stat"><span>Total generations</span><b id="statGens">-</b></div>
-    <div class="stat"><span>Online plugins</span><b id="statOnline">-</b></div>
-  </div>
-  <div id="status" class="muted" style="margin-bottom:12px;font-size:13px;"></div>
-  <div id="tableWrap"></div>
-</main>
-<script>
-  function tokenFromUrl() {
-    var m = window.location.search.match(/[?&]token=([^&]+)/);
-    return m ? decodeURIComponent(m[1]) : '';
-  }
-  function qs(s, v) {
-    if (!v) v = document.getElementById('token').value.trim() || tokenFromUrl();
-    if (v) return s + (s.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(v);
-    return s;
-  }
-  function fmt(iso) {
-    if (!iso) return '-';
-    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
-  }
-  async function load() {
-    var status = document.getElementById('status');
-    status.textContent = 'Loading...';
-    var token = document.getElementById('token').value.trim() || tokenFromUrl();
-    if (!token) { status.textContent = 'Enter the admin token first (same as ADMIN_TOKEN on the server).'; return; }
-    try {
-      var res = await fetch(qs('/api/users', token));
-      var data = await res.json();
-      if (!res.ok) { status.textContent = 'Access denied: ' + (data.message || 'HTTP ' + res.status); return; }
-      var users = data.users || [];
-      document.getElementById('statUsers').textContent = users.length;
-      var totalGens = 0;
-      users.forEach(function (u) { totalGens += Object.values(u.usage || {}).reduce(function (a, b) { return a + b; }, 0); });
-      document.getElementById('statGens').textContent = totalGens;
-      document.getElementById('statOnline').textContent = (data.onlineClients != null ? data.onlineClients : '?');
-      status.textContent = 'Loaded ' + users.length + ' user(s). "Used/Rem" = per-user total across all models (10/day/model).';
-      render(users);
-    } catch (e) {
-      status.textContent = 'Error: ' + e.message;
-    }
-  }
-  function usedTotal(u) {
-    return Object.values(u.usage || {}).reduce(function (a, b) { return a + b; }, 0);
-  }
-  function remainingTotal(u) {
-    var credits = u.credits || {};
-    var rem = 0;
-    Object.keys(credits).forEach(function (k) { rem += (credits[k].remaining || 0); });
-    return rem;
-  }
-  function render(users) {
-    var html = '<table><thead><tr>' +
-      '<th>User</th><th>IP</th><th>First seen</th><th>Last seen</th>' +
-      '<th>Generated</th><th>Remaining</th><th>Per-model usage</th><th></th>' +
-      '</tr></thead><tbody>';
-    users.forEach(function (u) {
-      var total = usedTotal(u);
-      var rem = remainingTotal(u);
-      var pill = total === 0 ? '<span class="pill none">never</span>' : (rem === 0 ? '<span class="pill warn">used up</span>' : '<span class="pill ok">active</span>');
-      var modelCell = Object.keys(u.usage || {}).map(function (m) {
-        var c = (u.credits && u.credits[m]) || {};
-        return '<div><span class="code">' + m + '</span>: ' + u.usage[m] + ' used / ' + (c.remaining != null ? c.remaining : '?') + ' left</div>';
-      }).join('') || '<span class="muted">none yet</span>';
-      html += '<tr>' +
-        '<td><b>' + (u.name || 'Guest') + '</b></td>' +
-        '<td><span class="code">' + (u.ip || '-') + '</span></td>' +
-        '<td class="muted">' + fmt(u.firstSeen) + '</td>' +
-        '<td class="muted">' + fmt(u.lastSeen) + '</td>' +
-        '<td>' + total + ' ' + pill + '</td>' +
-        '<td>' + rem + '</td>' +
-        '<td>' + modelCell + '</td>' +
-        '<td><button class="del" onclick="delUser(\'' + u.ip.replace(/'/g, '') + "')" + '">remove</button></td>' +
-        '</tr>';
-    });
-    html += '</tbody></table>';
-    document.getElementById('tableWrap').innerHTML = users.length ? html : '<div class="muted">No users recorded yet.</div>';
-  }
-  async function delUser(ip) {
-    if (!confirm('Remove this user record?')) return;
-    var token = document.getElementById('token').value.trim() || tokenFromUrl();
-    var res = await fetch(qs('/api/users/' + encodeURIComponent(ip), token), { method: 'DELETE' });
-    var data = await res.json();
-    load();
-  }
-  if (tokenFromUrl()) { document.getElementById('token').value = tokenFromUrl(); load(); }
-</script>
-</body>
-</html>`;
-}
-
 // ══════════════════════════════════════════════════════════════
 // ██ HTTP SERVER
 // ══════════════════════════════════════════════════════════════
@@ -350,7 +206,7 @@ const server = http.createServer(async (req, res) => {
         clientCount: clients.length,
         pluginConnected: clients.length > 0,
         geminiReady: geminiClient.isReady(),
-        credits: rateLimiter.getAllCredits(geminiClient.getAvailableModels(), clientIp),
+        credits: await rateLimiter.getAllCredits(geminiClient.getAvailableModels(), clientIp),
       });
     }
 
@@ -448,60 +304,24 @@ const server = http.createServer(async (req, res) => {
     // Get models + remaining daily credits per model
     if (reqPath === '/api/models' && req.method === 'GET') {
       const models = geminiClient.getAvailableModels();
-      const credits = rateLimiter.getAllCredits(models, clientIp);
+      const credits = await rateLimiter.getAllCredits(models, clientIp);
       return sendJson(res, 200, { models, credits });
     }
 
     // Get credit status
     if (reqPath === '/api/credits' && req.method === 'GET') {
       const models = geminiClient.getAvailableModels();
-      const credits = rateLimiter.getAllCredits(models, clientIp);
+      const credits = await rateLimiter.getAllCredits(models, clientIp);
       return sendJson(res, 200, { credits });
     }
 
-    // ── User Registry & Admin Endpoints ─────────────────────────
+    // ── User Registry Endpoint ──────────────────────────────────
 
     // Register the user (name + IP) when they open/launch the plugin
     if (reqPath === '/api/users/register' && req.method === 'POST') {
       const body = await readBody(req);
       await userTracker.recordUser({ name: body.name, ip: clientIp });
       return sendJson(res, 200, { success: true, ip: clientIp, name: body.name || '' });
-    }
-
-    // Admin: list recorded users with their usage/remaining credits per model
-    if (reqPath === '/api/users' && req.method === 'GET') {
-      if (!isAdminAuthed(req)) {
-        return sendJson(res, 403, { success: false, message: 'Admin token missing or invalid. Set ADMIN_TOKEN on the server and request /api/users?token=<ADMIN_TOKEN>.' });
-      }
-      const users = await userTracker.listUsers();
-      const models = geminiClient.getAvailableModels();
-      const enriched = users.map(u => ({
-        ...u,
-        credits: rateLimiter.getAllCredits(models, u.ip),
-      }));
-      return sendJson(res, 200, {
-        users: enriched,
-        onlineClients: clients.length,
-        adminTokenSet: !!process.env.ADMIN_TOKEN,
-      });
-    }
-
-    // Admin: delete a user record by IP
-    const userDelMatch = reqPath.match(/^\/api\/users\/((?:[^/])+)$/);
-    if (userDelMatch && req.method === 'DELETE') {
-      if (!isAdminAuthed(req)) {
-        return sendJson(res, 403, { success: false, message: 'Admin token missing or invalid.' });
-      }
-      const ip = decodeURIComponent(userDelMatch[1]);
-      await userTracker.deleteUser(ip);
-      return sendJson(res, 200, { success: true, ip });
-    }
-
-    // Admin HTML dashboard (human-readable user list)
-    if (reqPath === '/admin' && req.method === 'GET') {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-      res.end(renderAdminPage());
-      return;
     }
 
     // ── AI Generation Endpoints ──────────────────────────────────
@@ -522,7 +342,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       // Check daily rate limit for model (10 credits per day per IP)
-      const creditCheck = rateLimiter.consumeCredit(modelId, clientIp);
+      const creditCheck = await rateLimiter.consumeCredit(modelId, clientIp);
       if (!creditCheck.success) {
         return sendJson(res, 429, {
           success: false,
@@ -535,6 +355,18 @@ const server = http.createServer(async (req, res) => {
         const skipAutolayout = /@skip-autolayout/i.test(prompt);
         const systemPrompt = await promptBuilder.buildScreenPrompt(project, { skipAutolayout });
         const result = await geminiClient.generate({ systemPrompt, userPrompt: prompt, model: modelId, imageBase64: refImage });
+
+        // Safety guard: never write a script with invalid JavaScript to disk.
+        // A broken file would throw inside the Figma sandbox (new AsyncFunction)
+        // and show a raw `{ error }` to the user.
+        const syntaxCheck = geminiClient.validateJavaScript(result.code);
+        if (!syntaxCheck.valid) {
+          console.error('[Generate] Refusing to save invalid JS:', syntaxCheck.message);
+          return sendJson(res, 500, {
+            success: false,
+            message: 'Generation produced invalid JavaScript and was not saved. Please try again or rephrase the prompt.',
+          });
+        }
 
         const screenName = deriveScreenName(prompt);
         const fileRelPath = `${project}/screens/${screenName}.js`;
@@ -574,7 +406,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       // Check daily rate limit
-      const creditCheck = rateLimiter.consumeCredit(modelId, clientIp);
+      const creditCheck = await rateLimiter.consumeCredit(modelId, clientIp);
       if (!creditCheck.success) {
         return sendJson(res, 429, {
           success: false,
@@ -593,6 +425,9 @@ const server = http.createServer(async (req, res) => {
             userPrompt: `Generate native Figma Variables & Text Styles (tokens/variables.js) for ${project}. Create variable collections for colors (primary, secondary, neutral 900-white scale, status colors), spacing (xs..2xl), radii (xs..full), font size (micro..hero), AND call figma.createTextStyle() for Hero(32), Heading(24), Title(20), Subhead(16), Body(14), Caption(12), Micro(10). Output ONLY clean JS code inside (async () => { ... })();`,
             model: modelId,
           });
+          if (!geminiClient.validateJavaScript(varResult.code).valid) {
+            return sendJson(res, 500, { success: false, message: 'Variables script failed syntax validation. Please try again.' });
+          }
 
           const varRelPath = `${project}/tokens/variables.js`;
           await cloudStore.writeText(varRelPath, varResult.code, 'application/javascript');
@@ -605,6 +440,9 @@ const server = http.createServer(async (req, res) => {
           userPrompt: `Generate Master Design System board (components/DesignSystem.js) for ${project}. 1180px wide board. ${opts.colors !== false ? 'MUST include Section 1: Color Palette Swatches (primary, secondary, neutral 900-white scale, success, warning, error swatches with hex labels).' : ''} ${opts.typography !== false ? 'MUST include Section 2: Typography Scale Specimens (Hero 32px, Heading 24px, Title 20px, Subhead 16px, Body 14px, Caption 12px, Micro 10px rendered sample rows).' : ''} ${opts.components !== false ? 'MUST include Section 3: Master ComponentSets (Button & FilterPill with full variant state matrices).' : ''} Output ONLY clean JS code inside (async () => { ... })();`,
           model: modelId,
         });
+        if (!geminiClient.validateJavaScript(dsResult.code).valid) {
+          return sendJson(res, 500, { success: false, message: 'Design system script failed syntax validation. Please try again.' });
+        }
 
         const dsRelPath = `${project}/components/DesignSystem.js`;
         await cloudStore.writeText(dsRelPath, dsResult.code, 'application/javascript');
@@ -631,7 +469,7 @@ const server = http.createServer(async (req, res) => {
         success: true,
         service: 'Morph Figma Cloud Server',
         status: 'running',
-        docs: ['/api/status', '/admin (requires ADMIN_TOKEN)'],
+        docs: ['/api/status'],
       }));
     }
 
