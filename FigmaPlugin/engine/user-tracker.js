@@ -83,6 +83,35 @@ async function recordUserLocal({ name, ip, model }) {
 }
 
 /**
+ * Look up the registered user for an IP (null when the IP has no record).
+ * @param {string} ip
+ * @returns {Promise<object|null>}
+ */
+async function getUserByIp(ip) {
+  if (!ip) return null;
+  if (supabase.isConfigured()) {
+    try {
+      const { data, error } = await supabase.getClient()
+        .from('users')
+        .select('*')
+        .eq('ip', ip)
+        .maybeSingle();
+      if (error) return null;
+      return data || null;
+    } catch (e) {
+      return null;
+    }
+  }
+  const raw = await store.readText(userKey(ip), { retry: false });
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * List all recorded users.
  * @returns {Promise<Array<object>>}
  */
@@ -135,6 +164,7 @@ async function deleteUser(ip) {
 module.exports = {
   USERS_PREFIX,
   recordUser,
+  getUserByIp,
   listUsers,
   deleteUser,
 };

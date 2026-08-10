@@ -317,11 +317,42 @@ const server = http.createServer(async (req, res) => {
 
     // ── User Registry Endpoint ──────────────────────────────────
 
-    // Register the user (name + IP) when they open/launch the plugin
+    // Register the user (name + IP) when they open/launch the plugin.
+    // Returns `requiresOnboarding: true` when the current IP has no registered
+    // name yet (new IP address), so the plugin UI knows to ask for a name
+    // instead of silently greeting a stored clientStorage name.
     if (reqPath === '/api/users/register' && req.method === 'POST') {
       const body = await readBody(req);
-      await userTracker.recordUser({ name: body.name, ip: clientIp });
-      return sendJson(res, 200, { success: true, ip: clientIp, name: body.name || '' });
+      const submittedName = body.name && String(body.name).trim() ? String(body.name).trim() : '';
+      const isGuestSkip = body.skip === true;
+
+      const existing = await userTracker.getUserByIp(clientIp);
+      const hasNameOnRecord = !!(existing && existing.name);
+
+      // A name was just submitted → record it for this IP (login as before).
+      if (submittedName) {
+        await userTracker.recordUser({ name: submittedName, ip: clientIp });
+        return sendJson(res, 200, { success: true, ip: clientIp, name: submittedName, requiresOnboarding: false });
+      }
+
+      // Explicit guest skip → remember this IP as a guest so we never nag again.
+      if (isGuestSkip) {
+        await userTracker.recordUser({ name: '', ip: clientIp });
+        return sendJson(res, 200, { success: true, ip: clientIp, name: '', requiresOnboarding: false });
+      }
+
+      // Brand-new IP the server has never seen → the plugin must ask for a name.
+      if (!existing) {
+        return sendJson(res, 200, { success: true, ip: clientIp, name: '', requiresOnboarding: true });
+      }
+
+      // Known returning IP with a registered name → keep them logged in.
+      if (hasNameOnRecord) {
+        return sendJson(res, 200, { success: true, ip: clientIp, name: existing.name, requiresOnboarding: false });
+      }
+
+      // Known guest IP (already skipped before) → don't nag again.
+      return sendJson(res, 200, { success: true, ip: clientIp, name: '', requiresOnboarding: false });
     }
 
     // ── AI Generation Endpoints ──────────────────────────────────

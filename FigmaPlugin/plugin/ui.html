@@ -1852,7 +1852,8 @@
       <div class="sheet-handle"></div>
       <div class="sheet-title">Build Design System</div>
       <div class="sheet-subtitle">Generates native Figma variables, typography specimens, and master component sets for
-        <strong id="dsProjectName"></strong>. Uses 1 credit.</div>
+        <strong id="dsProjectName"></strong>. Uses 1 credit.
+      </div>
 
       <div style="display:flex; gap:8px; margin-top:2px; margin-bottom:10px;">
         <select class="model-select" id="dsModelSelect" style="flex:1;">
@@ -2491,19 +2492,28 @@
     document.getElementById('sheetModelSelect').addEventListener('change', updateSheetCredit);
 
     // ══════════ ONBOARDING ══════════
-    function registerUser(name) {
-      fetch(`${SERVER}/api/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name || '' }),
-      }).catch(() => { });
+    // Registers the current IP+name with the server. Returns the parsed JSON
+    // so the caller can decide whether the plugin must re-ask for the name
+    // (requiresOnboarding === true means this IP has no registered name yet).
+    async function registerUser(name, opts = {}) {
+      try {
+        const res = await fetch(`${SERVER}/api/users/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name || '', skip: opts.skip === true }),
+        });
+        return await res.json();
+      } catch (e) {
+        return { success: false, requiresOnboarding: false };
+      }
     }
-    function completeOnboarding(name) {
+    async function completeOnboarding(name) {
       userName = name || '';
       parent.postMessage({ pluginMessage: { type: 'save-name', name: userName } }, '*');
-      registerUser(userName);
+      await registerUser(userName, { skip: !userName });
       showView('home');
       renderHomeContent();
+      loadModels();
     }
     document.getElementById('btnOnboardingBegin').addEventListener('click', () => completeOnboarding(document.getElementById('onboardingNameInput').value.trim()));
     document.getElementById('btnOnboardingSkip').addEventListener('click', () => completeOnboarding(''));
@@ -2967,8 +2977,20 @@ Social news aggregation, web content rating, and discussion website where users 
         userName = msg.userName || '';
         uiSize = msg.uiSize || 'm';
         renderSizeControls();
-        if (!userName) { showView('onboarding'); }
-        else { showView('home'); renderHomeContent(); registerUser(userName); }
+        onboardingChecked = true;
+        // Probe identity WITHOUT sending the stored name. If this IP has no
+        // registered name (new IP / IP change), the server tells us to ask.
+        const res = await registerUser('');
+        const needsOnboarding = res && res.requiresOnboarding;
+        if (needsOnboarding) {
+          document.getElementById('onboardingNameInput').value = userName;
+          showView('onboarding');
+        } else {
+          if (res && res.name) userName = res.name;
+          showView('home');
+          renderHomeContent();
+          if (userName) registerUser(userName);
+        }
         return;
       }
 
@@ -3021,9 +3043,12 @@ Social news aggregation, web content rating, and discussion website where users 
     loadProjects();
     setupConnection();
 
+    // Safety net: if code.js never delivers init-state (e.g. sandbox hiccup),
+    // show onboarding only when the server has not already resolved it.
+    let onboardingChecked = false;
     setTimeout(() => {
-      if (!userName && !views.onboarding.classList.contains('active')) showView('onboarding');
-    }, 1500);
+      if (!onboardingChecked && !views.onboarding.classList.contains('active')) showView('onboarding');
+    }, 2500);
   </script>
 </body>
 
