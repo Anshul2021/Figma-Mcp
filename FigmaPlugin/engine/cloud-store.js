@@ -3,12 +3,12 @@
  *
  * Single read/write API for project files that works both on a local
  * long-running server (plain filesystem) and on Vercel serverless
- * (Vercel Blob cloud storage).
+ * (Supabase Storage cloud bucket).
  *
  * On Vercel the deploy filesystem is read-only and ephemeral, so generated
  * artifacts (screens/components/tokens and project local config) are stored
- * in the Vercel Blob store attached to the project. Blob keys use the same
- * relative paths as the local layout, e.g. `<Project>/screens/feed.js`.
+ * in a private Supabase Storage bucket. Bucket keys use the same relative
+ * paths as the local layout, e.g. `<Project>/screens/feed.js`.
  *
  * Reads fall back to the deploy filesystem so files baked into the repo at
  * deploy time (committed demo projects like `Instagram/`) keep working.
@@ -16,15 +16,31 @@
 
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const ROOT_DIR = path.join(__dirname, '..');
 
 const SYSTEM_DIRS = ['plugin', 'core', 'global', 'node_modules', '.git', 'engine', 'local', 'screens', 'components', 'tokens', 'public', 'static', '_users'];
 
 const isCloudEnv = process.env.VERCEL === '1' || process.env.CLOUD_STORE === '1';
-const blob = isCloudEnv ? require('@vercel/blob') : null;
 
-const BLOB_ACCESS = 'private';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || 'morph';
+
+// Lazy singleton so a missing env var in local mode never crashes the server.
+let supabaseClient = null;
+let storageBucket = null;
+
+function getStorage() {
+  if (storageBucket) return storageBucket;
+  if (!isCloudEnv || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
+  supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  storageBucket = supabaseClient.storage.from(SUPABASE_BUCKET);
+  return storageBucket;
+}
 
 function isCloud() {
   return isCloudEnv;
@@ -34,12 +50,9 @@ function localPath(relPath) {
   return path.normalize(path.join(ROOT_DIR, relPath));
 }
 
-function assertsBlobConfigured() {
-  if (!blob) {
-    throw new Error('Cloud storage is not available outside Vercel. Run the server locally or deploy to Vercel with a Blob store.');
-  }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error('Cloud storage is not configured: attach the Vercel Blob store to your project (Vercel injects BLOB_READ_WRITE_TOKEN automatically).');
+function assertsSupabaseConfigured() {
+  if (!getStorage()) {
+    throw new Error('Cloud storage is not configured: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, and create a private "morph" bucket in the Supabase dashboard.');
   }
 }
 
@@ -47,34 +60,32 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function blobText(result) {
-  if (!result) return null;
-  if (typeof result.text === 'function') return await result.text();
-  if (result.stream && typeof Response !== 'undefined') return await new Response(result.stream).text();
-  if (result.blob && result.blob.url) {
-    try {
-      const res = await fetch(result.blob.url);
-      return res.ok ? await res.text() : null;
-    } catch (e) {
-      return null;
-    }
+/**
+ * Download a file from Supabase Storage and decode it as utf8 text.
+ * @param {string} relPath
+ * @returns {Promise<string|null>}
+ */
+async function downloadText(relPath) {
+  const { data, error } = await getStorage().download(relPath);
+  if (error || !data) return null;
+  try {
+    return await data.text();
+  } catch (e) {
+    return null;
   }
-  return null;
 }
 
 async function readText(relPath, options = {}) {
   // `retry: false` is used for best-effort/existence reads where an instant
-  // miss is the expected outcome (new user records, config files). The retry
-  // loop is only worth it for freshly-generated scripts served right after a write.
+  // miss is the expected outcome (new user records, config files). Supabase is
+  // strongly consistent, so the retry loop is only a safety net for transient
+  // errors; a miss returns null immediately.
   const maxAttempts = options.retry === false ? 1 : 6;
   const waitMs = options.retry === false ? 0 : 300;
-  if (isCloud()) {
+  if (isCloud() && getStorage()) {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const result = await blob.get(relPath, { access: BLOB_ACCESS });
-        const text = await blobText(result);
-        if (text != null) return text;
-      } catch (e) { /* retry transient errors */ }
+      const text = await downloadText(relPath);
+      if (text != null) return text;
       if (attempt < maxAttempts - 1 && waitMs) await sleep(waitMs);
     }
     const fp = localPath(relPath);
@@ -86,13 +97,12 @@ async function readText(relPath, options = {}) {
 
 async function writeText(relPath, content, contentType = 'text/plain') {
   if (isCloud()) {
-    assertsBlobConfigured();
-    await blob.put(relPath, content, {
-      access: BLOB_ACCESS,
-      addRandomSuffix: false,
-      allowOverwrite: true,
+    assertsSupabaseConfigured();
+    const { error } = await getStorage().upload(relPath, content, {
+      upsert: true,
       contentType,
     });
+    if (error) throw error;
     return relPath;
   }
   const fp = localPath(relPath);
@@ -102,24 +112,25 @@ async function writeText(relPath, content, contentType = 'text/plain') {
 }
 
 async function exists(relPath) {
-  if (isCloud()) {
+  if (isCloud() && getStorage()) {
     try {
-      await blob.head(relPath);
-      return true;
+      const { data } = await getStorage().exists(relPath);
+      if (data) return true;
     } catch (e) {
-      return fs.existsSync(localPath(relPath));
+      // Fall through to the deploy filesystem.
     }
+    return fs.existsSync(localPath(relPath));
   }
   return fs.existsSync(localPath(relPath));
 }
 
 async function deletePath(relPath) {
   if (isCloud()) {
-    assertsBlobConfigured();
+    assertsSupabaseConfigured();
     try {
-      await blob.del(relPath);
+      await getStorage().remove([relPath]);
     } catch (e) {
-      // Ignore already-deleted blobs.
+      // Ignore already-deleted objects.
     }
     return;
   }
@@ -131,19 +142,49 @@ async function deletePath(relPath) {
   }
 }
 
+/**
+ * Recursively list every object key under a folder prefix.
+ * Supabase lists one folder at a time (non-recursive), so walk the tree by
+ * drilling into folder entries until every leaf file is found.
+ * @param {string} prefix — folder path, e.g. `''` or `Instagram/`
+ * @returns {Promise<string[]>} — full object keys, e.g. `Instagram/screens/feed.js`
+ */
+async function listCloudKeys(prefix) {
+  const files = [];
+  const pending = [prefix.replace(/\/+$/, '')];
+  while (pending.length) {
+    const folder = pending.pop();
+    let offset = 0;
+    for (;;) {
+      const { data, error } = await getStorage().list(folder, { limit: 1000, offset });
+      if (error || !data || data.length === 0) break;
+      for (const item of data) {
+        if (!item || !item.name) continue;
+        // Folder entries have no id/metadata; files always do.
+        const key = folder ? `${folder}/${item.name}` : item.name;
+        if (item.id === null || item.metadata === null) {
+          pending.push(key);
+        } else {
+          files.push(key);
+        }
+      }
+      if (data.length < 1000) break;
+      offset += data.length;
+    }
+  }
+  return files;
+}
+
 async function deletePrefix(relPrefix) {
   if (isCloud()) {
-    assertsBlobConfigured();
-    let cursor;
+    assertsSupabaseConfigured();
     let count = 0;
     try {
-      do {
-        const page = await blob.list({ prefix: relPrefix, cursor });
-        const keys = page.blobs.map(b => b.pathname);
-        count += keys.length;
-        if (keys.length > 0) await blob.del(keys);
-        cursor = page.cursor;
-      } while (cursor);
+      const keys = await listCloudKeys(relPrefix);
+      for (let i = 0; i < keys.length; i += 1000) {
+        const { error } = await getStorage().remove(keys.slice(i, i + 1000));
+        if (!error) count += Math.min(1000, keys.length - i);
+      }
     } catch (e) { /* ignore */ }
     return count;
   }
@@ -171,27 +212,23 @@ function walkLocal(dirAbs, relPrefix, out, skipSystem) {
 }
 
 /**
- * Single-pass scan of every stored file under a prefix (Vercel Blob + deploy
- * filesystem, deduped). Returns relative paths (empty prefix => full relative
- * paths like `Instagram/screens/feed.js`). This replaces the previous loop of
- * many per-folder list() calls that made /api/projects take ~10s.
+ * Single-pass scan of every stored file under a prefix (Supabase Storage +
+ * deploy filesystem, deduped). Returns relative paths (empty prefix => full
+ * relative paths like `Instagram/screens/feed.js`). This replaces the previous
+ * loop of many per-folder list() calls that made /api/projects take ~10s.
  * @param {string} relPrefix
  * @returns {Promise<string[]>}
  */
 async function scanTree(relPrefix = '') {
   const out = new Set();
   const prefix = relPrefix.endsWith('/') || relPrefix === '' ? relPrefix : relPrefix + '/';
-  if (isCloud()) {
+  if (isCloud() && getStorage()) {
     try {
-      let cursor;
-      do {
-        const page = await blob.list({ prefix, cursor, limit: 1000 });
-        for (const b of page.blobs) {
-          const rel = b.pathname.startsWith(prefix) ? b.pathname.slice(prefix.length) : b.pathname;
-          if (rel) out.add(rel);
-        }
-        cursor = page.cursor;
-      } while (cursor);
+      const keys = await listCloudKeys(prefix);
+      for (const key of keys) {
+        const rel = key.startsWith(prefix) ? key.slice(prefix.length) : key;
+        if (rel) out.add(rel);
+      }
     } catch (e) { /* ignore */ }
   }
   const dirAbs = localPath(prefix);
@@ -223,17 +260,15 @@ async function listProjectNames() {
     const now = Date.now();
     if (projectCache && now - projectCacheAt < 20000) return projectCache;
     const names = new Set();
-    try {
-      let cursor;
-      do {
-        const page = await blob.list({ prefix: '', cursor, limit: 1000 });
-        for (const b of page.blobs) {
-          const parts = b.pathname.split('/').filter(Boolean);
+    if (getStorage()) {
+      try {
+        const keys = await listCloudKeys('');
+        for (const key of keys) {
+          const parts = key.split('/').filter(Boolean);
           if (parts.length >= 3) names.add(parts[0]);
         }
-        cursor = page.cursor;
-      } while (cursor);
-    } catch (e) { /* ignore */ }
+      } catch (e) { /* ignore */ }
+    }
     try {
       const entries = fs.readdirSync(ROOT_DIR, { withFileTypes: true });
       for (const e of entries) {

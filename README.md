@@ -134,6 +134,28 @@ flowchart TD
 
 ---
 
+## ☁️ Vercel Deployment (Supabase Storage)
+
+Morph's serverless backend persists projects, screens, and users in **Supabase Storage** (a private bucket). Vercel Blob is no longer used.
+
+1. **Create a Supabase project** at [supabase.com](https://supabase.com) (free tier is fine).
+2. **Create the storage bucket:** In the Supabase dashboard go to **Storage → New bucket**, name it `morph`, and set it to **private**.
+3. **Grab your keys:** Go to **Project Settings → API** and copy `Project URL` and the `service_role` key (server-side only — never ship it to the browser).
+4. **Add Vercel environment variables** for the project:
+   - `SUPABASE_URL` = your project URL
+   - `SUPABASE_SERVICE_ROLE_KEY` = your service role key
+   - (optional) `SUPABASE_BUCKET` = bucket name, defaults to `morph`
+   - Keep `GEMINI_API_KEY`, `GEMINI_MODEL`, and `ADMIN_TOKEN` set as before.
+5. **Redeploy.** Storage is written server-side with the service role key; the bucket stays private and the browser never talks to it.
+
+To test cloud mode locally, set the two Supabase vars (and `CLOUD_STORE=1`) in `FigmaPlugin/.env`:
+
+```bash
+CLOUD_STORE=1 PORT=3003 node server.js
+```
+
+---
+
 ## ⚡ Supported Commands
 
 Commands can be passed directly inside prompts or executed via AI coding agents.

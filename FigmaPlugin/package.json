@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
-    "@vercel/blob": "^2.7.0",
+    "@supabase/supabase-js": "^2.112.2",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2"
   },
