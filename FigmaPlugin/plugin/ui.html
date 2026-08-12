@@ -1119,20 +1119,43 @@
       line-height: 1.5;
     }
 
-    /* ── Skeleton Loading ── */
+    /* ── Skeleton Loading ──
+       Uses transform:translateX on ::after — GPU-accelerated and width-independent.
+       background-position animation is unreliable in CEF (Windows Figma WebView). */
     @keyframes shimmer {
-      0%   { background-position: -300px 0; }
-      100% { background-position:  300px 0; }
+      0%   { transform: translateX(-150%); }
+      100% { transform: translateX(150%);  }
+    }
+    @-webkit-keyframes shimmer {
+      0%   { -webkit-transform: translateX(-150%); }
+      100% { -webkit-transform: translateX(150%);  }
     }
 
     .skeleton {
-      background: linear-gradient(90deg, var(--surface-soft) 25%, var(--surface-card) 50%, var(--surface-soft) 75%);
-      background-size: 600px 100%;
-      animation: shimmer 1.4s infinite linear;
+      position: relative;
+      overflow: hidden;
+      background: var(--surface-card);
       border-radius: var(--radius-sm);
+      /* Fallback solid for very old renderers */
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 100%
+      );
+      -webkit-animation: shimmer 1.5s infinite ease-in-out;
+      animation: shimmer 1.5s infinite ease-in-out;
+      will-change: transform;
     }
 
     .skeleton-card {
+      width: 100%;
       border-radius: var(--radius-lg);
       border: 1px solid var(--hairline);
       padding: 14px;
@@ -1140,14 +1163,16 @@
       flex-direction: column;
       gap: 8px;
       margin-bottom: 8px;
+      box-sizing: border-box;
     }
 
     .skeleton-line {
       height: 12px;
       border-radius: var(--radius-xs);
+      width: 100%;
     }
 
-    .skeleton-line.tall { height: 18px; width: 60%; }
+    .skeleton-line.tall  { height: 18px; width: 60%; }
     .skeleton-line.short { width: 40%; }
     .skeleton-line.xshort { width: 25%; }
 
