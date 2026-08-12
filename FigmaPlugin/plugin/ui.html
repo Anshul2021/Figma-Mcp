@@ -61,8 +61,38 @@
       display: flex;
       flex-direction: column;
       user-select: none;
+      -webkit-user-select: none;
       -webkit-font-smoothing: antialiased;
       overflow: hidden;
+    }
+
+    /* ── Cross-platform interactive element overrides (critical for Windows) ── */
+    input, textarea, select {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      pointer-events: auto !important;
+      cursor: text;
+      -webkit-appearance: auto;
+      appearance: auto;
+      touch-action: auto;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    button, .btn {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent any ancestor overlay blocking form elements */
+    .view, .sheet-panel, .sheet-overlay, .modal-overlay, .modal-box {
+      pointer-events: auto;
     }
 
     .view {
@@ -1087,6 +1117,54 @@
       color: var(--muted);
       margin-bottom: 22px;
       line-height: 1.5;
+    }
+
+    /* ── Skeleton Loading ── */
+    @keyframes shimmer {
+      0%   { background-position: -300px 0; }
+      100% { background-position:  300px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-soft) 25%, var(--surface-card) 50%, var(--surface-soft) 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+
+    .skeleton-card {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--hairline);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-line {
+      height: 12px;
+      border-radius: var(--radius-xs);
+    }
+
+    .skeleton-line.tall { height: 18px; width: 60%; }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.xshort { width: 25%; }
+
+    /* Inline mini-spinner for buttons */
+    .btn-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .btn-spinner.dark {
+      border-color: rgba(60,60,60,0.25);
+      border-top-color: var(--ink);
     }
 
     /* ═════════════════ BOTTOM SHEETS ═════════════════ */
@@ -2168,8 +2246,9 @@
       if (pollTimer) return;
       pollTimer = setInterval(async () => {
         try {
-          if (currentProject) await loadProjectScreens(currentProject);
-          else await loadProjects();
+          // silent=true: background refresh — no skeleton flash, no UI disruption
+          if (currentProject) await loadProjectScreens(currentProject, true);
+          else await loadProjects(true);
           isConnected = true;
           updateConnectionUI(true);
         } catch (e) { /* network hiccup — keep polling */ }
@@ -2211,7 +2290,27 @@
     }
 
     // ══════════ PROJECTS ══════════
-    async function loadProjects() {
+    function renderHomeSkeleton() {
+      const container = document.getElementById('homeContent');
+      if (!container) return;
+      // Reset the dedup-cache key so renderHomeContent() always runs
+      // after the fetch completes (without this, '' === '' would bail early).
+      lastHomeKey = '__loading__';
+      container.innerHTML = `
+        <div class="greeting-block" style="margin-bottom:16px;">
+          <div class="skeleton skeleton-line tall" style="width:55%; margin-bottom:8px;"></div>
+          <div class="skeleton skeleton-line short"></div>
+        </div>
+        <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line xshort"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line xshort"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div><div class="skeleton skeleton-line xshort"></div></div>
+      `;
+    }
+
+    // loadProjects(silent=false) → shows skeleton on deliberate navigations.
+    // loadProjects(true)         → background-only refresh, zero UI disruption.
+    async function loadProjects(silent = false) {
+      if (!silent) renderHomeSkeleton();
       try {
         const data = await safeFetchJson(`${SERVER}/api/projects`);
         projectsCache = data.projects || [];
@@ -2226,7 +2325,7 @@
       return 'Good evening';
     }
 
-    let lastHomeKey = '';
+    let lastHomeKey = '__init__';
     function renderHomeContent() {
       const container = document.getElementById('homeContent');
       const homeKey = projectsCache.map(p => `${p.name}:${p.screenCount}:${p.componentCount}:${p.tokenCount}`).join('|');
@@ -2303,6 +2402,17 @@
       currentProject = name;
       document.getElementById('workspaceProjectTitle').textContent = name;
       switchTab('screens');
+      // Reset screen dedup-key so loadProjectScreens() always renders after skeleton
+      lastScreensKey = '__loading__';
+      // Show skeleton in screen list while loading
+      const list = document.getElementById('workspaceScreenList');
+      if (list) {
+        list.innerHTML = `
+          <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-line tall"></div><div class="skeleton skeleton-line short"></div></div>
+        `;
+      }
       loadProjectScreens(name);
       loadModels();
       showView('workspace');
@@ -2688,9 +2798,18 @@ Social news aggregation, web content rating, and discussion website where users 
       return text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
     }
 
-    document.getElementById('btnCreateProject').addEventListener('click', async () => {
-      const name = document.getElementById('inputProjectName').value.trim().replace(/\s+/g, '_');
-      if (!name) { document.getElementById('inputProjectName').style.borderColor = 'var(--error)'; return; }
+    document.getElementById('btnCreateProject').addEventListener('click', async (e) => {
+      const btn = document.getElementById('btnCreateProject');
+      // Prevent double-tap / double-click on Windows
+      if (btn.disabled) return;
+
+      const nameRaw = document.getElementById('inputProjectName').value.trim();
+      if (!nameRaw) { document.getElementById('inputProjectName').style.borderColor = 'var(--error)'; document.getElementById('inputProjectName').focus(); return; }
+      const name = nameRaw.replace(/\s+/g, '_');
+
+      // Show loading state immediately (fixes Windows first-click-needed-twice bug)
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span> Creating...';
 
       const body = {
         name,
@@ -2706,9 +2825,19 @@ Social news aggregation, web content rating, and discussion website where users 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-        if (data.success) { await loadProjects(); openProject(name); }
-        else alert(data.message || 'Failed to create project');
-      } catch (e) { alert(e.message); }
+        if (data.success) {
+          await loadProjects();
+          openProject(name);
+        } else {
+          alert(data.message || 'Failed to create project');
+          btn.disabled = false;
+          btn.innerHTML = 'Create Project';
+        }
+      } catch (e) {
+        alert(e.message);
+        btn.disabled = false;
+        btn.innerHTML = 'Create Project';
+      }
     });
 
     // ══════════ WORKSPACE ACTIONS ══════════

@@ -1,0 +1,66 @@
+================================================================================
+  MORPH — FIGMA COMMUNITY PUBLISHING DETAILS
+================================================================================
+
+1. NAME (Max 100 characters)
+--------------------------------------------------------------------------------
+Morph : AI Powered UI Generation Tool
+
+
+2. TAGLINE (Max 100 characters)
+--------------------------------------------------------------------------------
+Generate production-ready Auto Layout UI screens, master components, and Figma variables with AI.
+
+
+3. CATEGORY
+--------------------------------------------------------------------------------
+Select: Design tools
+
+
+4. DESCRIPTION (Copy & paste directly into Description text box)
+--------------------------------------------------------------------------------
+Morph turns natural language prompts into production-ready, fully responsive Auto Layout screens, master component sets, and native Figma variables in seconds.
+
+Built for fast-moving product designers, founders, and design systems engineers.
+
+✨ Key Capabilities:
+• Production-Grade Auto Layout with strict typography scaling and pixel-perfect constraints.
+• Design System & Variable Generator for publishing colors, text styles, and component sets directly to Figma.
+• Real photography and offline vector icons with zero broken emoji fallbacks.
+• Direct Code Synthesis for instant, ultra-lightweight generation without screenshot vision loops.
+
+
+5. SEARCH TAGS / KEYWORDS (For Figma search tags)
+--------------------------------------------------------------------------------
+AI, Auto Layout, Screen Generator, UI Design, Design System, Variables, Gemini, Mobile UI, Generative UI
+
+
+================================================================================
+  6. DATA SECURITY & PRIVACY ANSWERS (Step 3: Data Security in Figma)
+  [FIGMA REVIEW COMPLIANT]
+================================================================================
+
+[✓] Check: I agree to share this information.
+
+1. Do you host a backend service for your plugin/widget?
+   🔘 Select Radio 3: "Yes, and data read/derived from Figma's plugin API is sent to this backend."
+
+   ↳ Sub-field: "Do you have a publicly documented process for managing security vulnerabilities..."
+     Paste into text box:
+     We follow a responsible disclosure policy. Security vulnerabilities can be reported via email to gyansharma9103@gmail.com or submitted through GitHub Security Advisories at https://github.com/Anshul2021/Figma-Mcp/security. All reported issues are acknowledged within 24 hours, investigated promptly, and addressed with emergency security patches deployed directly to the hosted server environment.
+
+   ↳ Sub-field: "Are you accredited to any relevant security standards (e.g. SOC 2, PCI DSS, HITRUST, ISO27001)..."
+     Paste into text box:
+     N/A (No independent SOC 2 / ISO 27001 certification for this plugin service). However, the backend application is hosted exclusively on Vercel's enterprise infrastructure, which is SOC 2 Type II and ISO 27001 certified. All network traffic between the Figma plugin client and the backend is strictly enforced over HTTPS (TLS 1.3 encryption in transit), and data storage is secured via Supabase cloud infrastructure with strict environment variable isolation.
+
+2. Does your plugin/widget make any network requests with services you do not host?
+   ☑️ Check Box 2: "My plugin/widget makes network requests for static assets eg. fonts, images. None of these requests include data read/derived from Figma's plugin API."
+
+3. Does your plugin/widget use any user authentication?
+   🔘 Select Radio 1: "No, my plugin/widget does not require or use any user authentication."
+
+4. Do you store any data read/derived from Figma's plugin API?
+   ☑️ Check Box 2: "Yes, my plugin/widget stores data read/derived from Figma's plugin API locally (eg. localStorage, figma.clientStorage, or node.setPluginData)."
+
+5. How do you manage updates to your plugin/widget?
+   🔘 Select Radio 1: "I am a solo developer. I manage and update my plugin/widget myself."

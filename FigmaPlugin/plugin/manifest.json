@@ -1,10 +1,13 @@
 {
   "name": "Morph",
-  "id": "figma-ai-screen-generator",
+  "id": "1668728714532655188",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "editorType": [
+    "figma"
+  ],
   "networkAccess": {
     "allowedDomains": [
       "https://figma-mcp-topaz.vercel.app",
@@ -17,6 +20,6 @@
       "http://localhost:3003",
       "http://localhost"
     ],
-    "reasoning": "Fetches local bridge server scripts, Lucide SVG icons, Unsplash photography, and Google Fonts."
+    "reasoning": "Fetches AI generation server scripts, Lucide SVG icons, Unsplash photography, and Google Fonts."
   }
 }
