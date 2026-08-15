@@ -11,169 +11,70 @@
 
 ---
 
-## Prerequisites
+## Quick Start & User Guide
 
-Before getting started, make sure you have the following ready:
+<p align="left">
+  <img src="https://img.shields.io/badge/Workflow-Designer_(Plugin--Only)-EC4899?style=for-the-badge" alt="Designer">
+  <img src="https://img.shields.io/badge/Workflow-Agent--Driven_(IDE_%26_Copilot)-2563EB?style=for-the-badge" alt="Agent Driven">
+</p>
+
+Morph supports two workflows tailored for designers and developers: **Plugin-Only** (no-code in Figma) and **Agent-Driven** (using your favorite AI Copilot & IDE).
+
+---
+
+### 1. Designer Workflow (Plugin-Only)
+
+Designers can create full UI screens and design systems directly inside Figma without writing code or running terminal servers.
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Feature-No_Code_Required-059669?style=for-the-badge" alt="No Code">
+</p>
+
+| Step | Action Tag | Instruction |
+|---|---|---|
+| **Step 1** | <img src="https://img.shields.io/badge/Step_1-Install_Plugin-2563EB?style=for-the-badge" alt="Step 1"> | Import [`FigmaPlugin/plugin/manifest.json`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/manifest.json) into Figma Desktop (`Plugins → Development → Import plugin from manifest...`). |
+| **Step 2** | <img src="https://img.shields.io/badge/Step_2-Setup_Project-059669?style=for-the-badge" alt="Step 2"> | Click **New Project** and define project name, domain brief, color palette, typography, and visual taste. |
+| **Step 3** | <img src="https://img.shields.io/badge/Step_3-Generate_Screens-D97706?style=for-the-badge" alt="Step 3"> | Describe desired UI screens using natural language prompts. |
+| **Step 4** | <img src="https://img.shields.io/badge/Step_4-Build_Design_System-7C3AED?style=for-the-badge" alt="Step 4"> | Click **Build Design System** after generating screens. Morph automatically extracts colors, typography, and component patterns into master variants. |
+| **Step 5** | <img src="https://img.shields.io/badge/Step_5-Publish_Tokens-DB2777?style=for-the-badge" alt="Step 5"> | Export native Figma Variables and Text Styles directly to your Figma file. |
+
+---
+
+### 2. How to Use (Agent & Copilot Driven)
+
+Run Morph locally using any AI coding assistant (Antigravity, Cursor, Claude, Codex, Gemini, Copilot) to generate and stream UI screens directly to Figma with zero third-party API costs.
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Feature-Zero_API_Fees-2563EB?style=for-the-badge" alt="Zero API Fees">
+  <img src="https://img.shields.io/badge/Integrations-Antigravity_%2F_Cursor_%2F_Claude_%2F_Copilot-7C3AED?style=for-the-badge" alt="Integrations">
+  <img src="https://img.shields.io/badge/Figma-Developer_Mode_Recommended-059669?style=for-the-badge" alt="Dev Mode">
+</p>
+
+#### Prerequisites
 
 | Prerequisite | Recommended Tools | Description |
 |---|---|---|
-| 🤖 **AI Assistant / Copilot** | Antigravity, Cursor, Claude Code, VS Code Copilot, Codex, Gemini | Any LLM-powered coding assistant or copilot to orchestrate prompts and generate scripts. |
-| 💻 **Code Editor / IDE** | Antigravity, VS Code, Cursor | Any modern code editor to open the project, view files, and run the integrated terminal. |
-| ⚡ **Node.js** | Node.js (v18+ recommended) | Needed to run the local lightweight bridge server (`server.js`) that connects your AI to Figma. |
-| 🎨 **Figma Desktop App** | Figma Desktop (Mac / Windows) | Required to run local development plugins (*Figma Developer Mode is recommended*). |
-
-> [!NOTE]
-> **How It Works (Under the Hood):**  
-> Your AI Copilot generates clean Figma API scripts directly inside your project folder. The local bridge server (`server.js`) automatically detects new scripts and streams them to the Figma Desktop plugin live via SSE (Server-Sent Events) in 3–5 seconds—no manual copy-pasting needed!
+| 🤖 **AI Assistant / Copilot** | Antigravity, Cursor, Claude, Codex, Gemini, Copilot | Any LLM assistant to execute prompts and generate Figma scripts. |
+| 💻 **Code Editor / IDE** | Antigravity, VS Code, Cursor | Any editor to open the project and terminal. |
+| ⚡ **Node.js** | Node.js (v18+) | Runs the lightweight local bridge server (`server.js`). |
+| 🎨 **Figma Desktop App** | Figma Desktop (Mac / Windows) | Required to run local development plugins (*Developer Mode recommended*). |
 
 ---
 
-## How to Use
+#### Step-by-Step Setup & Usage
 
-Follow these 10 simple steps to set up Morph and start generating Figma screens with AI:
-
-```mermaid
-flowchart LR
-    A["1. Download & Unzip"] --> B["2. Open in IDE"]
-    B --> C["3. npm install"]
-    C --> D["4. Configure ui.html"]
-    D --> E["5. Import Plugin in Figma"]
-    E --> F["6. Start node server.js"]
-    F --> G["7. Connect Plugin"]
-    G --> H["8. @newproject & @brief"]
-    H --> I["9. Customize (Optional)"]
-    I --> J["10. Prompt Screens 🚀"]
-```
-
----
-
-### Step 1: Download & Unzip the Repository
-1. Download this repository as a ZIP archive (click the green **Code** button on GitHub → **Download ZIP**).
-2. Unzip the downloaded file on your computer.
-3. Open the extracted `Figma-Mcp` folder.
-
----
-
-### Step 2: Open in Your IDE & Launch Terminal
-1. Open the unzipped `Figma-Mcp` folder in your preferred code editor (such as **Antigravity**, **VS Code**, or **Cursor**).
-2. Open the integrated terminal inside the IDE:
-   - **Shortcut:** `Ctrl + \`` (Windows/Linux) or `Cmd + \`` (Mac)
-   - **Menu:** `Terminal` → `New Terminal`
-
----
-
-### Step 3: Install Node.js Dependencies
-In the integrated terminal, navigate to the `FigmaPlugin` folder and install the required dependencies:
-
-```bash
-cd FigmaPlugin && npm install
-```
-
-> Once the packages are installed, your environment is ready to run the local bridge server.
-
----
-
-### Step 4: Configure Local Endpoint in Plugin UI
-Open [`FigmaPlugin/plugin/ui.html`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/ui.html):
-1. Press `Ctrl + F` (or `Cmd + F` on Mac) and search for `https://figma-mcp-topaz.vercel.app`.
-2. Delete or comment out the hosted cloud URL line.
-3. Ensure the local endpoint (`http://localhost:3003`) on the next line is active/uncommented:
-
-```javascript
-// Comment or delete this line:
-// const SERVER = 'https://figma-mcp-topaz.vercel.app';
-
-// Enable / uncomment this line:
-const SERVER = 'http://localhost:3003';
-```
-4. Save the file (`Ctrl + S` / `Cmd + S`).
-
----
-
-### Step 5: Import Plugin into Figma Desktop
-1. Open the **Figma Desktop App**.
-2. From the top navigation menu or canvas context menu, go to:
-   - **Plugins** → **Development** → **Import plugin from manifest...**
-3. Navigate to your project folder and select:
-   - `Figma-Mcp/FigmaPlugin/plugin/manifest.json`
-4. The Morph plugin is now installed under your development plugins!
-
-> [!TIP]
-> **Figma Developer Mode (Recommended):** Enabling Developer Mode (`Shift + D`) in Figma helps easily inspect generated layer structures, spacing, tokens, and component properties.
-
----
-
-### Step 6: Start the Local Bridge Server
-In your IDE terminal, ensure you are in the `FigmaPlugin` folder and start the bridge server:
-
-```bash
-cd FigmaPlugin
-node server.js
-```
-
-You will see output confirming the bridge server is active and listening on `http://localhost:3003`:
-```
-[Server] Figma Bridge Server running on http://localhost:3003
-[Watcher] Watching dynamic projects in FigmaPlugin/
-```
-
----
-
-### Step 7: Launch Plugin & Verify Connection
-1. In Figma, open any design file or create a new draft.
-2. Launch the plugin: **Plugins** → **Development** → **Morph / Figma Screen Generator**.
-3. The plugin header will display a green status indicator: **`Connected (Port 3003)`**.
-
----
-
-### Step 8: Initialize a New Project with AI
-Open your AI Copilot / AI Assistant chat inside the IDE and type the initialization command:
-
-```text
-@newproject <ProjectName>
-@brief <Product Description & Domain>
-```
-
-**Example Prompt:**
-```text
-@newproject TravelLux
-@brief A luxury boutique hotel booking application for discerning travelers featuring curated destination cards, immersive photo galleries, filterable amenities, and 1-click room reservations.
-```
-
-Press **Enter**. The AI automatically scaffolds the project directory under `FigmaPlugin/<ProjectName>/` with customized design context templates (`brief.md`, `colors.md`, `fonts.md`, `taste.md`).
-
----
-
-### Step 9 (Optional): Customize Colors, Fonts & Visual Taste
-Before or during generation, you can fine-tune your project's visual direction using AI commands:
-
-- **Change Brand Colors:**  
-  `@color #4F46E5, #06B6D4`
-- **Change Typography:**  
-  `@font DM Sans` *(or `@font Instrument Sans`)*
-- **Change Visual Style / Taste:**  
-  `@taste sleek dark mode, 16px micro-paddings, subtle 1px border hair-lines, glassmorphism cards`
-- **Publish Native Figma Variables & Styles:**  
-  `@gen-variables`
-- **Build Master Component Sets & Variants:**  
-  `@gen-components` or `@designsystem`
-
----
-
-### Step 10: Generate Screens
-Prompt your AI assistant in natural language to generate any UI screen:
-
-**Example Prompt:**
-```text
-Create a modern mobile hotel detail screen with a full-width hero photography carousel, title and star rating row, expandable amenities grid, room selection cards with pricing, and a sticky bottom booking bar.
-```
-
-The AI generates the script, writes it to `screens/<screen_name>.js`, and the bridge instantly renders the screen on your Figma canvas in real time!
-
-> [!IMPORTANT]
-> **Auto Layout Fallback Tip (`@skip-autolayout`):**  
-> If an AI-generated screen does not render properly or if you want static absolute positioning without Auto Layout constraints, simply prepend `@skip-autolayout` before your prompt:  
-> `@skip-autolayout Create a dashboard screen with sidebar navigation and analytics charts.`
+| Step | Action Tag | Instruction |
+|---|---|---|
+| **Step 1** | <img src="https://img.shields.io/badge/Step_1-Download_%26_Unzip-2563EB?style=for-the-badge" alt="Step 1"> | Download repository as ZIP (**Code → Download ZIP**), unzip it, and open the `Figma-Mcp` folder. |
+| **Step 2** | <img src="https://img.shields.io/badge/Step_2-Open_in_IDE-059669?style=for-the-badge" alt="Step 2"> | Open `Figma-Mcp` in your IDE (Antigravity, VS Code, Cursor) and open the integrated terminal. |
+| **Step 3** | <img src="https://img.shields.io/badge/Step_3-Install_Packages-D97706?style=for-the-badge" alt="Step 3"> | In terminal, run: `cd FigmaPlugin && npm install` to install dependencies. |
+| **Step 4** | <img src="https://img.shields.io/badge/Step_4-Configure_ui.html-7C3AED?style=for-the-badge" alt="Step 4"> | In [`FigmaPlugin/plugin/ui.html`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/ui.html), search `figma-mcp-topaz`, comment/delete it, and ensure `const SERVER = 'http://localhost:3003';` is active. |
+| **Step 5** | <img src="https://img.shields.io/badge/Step_5-Import_in_Figma-DB2777?style=for-the-badge" alt="Step 5"> | In Figma Desktop: **Plugins → Development → Import plugin from manifest...** and select [`FigmaPlugin/plugin/manifest.json`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/manifest.json). |
+| **Step 6** | <img src="https://img.shields.io/badge/Step_6-Start_Bridge-0284C7?style=for-the-badge" alt="Step 6"> | In IDE terminal, run: `cd FigmaPlugin && node server.js` to start local bridge on port `3003`. |
+| **Step 7** | <img src="https://img.shields.io/badge/Step_7-Connect_Plugin-059669?style=for-the-badge" alt="Step 7"> | In Figma, launch the plugin (**Plugins → Development → Morph**). Header displays green **`Connected (Port 3003)`**. |
+| **Step 8** | <img src="https://img.shields.io/badge/Step_8-Init_Project-2563EB?style=for-the-badge" alt="Step 8"> | In Copilot chat, run: `@newproject <ProjectName>` and `@brief <Description>` to scaffold project. |
+| **Step 9** | <img src="https://img.shields.io/badge/Step_9-Customize_Style-65A30D?style=for-the-badge" alt="Step 9"> | *(Optional)* Fine-tune with `@color <Hex1>, <Hex2>`, `@font <FontName>`, `@taste <style>`, or `@gen-variables`. |
+| **Step 10** | <img src="https://img.shields.io/badge/Step_10-Generate_Screens-E11D48?style=for-the-badge" alt="Step 10"> | Prompt screen UI (e.g. *"Create hotel booking screen"*). Prepend `@skip-autolayout` if static layout fallback is needed. |
 
 ---
 
