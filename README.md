@@ -11,69 +11,175 @@
 
 ---
 
-## Quick Start & User Guide
+## Prerequisites
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Workflow-Designer-EC4899?style=for-the-badge" alt="Designer">
-  <img src="https://img.shields.io/badge/Workflow-Developer-2563EB?style=for-the-badge" alt="Developer">
-</p>
+Before getting started, make sure you have the following ready:
 
-Morph supports two distinct workflows tailored for designers and developers.
+| Prerequisite | Recommended Tools | Description |
+|---|---|---|
+| 🤖 **AI Assistant / Copilot** | Antigravity, Cursor, Claude Code, VS Code Copilot, Codex, Gemini | Any LLM-powered coding assistant or copilot to orchestrate prompts and generate scripts. |
+| 💻 **Code Editor / IDE** | Antigravity, VS Code, Cursor | Any modern code editor to open the project, view files, and run the integrated terminal. |
+| ⚡ **Node.js** | Node.js (v18+ recommended) | Needed to run the local lightweight bridge server (`server.js`) that connects your AI to Figma. |
+| 🎨 **Figma Desktop App** | Figma Desktop (Mac / Windows) | Required to run local development plugins (*Figma Developer Mode is recommended*). |
+
+> [!NOTE]
+> **How It Works (Under the Hood):**  
+> Your AI Copilot generates clean Figma API scripts directly inside your project folder. The local bridge server (`server.js`) automatically detects new scripts and streams them to the Figma Desktop plugin live via SSE (Server-Sent Events) in 3–5 seconds—no manual copy-pasting needed!
 
 ---
 
-### Designer Workflow (Plugin-Only)
+## How to Use
 
-Designers can create full UI screens and design systems directly inside Figma without touching code or running local servers.
+Follow these 10 simple steps to set up Morph and start generating Figma screens with AI:
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Feature-No_Code_Required-059669?style=for-the-badge" alt="No Code">
-</p>
-
-| Step | Action Tag | Instruction |
-|---|---|---|
-| **Step 1** | <img src="https://img.shields.io/badge/Step_1-Install_Plugin-2563EB?style=for-the-badge" alt="Step 1"> | Import `FigmaPlugin/plugin/manifest.json` into Figma Desktop (`Plugins → Development → Import plugin from manifest`). |
-| **Step 2** | <img src="https://img.shields.io/badge/Step_2-Setup_Project-059669?style=for-the-badge" alt="Step 2"> | Click `New Project` and define the project name, domain brief, color palette, typography, and visual taste. |
-| **Step 3** | <img src="https://img.shields.io/badge/Step_3-Generate_Screens-D97706?style=for-the-badge" alt="Step 3"> | Describe desired UI screens using natural language prompts. |
-| **Step 4** | <img src="https://img.shields.io/badge/Step_4-Build_Design_System-7C3AED?style=for-the-badge" alt="Step 4"> | Click `Build Design System` after generating screens. Morph automatically extracts colors, typography, and component patterns into master variants. |
-| **Step 5** | <img src="https://img.shields.io/badge/Step_5-Publish_Tokens-DB2777?style=for-the-badge" alt="Step 5"> | Export native Figma Variables and Text Styles directly to your Figma file. |
+```mermaid
+flowchart LR
+    A["1. Download & Unzip"] --> B["2. Open in IDE"]
+    B --> C["3. npm install"]
+    C --> D["4. Configure ui.html"]
+    D --> E["5. Import Plugin in Figma"]
+    E --> F["6. Start node server.js"]
+    F --> G["7. Connect Plugin"]
+    G --> H["8. @newproject & @brief"]
+    H --> I["9. Customize (Optional)"]
+    I --> J["10. Prompt Screens 🚀"]
+```
 
 ---
 
-### Developer Workflow (IDE & Agent-Driven)
+### Step 1: Download & Unzip the Repository
+1. Download this repository as a ZIP archive (click the green **Code** button on GitHub → **Download ZIP**).
+2. Unzip the downloaded file on your computer.
+3. Open the extracted `Figma-Mcp` folder.
 
-Developers can run Morph locally using their preferred AI coding assistant (Claude, Cursor, Copilot) with existing subscriptions, avoiding third-party API costs.
+---
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Feature-Zero_API_Fees-2563EB?style=for-the-badge" alt="Zero API Fees">
-  <img src="https://img.shields.io/badge/Integrations-Claude_%2F_Cursor_%2F_Copilot-7C3AED?style=for-the-badge" alt="Integrations">
-</p>
+### Step 2: Open in Your IDE & Launch Terminal
+1. Open the unzipped `Figma-Mcp` folder in your preferred code editor (such as **Antigravity**, **VS Code**, or **Cursor**).
+2. Open the integrated terminal inside the IDE:
+   - **Shortcut:** `Ctrl + \`` (Windows/Linux) or `Cmd + \`` (Mac)
+   - **Menu:** `Terminal` → `New Terminal`
 
-| Step | Action Tag | Instruction |
-|---|---|---|
-| **Step 1** | <img src="https://img.shields.io/badge/Step_1-Clone_%26_Install-2563EB?style=for-the-badge" alt="Step 1"> | Clone repository and install dependencies:<br>`git clone https://github.com/Anshul2021/Figma-Mcp.git`<br>`cd Figma-Mcp/FigmaPlugin && npm install` |
-| **Step 2** | <img src="https://img.shields.io/badge/Step_2-Start_Bridge-059669?style=for-the-badge" alt="Step 2"> | Launch local Node bridge server:<br>`node server.js` |
-| **Step 3** | <img src="https://img.shields.io/badge/Step_3-Orchestrate_Agent-D97706?style=for-the-badge" alt="Step 3"> | Use any coding assistant to execute commands against project directories without third-party API fees. |
-| **Step 4** | <img src="https://img.shields.io/badge/Step_4-Realtime_Sync-7C3AED?style=for-the-badge" alt="Step 4"> | Generated scripts automatically sync to the Figma canvas in real-time via the local SSE bridge. |
+---
+
+### Step 3: Install Node.js Dependencies
+In the integrated terminal, navigate to the `FigmaPlugin` folder and install the required dependencies:
+
+```bash
+cd FigmaPlugin && npm install
+```
+
+> Once the packages are installed, your environment is ready to run the local bridge server.
+
+---
+
+### Step 4: Configure Local Endpoint in Plugin UI
+Open [`FigmaPlugin/plugin/ui.html`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/ui.html):
+1. Press `Ctrl + F` (or `Cmd + F` on Mac) and search for `https://figma-mcp-topaz.vercel.app`.
+2. Delete or comment out the hosted cloud URL line.
+3. Ensure the local endpoint (`http://localhost:3003`) on the next line is active/uncommented:
+
+```javascript
+// Comment or delete this line:
+// const SERVER = 'https://figma-mcp-topaz.vercel.app';
+
+// Enable / uncomment this line:
+const SERVER = 'http://localhost:3003';
+```
+4. Save the file (`Ctrl + S` / `Cmd + S`).
+
+---
+
+### Step 5: Import Plugin into Figma Desktop
+1. Open the **Figma Desktop App**.
+2. From the top navigation menu or canvas context menu, go to:
+   - **Plugins** → **Development** → **Import plugin from manifest...**
+3. Navigate to your project folder and select:
+   - `Figma-Mcp/FigmaPlugin/plugin/manifest.json`
+4. The Morph plugin is now installed under your development plugins!
+
+> [!TIP]
+> **Figma Developer Mode (Recommended):** Enabling Developer Mode (`Shift + D`) in Figma helps easily inspect generated layer structures, spacing, tokens, and component properties.
+
+---
+
+### Step 6: Start the Local Bridge Server
+In your IDE terminal, ensure you are in the `FigmaPlugin` folder and start the bridge server:
+
+```bash
+cd FigmaPlugin
+node server.js
+```
+
+You will see output confirming the bridge server is active and listening on `http://localhost:3003`:
+```
+[Server] Figma Bridge Server running on http://localhost:3003
+[Watcher] Watching dynamic projects in FigmaPlugin/
+```
+
+---
+
+### Step 7: Launch Plugin & Verify Connection
+1. In Figma, open any design file or create a new draft.
+2. Launch the plugin: **Plugins** → **Development** → **Morph / Figma Screen Generator**.
+3. The plugin header will display a green status indicator: **`Connected (Port 3003)`**.
+
+---
+
+### Step 8: Initialize a New Project with AI
+Open your AI Copilot / AI Assistant chat inside the IDE and type the initialization command:
+
+```text
+@newproject <ProjectName>
+@brief <Product Description & Domain>
+```
+
+**Example Prompt:**
+```text
+@newproject TravelLux
+@brief A luxury boutique hotel booking application for discerning travelers featuring curated destination cards, immersive photo galleries, filterable amenities, and 1-click room reservations.
+```
+
+Press **Enter**. The AI automatically scaffolds the project directory under `FigmaPlugin/<ProjectName>/` with customized design context templates (`brief.md`, `colors.md`, `fonts.md`, `taste.md`).
+
+---
+
+### Step 9 (Optional): Customize Colors, Fonts & Visual Taste
+Before or during generation, you can fine-tune your project's visual direction using AI commands:
+
+- **Change Brand Colors:**  
+  `@color #4F46E5, #06B6D4`
+- **Change Typography:**  
+  `@font DM Sans` *(or `@font Instrument Sans`)*
+- **Change Visual Style / Taste:**  
+  `@taste sleek dark mode, 16px micro-paddings, subtle 1px border hair-lines, glassmorphism cards`
+- **Publish Native Figma Variables & Styles:**  
+  `@gen-variables`
+- **Build Master Component Sets & Variants:**  
+  `@gen-components` or `@designsystem`
+
+---
+
+### Step 10: Generate Screens
+Prompt your AI assistant in natural language to generate any UI screen:
+
+**Example Prompt:**
+```text
+Create a modern mobile hotel detail screen with a full-width hero photography carousel, title and star rating row, expandable amenities grid, room selection cards with pricing, and a sticky bottom booking bar.
+```
+
+The AI generates the script, writes it to `screens/<screen_name>.js`, and the bridge instantly renders the screen on your Figma canvas in real time!
 
 > [!IMPORTANT]
-> **Server Endpoint Configuration (`FigmaPlugin/plugin/ui.html`)**  
-> - **Default (Production Vercel Cloud):** By default, the plugin connects to the hosted Vercel deployment (`https://figma-mcp-topaz.vercel.app`) so users can generate screens without starting a local Node process.
-> - **Local Server Mode:** If you want to run Morph locally with `node server.js`, update line ~2036 of [`FigmaPlugin/plugin/ui.html`](file:///Users/fwcuser/Desktop/Figma-Mcp/FigmaPlugin/plugin/ui.html#L2036) to point to your local bridge server (`http://localhost:3003`):
-> 
-> ```javascript
-> // Default (Production Vercel Cloud)
-> // const SERVER = 'https://figma-mcp-topaz.vercel.app';
-> 
-> // Local Bridge Server (For Local Node.js Development)
-> const SERVER = 'http://localhost:3003';
-> ```
+> **Auto Layout Fallback Tip (`@skip-autolayout`):**  
+> If an AI-generated screen does not render properly or if you want static absolute positioning without Auto Layout constraints, simply prepend `@skip-autolayout` before your prompt:  
+> `@skip-autolayout Create a dashboard screen with sidebar navigation and analytics charts.`
 
 ---
 
 ## Supported Commands
 
-Commands can be passed directly inside prompts or executed via AI coding agents.
+Commands can be passed directly inside prompts or executed via AI coding agents:
 
 | Command | Category Tag | Purpose |
 |---|---|---|
@@ -163,8 +269,8 @@ flowchart TD
         CODE <--> CANVAS["Figma Canvas"]
     end
 
-    subgraph NodeServer["Local Bridge / Vercel Cloud"]
-        SERVER["server.js / API Endpoints"]
+    subgraph NodeServer["Local Bridge Server"]
+        SERVER["server.js (Port 3003)"]
         ENGINE["engine/ Core Logic"]
         CORE["core/ Rules Protocols"]
         GLOBAL["global/ Default Templates"]
@@ -201,16 +307,6 @@ When a generation request is initialized, the system prompt builder reads the co
 - **Default Context Templates (`global/`):** Contains baseline reference files (`brief.md`, `colors.md`, `fonts.md`, `taste.md`) copied into each project's `local/` directory upon initialization.
 - **AI Skill Registry (`.agents/skills/`):** Domain design skills (`frontend-design`, `design-taste-frontend`, `ui-design-system`, `figma-screen-generator`) automatically injected into prompt context during screen and component generation.
 - **Backend Implementation (`engine/`):** Underlying Node.js execution logic for API requests, Gemini model integration, storage management, and rate limiting.
-
----
-
-### Cloud Deployment (Supabase Storage)
-
-Morph's serverless backend persists projects, screens, and users in **Supabase Storage**.
-
-1. **Create Supabase Project & Bucket:** Create a project at [supabase.com](https://supabase.com) and create a private bucket named `morph`.
-2. **Configure Keys:** Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel project environment variables.
-3. **Database Schema:** Execute `FigmaPlugin/supabase/schema.sql` in Supabase SQL editor to enable the `users` table and rate-limiting function.
 
 ---
 
